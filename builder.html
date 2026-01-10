@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>micro:bit BLE GUI Builder (RemoteXY-lite+)</title>
+  <title>micro:bit BLE GUI Builder</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 16px; }
     .top { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     button, select, input { padding: 8px 10px; }
-    .layout { display:grid; grid-template-columns: 380px 1fr; gap: 14px; margin-top: 14px; }
+    .layout { display:grid; grid-template-columns: 360px 1fr; gap: 14px; margin-top: 14px; }
     .panel { border:1px solid #ddd; border-radius:16px; padding: 12px; }
     .muted { color:#666; font-size: .95em; }
     .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
@@ -21,27 +21,23 @@
     .small { color:#666; font-size:.95em; }
     .danger { color:#b00; }
     .pill { font-size:.85em; background:#f3f3f3; padding: 2px 8px; border-radius:999px; }
-    .joybox { width:100%; aspect-ratio: 1 / 1; border:1px dashed #bbb; border-radius:12px; position:relative; }
-    .joydot { width:14px; height:14px; border-radius:999px; background:#777; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
-    .ledgrid { display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin-top:10px; }
-    .ledcell { border:1px solid #ccc; border-radius:8px; padding-top:100%; position:relative; }
-    .ledcell.on { background:#999; }
-    .levelwrap { height:120px; border:1px solid #ddd; border-radius:12px; overflow:hidden; display:flex; align-items:flex-end; }
-    .levelbar { width:100%; background:#999; height:40%; }
   </style>
 </head>
 <body>
-  <h2>GUI Builder (BLE / micro:bit) — RemoteXY-lite+</h2>
-  <div class="muted">
-    Build a UI → export config → paste into MakeCode JS. The Runtime app fetches the config over BLE and renders it dynamically.
-    Builder also saves the latest config for Runtime "offline preview".
-  </div>
+  <h2>GUI Builder (micro:bit BLE)</h2>
+  <div class="muted">Build a GUI → export JSON or MakeCode (no escaping). Saved automatically for Runtime offline preview.</div>
 
   <div class="top" style="margin-top:10px;">
     <span class="pill">Grid</span>
-    <label style="margin:0;">W <input id="gridW" type="number" value="12" min="6" max="24" style="width:70px;"></label>
-    <label style="margin:0;">H <input id="gridH" type="number" value="8" min="4" max="24" style="width:70px;"></label>
-    <label style="margin:0;">Title <input id="title" value="micro:bit Controller" style="width:240px;"></label>
+    <label style="margin:0;">
+      W <input id="gridW" type="number" value="12" min="6" max="24" style="width:70px;">
+    </label>
+    <label style="margin:0;">
+      H <input id="gridH" type="number" value="8" min="4" max="24" style="width:70px;">
+    </label>
+    <label style="margin:0;">
+      Title <input id="title" value="micro:bit Controller" style="width:220px;">
+    </label>
 
     <span class="pill">Add widget</span>
     <select id="addType">
@@ -52,7 +48,7 @@
       <option value="lvl">Level (read-only)</option>
       <option value="txt">Text (read-only)</option>
       <option value="joy">Joystick</option>
-      <option value="led">LED Grid (5x5)</option>
+      <option value="led">LED 5x5</option>
       <option value="snd">Sound</option>
     </select>
     <button id="addBtn">Add</button>
@@ -88,12 +84,23 @@
           <label>default value <input id="wVal" type="number" style="width:100%"></label>
         </div>
 
-        <div id="textFields" style="display:none;">
-          <label>default text/value <input id="wText" style="width:100%"></label>
+        <div id="joyFields" style="display:none;">
+          <label>deadzone (0..20) <input id="wDead" type="number" style="width:100%"></label>
         </div>
 
-        <div id="soundFields" style="display:none;">
-          <label>default volume (0-100) <input id="wVol" type="number" style="width:100%"></label>
+        <div id="ledFields" style="display:none;">
+          <label>bits (25 chars 0/1) <input id="wBits" style="width:100%"></label>
+        </div>
+
+        <div id="sndFields" style="display:none;">
+          <div class="row" style="margin-top:8px;">
+            <label style="margin:0;">freq <input id="wFreq" type="number" style="width:120px"></label>
+            <label style="margin:0;">ms <input id="wMs" type="number" style="width:120px"></label>
+          </div>
+        </div>
+
+        <div id="textFields" style="display:none;">
+          <label>default text/value <input id="wText" style="width:100%"></label>
         </div>
 
         <div class="row" style="margin-top:10px;">
@@ -107,15 +114,12 @@
       <div class="title">Export</div>
       <div class="row" style="margin-top:8px;">
         <button id="exportJson">Export JSON</button>
-        <button id="exportFramed">Export MakeCode (framed JSON)</button>
-        <button id="exportB64">Export MakeCode (legacy base64)</button>
+        <button id="exportMakeCode">Export MakeCode</button>
       </div>
 
       <label style="margin-top:10px;">Output</label>
       <textarea id="out" spellcheck="false"></textarea>
-      <div class="muted">
-        Tip: Builder saves latest JSON to <code>localStorage</code> for Runtime offline preview.
-      </div>
+      <div class="muted">Runtime offline preview uses the last saved JSON automatically.</div>
     </div>
 
     <div class="panel">
@@ -128,29 +132,6 @@
   </div>
 
 <script>
-  const LS_KEY = "mbui_last_cfg_v1";
-
-  function jsonToB64(obj){
-    const json = JSON.stringify(obj);
-    const bytes = new TextEncoder().encode(json);
-    let bin = "";
-    bytes.forEach(b => bin += String.fromCharCode(b));
-    return btoa(bin);
-  }
-
-  function asMakeCodeLines(jsonText){
-    // Split into lines safe for MakeCode string array
-    // Keep lines reasonably short for readability.
-    const out = [];
-    const maxLen = 90;
-    let i = 0;
-    while(i < jsonText.length){
-      out.push(jsonText.slice(i, i + maxLen));
-      i += maxLen;
-    }
-    return out;
-  }
-
   let cfg = {
     v: 1,
     title: "micro:bit Controller",
@@ -159,10 +140,11 @@
   };
 
   let selectedId = null;
+
   const $ = (id) => document.getElementById(id);
 
-  function persist(){
-    try{ localStorage.setItem(LS_KEY, JSON.stringify(cfg)); } catch(e) {}
+  function saveLocal(){
+    try { localStorage.setItem("mb_ui_last_json", JSON.stringify(cfg)); } catch(e){}
   }
 
   function nextId(prefix){
@@ -172,13 +154,12 @@
     return prefix + i;
   }
 
+  function overlaps(a, b){
+    return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+  }
+
   function firstFreeRect(w, h){
     const GW = cfg.grid.w, GH = cfg.grid.h;
-
-    function overlaps(a, b){
-      return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
-    }
-
     for(let y = 0; y <= GH - h; y++){
       for(let x = 0; x <= GW - w; x++){
         const r = {x,y,w,h};
@@ -196,12 +177,12 @@
     if(type === "btn") return { t:"btn", w:4, h:2, label:"Button" };
     if(type === "tgl") return { t:"tgl", w:4, h:2, label:"Toggle", value:0 };
     if(type === "sld") return { t:"sld", w:12, h:2, label:"Slider", min:0, max:100, step:1, value:50 };
-    if(type === "g")   return { t:"g",   w:12, h:2, label:"Gauge", min:0, max:100, value:0 };
-    if(type === "lvl") return { t:"lvl", w:3,  h:4, label:"Level", min:0, max:100, value:40 };
+    if(type === "g")   return { t:"g",   w:9, h:2, label:"Gauge", min:0, max:100, value:0 };
+    if(type === "lvl") return { t:"lvl", w:3, h:4, label:"Level", min:0, max:255, value:0 };
     if(type === "txt") return { t:"txt", w:12, h:2, label:"Text", value:"Hello" };
-    if(type === "joy") return { t:"joy", w:6,  h:6, label:"Joystick", deadzone:5 };
-    if(type === "led") return { t:"led", w:6,  h:6, label:"LED 5x5", bits:"0000000000000000000000000" };
-    if(type === "snd") return { t:"snd", w:6,  h:3, label:"Sound", vol:60 };
+    if(type === "joy") return { t:"joy", w:6, h:6, label:"Joystick", deadzone:5 };
+    if(type === "led") return { t:"led", w:6, h:6, label:"LED 5x5", bits:"0000000000000000000000000" };
+    if(type === "snd") return { t:"snd", w:6, h:3, label:"Sound", freq:440, ms:150 };
     return { t:type, w:4, h:2, label:type };
   }
 
@@ -211,11 +192,10 @@
     if(w.x + w.w > GW || w.y + w.h > GH) return "Out of grid bounds.";
     for(const other of cfg.widgets){
       if(other.id === w.id) continue;
-      const overlap = !(w.x + w.w <= other.x || other.x + other.w <= w.x || w.y + w.h <= other.y || other.y + other.h <= w.y);
-      if(overlap) return "Overlaps another widget.";
+      if(overlaps(w, other)) return "Overlaps another widget.";
     }
     if((w.t === "sld" || w.t === "g" || w.t === "lvl") && (w.min >= w.max)) return "min must be < max.";
-    if(w.t === "led" && (!w.bits || w.bits.length !== 25)) return "LED bits must be 25 chars.";
+    if(w.t === "led" && String(w.bits||"").length !== 25) return "LED bits must be 25 chars.";
     return "";
   }
 
@@ -246,48 +226,17 @@
       hdr.appendChild(meta);
       card.appendChild(hdr);
 
-      if(w.t === "btn"){
-        const b = document.createElement("button"); b.textContent = "Press"; b.disabled = true;
-        card.appendChild(b);
-      } else if(w.t === "tgl"){
-        const b = document.createElement("button"); b.textContent = (w.value ? "ON" : "OFF"); b.disabled = true;
-        card.appendChild(b);
-      } else if(w.t === "sld"){
-        const r = document.createElement("input"); r.type="range"; r.min=w.min; r.max=w.max; r.step=w.step; r.value=w.value;
-        r.disabled = true; card.appendChild(r);
-      } else if(w.t === "g"){
-        const r = document.createElement("input"); r.type="range"; r.min=w.min; r.max=w.max; r.step=1; r.value=w.value;
-        r.disabled = true; card.appendChild(r);
-      } else if(w.t === "lvl"){
-        const wrap = document.createElement("div"); wrap.className="levelwrap";
-        const bar = document.createElement("div"); bar.className="levelbar";
-        const pct = Math.max(0, Math.min(100, Math.round((100*(w.value - w.min)/(w.max - w.min)))));
-        bar.style.height = pct + "%";
-        wrap.appendChild(bar);
-        card.appendChild(wrap);
-      } else if(w.t === "txt"){
-        const p = document.createElement("div"); p.className="small"; p.textContent = String(w.value ?? "");
-        card.appendChild(p);
-      } else if(w.t === "joy"){
-        const jb = document.createElement("div"); jb.className="joybox";
-        const dot = document.createElement("div"); dot.className="joydot";
-        jb.appendChild(dot);
-        card.appendChild(jb);
-      } else if(w.t === "led"){
-        const g = document.createElement("div"); g.className="ledgrid";
-        for(let i=0;i<25;i++){
-          const c = document.createElement("div"); c.className="ledcell" + (w.bits[i]==="1" ? " on":"");
-          g.appendChild(c);
-        }
-        card.appendChild(g);
-      } else if(w.t === "snd"){
-        const r = document.createElement("input"); r.type="range"; r.min=0; r.max=100; r.step=1; r.value=w.vol ?? 60; r.disabled=true;
-        card.appendChild(r);
-        const b = document.createElement("button"); b.textContent="Play"; b.disabled=true; card.appendChild(b);
-      }
+      const body = document.createElement("div");
+      body.className = "small";
+      body.textContent = (w.t === "joy") ? "joystick pad" :
+                         (w.t === "led") ? "5x5 grid" :
+                         (w.t === "snd") ? "tone" :
+                         (w.t === "txt") ? String(w.value ?? "") : "";
+      card.appendChild(body);
 
       ui.appendChild(card);
     }
+    saveLocal();
   }
 
   function select(id){
@@ -297,7 +246,7 @@
     $("editor").style.display = w ? "block" : "none";
     $("err").textContent = "";
 
-    if(!w){ renderPreview(); return; }
+    if(!w) { renderPreview(); return; }
 
     $("wType").textContent = w.t;
     $("wId").textContent = w.id;
@@ -309,23 +258,27 @@
     $("rangeFields").style.display = isRange ? "block" : "none";
     if(isRange){
       $("wMin").value = w.min; $("wMax").value = w.max;
-      $("wStep").value = (w.t === "sld") ? (w.step ?? 1) : 1;
-      $("wStep").disabled = (w.t !== "sld");
+      $("wStep").value = (w.t === "sld") ? w.step : 1;
       $("wVal").value = w.value ?? 0;
+      $("wStep").disabled = (w.t !== "sld");
     }
 
-    const isText = (w.t === "txt");
-    $("textFields").style.display = isText ? "block" : "none";
-    if(isText) $("wText").value = String(w.value ?? "");
+    $("textFields").style.display = (w.t === "txt") ? "block" : "none";
+    if(w.t === "txt") $("wText").value = String(w.value ?? "");
 
-    const isSound = (w.t === "snd");
-    $("soundFields").style.display = isSound ? "block" : "none";
-    if(isSound) $("wVol").value = (w.vol ?? 60);
+    $("joyFields").style.display = (w.t === "joy") ? "block" : "none";
+    if(w.t === "joy") $("wDead").value = w.deadzone ?? 5;
+
+    $("ledFields").style.display = (w.t === "led") ? "block" : "none";
+    if(w.t === "led") $("wBits").value = String(w.bits ?? "0000000000000000000000000");
+
+    $("sndFields").style.display = (w.t === "snd") ? "block" : "none";
+    if(w.t === "snd") { $("wFreq").value = w.freq ?? 440; $("wMs").value = w.ms ?? 150; }
 
     renderPreview();
   }
 
-  function updateSelectedFromEditor(){
+  function updateSelected(){
     const w = cfg.widgets.find(x => x.id === selectedId);
     if(!w) return;
 
@@ -341,20 +294,28 @@
       if(w.t === "sld") w.step = parseInt($("wStep").value);
       w.value = parseInt($("wVal").value);
     }
-
-    if(w.t === "txt") w.value = $("wText").value;
-    if(w.t === "snd") w.vol = parseInt($("wVol").value);
+    if(w.t === "txt"){
+      w.value = $("wText").value;
+    }
+    if(w.t === "joy"){
+      w.deadzone = parseInt($("wDead").value);
+    }
+    if(w.t === "led"){
+      w.bits = $("wBits").value;
+    }
+    if(w.t === "snd"){
+      w.freq = parseInt($("wFreq").value);
+      w.ms = parseInt($("wMs").value);
+    }
 
     const err = validateWidget(w);
     $("err").textContent = err;
-    persist();
     renderPreview();
   }
 
-  // Events
-  $("gridW").oninput = () => { cfg.grid.w = parseInt($("gridW").value); persist(); renderPreview(); };
-  $("gridH").oninput = () => { cfg.grid.h = parseInt($("gridH").value); persist(); renderPreview(); };
-  $("title").oninput = () => { cfg.title = $("title").value; persist(); };
+  $("gridW").oninput = () => { cfg.grid.w = parseInt($("gridW").value); renderPreview(); };
+  $("gridH").oninput = () => { cfg.grid.h = parseInt($("gridH").value); renderPreview(); };
+  $("title").oninput = () => { cfg.title = $("title").value; renderPreview(); };
 
   $("addBtn").onclick = () => {
     const type = $("addType").value;
@@ -365,7 +326,6 @@
     const prefix = type;
     const w = { id: nextId(prefix), ...base, x: rect.x, y: rect.y };
     cfg.widgets.push(w);
-    persist();
     select(w.id);
   };
 
@@ -373,98 +333,76 @@
     cfg.widgets = [];
     selectedId = null;
     $("out").value = "";
-    persist();
     select(null);
     renderPreview();
   };
 
-  ["wLabel","wx","wy","ww","wh","wMin","wMax","wStep","wVal","wText","wVol"].forEach(id => {
+  ["wLabel","wx","wy","ww","wh","wMin","wMax","wStep","wVal","wText","wDead","wBits","wFreq","wMs"].forEach(id => {
     const el = $(id);
-    if(el) el.oninput = () => updateSelectedFromEditor();
+    if(el) el.oninput = () => updateSelected();
   });
 
   $("deleteBtn").onclick = () => {
     cfg.widgets = cfg.widgets.filter(w => w.id !== selectedId);
     selectedId = null;
-    persist();
     select(null);
+    renderPreview();
   };
-
-  function exportJsonText(){
-    persist();
-    return JSON.stringify(cfg, null, 2);
-  }
 
   $("exportJson").onclick = () => {
-    $("out").value = exportJsonText();
+    $("out").value = JSON.stringify(cfg, null, 2);
+    saveLocal();
   };
 
-  $("exportFramed").onclick = () => {
-    persist();
+  // Export MakeCode snippet: UI_CFG_LINES + UI_CFG_JSON + sendConfig() helper
+  function makeCodeExport(){
+    // minified JSON is smaller and stable for length framing
     const json = JSON.stringify(cfg);
-    const lines = asMakeCodeLines(json);
-    const arr = lines.map(s => JSON.stringify(s)).join(",\n  ");
-    $("out").value =
-`// Paste into MakeCode JavaScript (micro:bit):
-// Framed JSON config, chunked into lines for readability.
-const UI_CFG_PARTS: string[] = [
-  ${arr}
-]
-const UI_CFG_JSON = UI_CFG_PARTS.join("")
+    // split into readable chunks
+    const chunks = [];
+    const MAX = 60;
+    for(let i=0;i<json.length;i+=MAX){
+      let part = json.slice(i,i+MAX);
+      part = part.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      chunks.push("'" + part + "'");
+    }
+    return `// Paste into MakeCode JavaScript (micro:bit)
+bluetooth.startUartService()
 
-// In your sendConfig() handler:
+const UI_CFG_LINES: string[] = [
+  ${chunks.join(",\n  ")}
+]
+const UI_CFG_JSON = UI_CFG_LINES.join("")
+
+let sendingCfg = false
+
 function sendConfig() {
+  sendingCfg = true
   bluetooth.uartWriteLine("CFGBEGIN " + UI_CFG_JSON.length)
   bluetooth.uartWriteString(UI_CFG_JSON)
   bluetooth.uartWriteLine("")
   bluetooth.uartWriteLine("CFGEND")
-}`;
-  };
+  sendingCfg = false
+}
 
-  $("exportB64").onclick = () => {
-    persist();
-    const b64 = jsonToB64(cfg);
-    // Recommend chunking base64 for large configs
-    const chunkSize = 80;
-    const parts = [];
-    for(let i=0;i<b64.length;i+=chunkSize) parts.push(b64.slice(i,i+chunkSize));
-    const arr = parts.map(s => JSON.stringify(s)).join(",\n  ");
-    $("out").value =
-`// Paste into MakeCode JavaScript (micro:bit):
-// Legacy base64 config (optionally chunked).
-const UI_B64_PARTS: string[] = [
-  ${arr}
-]
-const UI_CFG_B64 = UI_B64_PARTS.join("")
-
-// In your sendConfig() handler, choose one:
-// (A) Single-line legacy (small configs):
-// bluetooth.uartWriteLine("CFG " + UI_CFG_B64)
-
-// (B) Chunked legacy (large configs):
-function sendConfigB64Chunked() {
-  bluetooth.uartWriteLine("CFGB64BEGIN " + UI_B64_PARTS.length + " " + UI_CFG_B64.length)
-  for (let i = 0; i < UI_B64_PARTS.length; i++) {
-    bluetooth.uartWriteLine("CFGB64 " + i + " " + UI_B64_PARTS[i])
+// In onUartDataReceived: if line == "GETCFG" then sendConfig()
+`;
   }
-  bluetooth.uartWriteLine("CFGB64END")
-}`;
+
+  $("exportMakeCode").onclick = () => {
+    $("out").value = makeCodeExport();
+    saveLocal();
   };
 
-  // Init from storage if present
-  try{
-    const saved = localStorage.getItem(LS_KEY);
-    if(saved){
-      const obj = JSON.parse(saved);
-      if(obj && obj.v === 1) cfg = obj;
-    }
-  } catch(e) {}
+  // Load last config if present
+  try {
+    const saved = localStorage.getItem("mb_ui_last_json");
+    if(saved) cfg = JSON.parse(saved);
+  } catch(e){}
 
+  $("title").value = cfg.title;
   $("gridW").value = cfg.grid.w;
   $("gridH").value = cfg.grid.h;
-  $("title").value = cfg.title;
-
-  persist();
   renderPreview();
   select(null);
 </script>

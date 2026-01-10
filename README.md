@@ -1,150 +1,100 @@
-# micro:bit BLE GUI (RemoteXY-lite+)
+# micro:bit BLE Dynamic UI (RemoteXY-style)
 
-A **browser-only** “RemoteXY-like” system for **micro:bit over BLE (Web Bluetooth + UART)**:
+This project gives you a **100% in-browser Web App** that connects to a **micro:bit over BLE UART** and renders a **custom GUI defined by the micro:bit**.
 
-- **builder.html** — build a simple GUI (grid layout) and export micro:bit config code.
-- **runtime.html** — connect to micro:bit, download its GUI config, render controls dynamically, send events, receive updates.
-- **microbit/microbit_full.js** — a full MakeCode JavaScript example that serves the config and handles widget events.
+## What’s inside
 
-No servers, no frameworks. Just static files.
+- `builder.html` – GUI Builder (creates JSON config + MakeCode snippet)
+- `runtime.html` – Web Runtime (connects over BLE, requests config, renders UI)
+- `ble_microbit.js` – Browser BLE helper (auto-detects micro:bit UART or NUS)
+- `microbit/microbit_full.js` – Example MakeCode JS for micro:bit (UART + widgets)
 
----
+## Protocol (v1)
 
-## Browser support
+### Get config
+- Web → micro:bit: `GETCFG`
 
-Web Bluetooth works best on:
-- **Chrome / Edge (desktop)**
-- **Chrome (Android)**
+### Framed JSON config (recommended)
+- micro:bit → Web:
+  - `CFGBEGIN <len>`
+  - `<raw JSON characters, length exactly <len>>`
+  - `CFGEND` (optional; runtime ignores it if length framing is used)
 
-It generally does **not** work on iOS Safari (no Web Bluetooth) and often not on Firefox.
+### User events
+- Web → micro:bit: `SET <id> <value>`
 
-Also: Web Bluetooth requires **HTTPS** or **http://localhost**.
+### Micro:bit updates
+- micro:bit → Web: `UPD <id> <value>`
 
----
+## Run the web app (important)
 
-## Quick start (desktop)
+**Do NOT open `runtime.html` by double-click** (`file://`) — Web Bluetooth may fail.
 
-### 1) Download + run locally
-Put these files in a folder and run:
+Serve it locally:
 
 ```bash
-cd path/to/project
-python3 -m http.server 8000
+cd /path/to/project-folder
+python3 -m http.server 8038
 ```
 
 Open:
-- Builder: `http://localhost:8000/builder.html`
-- Runtime: `http://localhost:8000/runtime.html`
 
-(Using `localhost` is allowed even though it's HTTP.)
+- http://localhost:8038/runtime.html
+- http://localhost:8038/builder.html
 
----
+## Use it
 
-## micro:bit setup (MakeCode)
+### 1) Flash the micro:bit (MakeCode)
 
-1) Open https://makecode.microbit.org/
-2) Create a new project, switch to **JavaScript**.
-3) Copy/paste the content of `microbit/microbit_full.js`.
-4) In MakeCode:
-   - **Gear icon → Project Settings → Bluetooth**
-   - Enable **No Pairing Required** (recommended)
-5) Download and flash to micro:bit.
+1. Open MakeCode: https://makecode.microbit.org/
+2. Create a new project
+3. Paste `microbit/microbit_full.js` into JavaScript
+4. **Project Settings → Bluetooth → No Pairing Required**
+5. Download and flash to micro:bit
 
----
+### 2) Connect from the Runtime
 
-## How it works (protocol)
+1. Open `runtime.html`
+2. Click **Connect**
+3. Select your micro:bit
+4. The runtime sends `GETCFG`
+5. micro:bit replies `CFGBEGIN ...` + JSON
+6. UI appears
 
-The Runtime asks for the GUI config:
+### 3) Build your own GUI
 
-- Web → micro:bit:  
-  `GETCFG`
+1. Open `builder.html`
+2. Add/edit widgets
+3. Click **Export MakeCode**
+4. Copy the generated snippet into your MakeCode project (replace the config section)
+5. Flash micro:bit again
+6. Runtime will show your new GUI
 
-micro:bit can respond in any of these formats (Runtime supports all):
+## Widgets supported
 
-### A) Framed JSON (recommended)
-```
-CFGBEGIN <len>
-{...raw JSON...}
-CFGEND
-```
+- `btn` – Button (press/release → `SET id 1/0`)
+- `tgl` – Toggle (`SET id 0/1`)
+- `sld` – Slider (`SET id value`)
+- `g` – Gauge (read-only, update via `UPD`)
+- `lvl` – Level meter (read-only, update via `UPD`)
+- `txt` – Text label (read-only, update via `UPD`)
+- `joy` – Joystick pad (`SET id x,y` where x,y ∈ [-100..100])
+- `led` – LED 5x5 bit grid (`SET id <25bits>`)
+- `snd` – Sound (`SET id freq,ms`)
 
-### B) Legacy base64 (small configs)
-```
-CFG <base64(json)>
-```
+## Troubleshooting
 
-### C) Chunked base64 (large configs)
-```
-CFGB64BEGIN <chunks> <len>
-CFGB64 0 <chunk>
-CFGB64 1 <chunk>
-...
-CFGB64END
-```
+### “GATT Error: Not supported”
+- Close other BLE apps/tabs (only one can connect sometimes)
+- Power-cycle the micro:bit (unplug/replug)
+- Make sure you are using **Chrome/Edge** and **http://localhost**
+- Ensure micro:bit program includes `bluetooth.startUartService()`
 
-Events + updates:
+### UI config JSON.parse error
+- With this version, the runtime uses **length framing**, so chunking is safe.
+- Ensure the micro:bit sends `CFGBEGIN <len>` where `<len>` is exactly `UI_CFG_JSON.length`.
 
-- Web → micro:bit: `SET <id> <value...>`
-- micro:bit → Web: `UPD <id> <value...>`
-
----
-
-## Using the Builder
-
-1) Open **builder.html**
-2) Add widgets (Button, Toggle, Slider, Gauge, Level, Text, Joystick, LED Grid, Sound)
-3) Click a widget in Preview to edit label/position/size, etc.
-4) Export:
-   - **Export MakeCode (framed JSON)** — paste the generated snippet into your MakeCode project
-   - or **Export MakeCode (legacy base64)** — if you want the older format (Runtime supports both)
-5) Builder automatically saves your latest config in **localStorage** for Offline Preview.
-
----
-
-## Using the Runtime
-
-1) Open **runtime.html**
-2) Click **Connect**
-3) Choose your micro:bit (usually appears as “BBC micro:bit”)
-4) Runtime sends `GETCFG`, receives the config, renders UI.
-5) Interact — it sends `SET ...`, micro:bit can reply with `UPD ...`.
-
-### Offline preview mode
-
-Click **Offline preview**:
-- **Load from Builder**: loads the last config the Builder saved
-- or paste JSON manually and click **Apply pasted JSON**
-
-This lets you design/test UI without a micro:bit connected.
-
----
-
-## Widgets included
-
-- `btn` — button (press/release)
-- `tgl` — toggle (0/1)
-- `sld` — slider (min/max/step)
-- `g` — gauge (read-only)
-- `lvl` — level bar (read-only)
-- `txt` — text (read-only)
-- `joy` — joystick (sends `SET id x y`, -100..100)
-- `led` — 5x5 LED grid (sends `SET id <25-bitstring>`)
-- `snd` — sound (sends `SET id VOL n` and `SET id PLAY`)
-
----
-
-## Tips
-
-- If your config becomes large, prefer **chunked base64** for maximum robustness.
-- Keep `UPD` values short (no newlines).
-- If you add your own widget types, extend both:
-  - runtime renderer (`renderUI`)
-  - micro:bit `handleSet` / telemetry (`upd`)
-
----
-
-## Files
-
-- `builder.html`
-- `runtime.html`
-- `microbit/microbit_full.js`
+## Next improvements (easy)
+- Add more widget types (graph, numeric keypad, dropdown)
+- Add ACK/ERR messages from micro:bit
+- Add “auto codegen” for `handleSet()` stubs from widget IDs
