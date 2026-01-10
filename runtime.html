@@ -1,0 +1,636 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>micro:bit Dynamic UI Runtime (BLE) — RemoteXY-lite+</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin:16px; }
+    #top { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    button, input, textarea { padding:10px 12px; }
+    #ui { margin-top:14px; display:grid; gap:10px; }
+    .card { border:1px solid #ddd; border-radius:14px; padding:12px; }
+    .hdr { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .title { font-weight:700; }
+    .small { color:#666; font-size:.95em; }
+    #log { white-space:pre-wrap; border:1px solid #eee; padding:10px; height:190px; overflow:auto; margin-top:12px; }
+    .modalback { position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; padding:16px; }
+    .modal { background:#fff; border-radius:16px; border:1px solid #ddd; max-width:900px; width:100%; padding:14px; }
+    textarea { width:100%; height:210px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    /* Widgets */
+    .joybox { width:100%; aspect-ratio: 1 / 1; border:1px dashed #bbb; border-radius:12px; position:relative; touch-action:none; user-select:none; }
+    .joydot { width:16px; height:16px; border-radius:999px; background:#777; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+    .ledgrid { display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; margin-top:10px; }
+    .ledcell { border:1px solid #ccc; border-radius:8px; padding-top:100%; position:relative; cursor:pointer; }
+    .ledcell.on { background:#999; }
+    .levelwrap { height:140px; border:1px solid #ddd; border-radius:12px; overflow:hidden; display:flex; align-items:flex-end; }
+    .levelbar { width:100%; background:#999; height:40%; }
+    .pill { font-size:.85em; background:#f3f3f3; padding: 2px 8px; border-radius:999px; }
+  </style>
+</head>
+<body>
+  <div id="top">
+    <button id="connect">Connect</button>
+    <button id="disconnect" disabled>Disconnect</button>
+    <button id="offline">Offline preview</button>
+    <span id="status" class="small">Not connected</span>
+    <span class="pill" id="modePill">mode: idle</span>
+  </div>
+
+  <div id="ui"></div>
+  <div id="log"></div>
+
+  <!-- Offline modal -->
+  <div class="modalback" id="modalBack">
+    <div class="modal">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <b>Offline preview</b>
+          <div class="small">Load the latest config from Builder (localStorage) or paste JSON manually.</div>
+        </div>
+        <button id="closeModal">Close</button>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button id="loadFromBuilder">Load from Builder</button>
+        <button id="applyPaste">Apply pasted JSON</button>
+        <button id="resetUi">Reset UI</button>
+      </div>
+      <textarea id="offlineJson" spellcheck="false" placeholder='Paste JSON here...'></textarea>
+      <div class="small">Tip: open <code>builder.html</code> first; it stores the latest config automatically.</div>
+    </div>
+  </div>
+
+<script>
+/** Nordic UART Service UUIDs (common micro:bit BLE UART mapping) */
+const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const UART_RX_UUID      = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // write -> micro:bit
+const UART_TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // notify <- micro:bit
+
+const LS_KEY = "mbui_last_cfg_v1";
+
+let device, rxChar, txChar;
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+const log = (s) => { const el = document.getElementById('log'); el.textContent += s + "\n"; el.scrollTop = el.scrollHeight; };
+const status = (s) => document.getElementById('status').textContent = s;
+const modePill = (s) => document.getElementById('modePill').textContent = "mode: " + s;
+
+async function sendLine(line){
+  if(!rxChar) { log("⚠ Not connected. Would send: " + line); return; }
+  await rxChar.writeValue(enc.encode(line.endsWith("\n") ? line : line + "\n"));
+  log("➡ " + line);
+}
+
+function b64ToJson(b64){
+  const bin = atob(b64);
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  const text = new TextDecoder().decode(bytes);
+  return JSON.parse(text);
+}
+
+/** ---------------------------
+ *  Config parsers (3 formats)
+ *  ---------------------------
+ * A) Framed JSON:
+ *    CFGBEGIN <len?>
+ *    {raw JSON text...}
+ *    CFGEND
+ *
+ * B) Legacy base64:
+ *    CFG <base64(json)>
+ *
+ * C) Chunked base64:
+ *    CFGB64BEGIN <totalChunks> <totalLen?>
+ *    CFGB64 <i> <chunk>
+ *    CFGB64END
+ *
+ * BLE notifications can split anywhere, so we buffer raw text and parse lines.
+ */
+let rawBuffer = "";
+
+let inCfgJson = false;
+let cfgJsonLines = [];
+let cfgJsonExpectedLen = null;
+
+let inCfgB64 = false;
+let cfgB64TotalChunks = null;
+let cfgB64Chunks = new Map();
+let cfgB64TotalLen = null;
+
+function handleRawTextChunk(textChunk){
+  rawBuffer += textChunk;
+
+  while(true){
+    const idx = rawBuffer.indexOf("\n");
+    if(idx < 0) break;
+
+    let line = rawBuffer.slice(0, idx);
+    rawBuffer = rawBuffer.slice(idx + 1);
+    if(line.endsWith("\r")) line = line.slice(0, -1);
+
+    handleLine(line);
+  }
+}
+
+function tryFinalizeCfgJson(){
+  const cfgText = cfgJsonLines.join("\n");
+  if(cfgJsonExpectedLen !== null && cfgText.length !== cfgJsonExpectedLen){
+    log(`⚠ Length mismatch (framed JSON): expected ${cfgJsonExpectedLen}, got ${cfgText.length}`);
+  }
+  try{
+    const cfg = JSON.parse(cfgText);
+    renderUI(cfg);
+    status("UI loaded: " + (cfg.title ?? "micro:bit"));
+    modePill("cfg: framed json");
+  } catch(e){
+    log("❌ JSON.parse failed (framed): " + e);
+    log(cfgText);
+  }
+}
+
+function tryFinalizeCfgB64(){
+  if(cfgB64TotalChunks === null) return;
+  // If we didn't receive all chunks, warn and exit.
+  for(let i=0;i<cfgB64TotalChunks;i++){
+    if(!cfgB64Chunks.has(i)){
+      log("⚠ Missing base64 chunk " + i + "/" + cfgB64TotalChunks);
+      return;
+    }
+  }
+  let joined = "";
+  for(let i=0;i<cfgB64TotalChunks;i++) joined += cfgB64Chunks.get(i);
+
+  if(cfgB64TotalLen !== null && joined.length !== cfgB64TotalLen){
+    log(`⚠ Length mismatch (b64): expected ${cfgB64TotalLen}, got ${joined.length}`);
+  }
+
+  try{
+    const cfg = b64ToJson(joined);
+    renderUI(cfg);
+    status("UI loaded: " + (cfg.title ?? "micro:bit"));
+    modePill("cfg: chunked base64");
+  } catch(e){
+    log("❌ base64 decode/JSON.parse failed: " + e);
+  }
+}
+
+function handleLine(line){
+  if(line.length === 0 && !inCfgJson) return;
+  log("⬅ " + line);
+
+  // Legacy one-liner base64
+  if(!inCfgJson && !inCfgB64 && line.startsWith("CFG ")){
+    const b64 = line.slice(4).trim();
+    try{
+      const cfg = b64ToJson(b64);
+      renderUI(cfg);
+      status("UI loaded: " + (cfg.title ?? "micro:bit"));
+      modePill("cfg: legacy base64");
+    } catch(e){
+      log("❌ legacy CFG parse failed: " + e);
+    }
+    return;
+  }
+
+  // Chunked base64 begin
+  if(!inCfgJson && line.startsWith("CFGB64BEGIN")){
+    inCfgB64 = true;
+    cfgB64Chunks = new Map();
+    cfgB64TotalChunks = null;
+    cfgB64TotalLen = null;
+
+    const parts = line.split(" ");
+    if(parts.length >= 2) cfgB64TotalChunks = parseInt(parts[1]);
+    if(parts.length >= 3) {
+      const n = parseInt(parts[2]);
+      if(!Number.isNaN(n)) cfgB64TotalLen = n;
+    }
+
+    if(!cfgB64TotalChunks || Number.isNaN(cfgB64TotalChunks)){
+      log("❌ CFGB64BEGIN missing totalChunks");
+      inCfgB64 = false;
+    } else {
+      modePill("receiving cfg (b64 chunks)");
+    }
+    return;
+  }
+
+  // Chunked base64 chunk
+  if(inCfgB64 && line.startsWith("CFGB64 ")){
+    // CFGB64 <i> <chunk>
+    const parts = line.split(" ");
+    if(parts.length >= 3){
+      const i = parseInt(parts[1]);
+      const chunk = parts.slice(2).join(" ");
+      if(!Number.isNaN(i)) cfgB64Chunks.set(i, chunk);
+    }
+    return;
+  }
+
+  // Chunked base64 end
+  if(inCfgB64 && line === "CFGB64END"){
+    inCfgB64 = false;
+    tryFinalizeCfgB64();
+    return;
+  }
+
+  // Framed JSON begin
+  if(line.startsWith("CFGBEGIN")){
+    inCfgJson = true;
+    cfgJsonLines = [];
+    cfgJsonExpectedLen = null;
+
+    const parts = line.split(" ");
+    if(parts.length >= 2){
+      const n = parseInt(parts[1]);
+      if(!Number.isNaN(n)) cfgJsonExpectedLen = n;
+    }
+    modePill("receiving cfg (framed json)");
+    return;
+  }
+
+  // Framed JSON end
+  if(inCfgJson && line === "CFGEND"){
+    inCfgJson = false;
+    tryFinalizeCfgJson();
+    return;
+  }
+
+  // Collect JSON lines inside frame
+  if(inCfgJson){
+    cfgJsonLines.push(line);
+    return;
+  }
+
+  // Normal UPD messages
+  if(line.startsWith("UPD ")){
+    const parts = line.split(" ");
+    const id = parts[1];
+    const value = parts.slice(2).join(" ");
+    applyUpdate(id, value);
+    return;
+  }
+}
+
+/** ---------------------------
+ *  Dynamic UI renderer + widgets
+ *  ---------------------------
+ */
+let activeCfg = null;
+const localState = new Map(); // widget id -> state object/value
+
+function renderUI(cfg){
+  activeCfg = cfg;
+  localState.clear();
+
+  const ui = document.getElementById('ui');
+  ui.innerHTML = "";
+  ui.style.gridTemplateColumns = `repeat(${cfg.grid?.w ?? 12}, 1fr)`;
+
+  for(const w of (cfg.widgets || [])){
+    const card = document.createElement('div');
+    card.className = "card";
+    card.dataset.id = w.id;
+
+    const x = (w.x ?? 0), y = (w.y ?? 0), ww = (w.w ?? 4), hh = (w.h ?? 2);
+    card.style.gridColumn = `${x+1} / span ${ww}`;
+    card.style.gridRow = `${y+1} / span ${hh}`;
+
+    const hdr = document.createElement('div');
+    hdr.className = "hdr";
+    const t = document.createElement('div');
+    t.className = "title";
+    t.textContent = w.label ?? w.id;
+    const val = document.createElement('div');
+    val.className = "small";
+    val.dataset.val = "1";
+    val.textContent = "";
+    hdr.appendChild(t);
+    hdr.appendChild(val);
+    card.appendChild(hdr);
+
+    // Widgets
+    if(w.t === "btn"){
+      const b = document.createElement('button');
+      b.textContent = w.label ?? "Button";
+      b.onpointerdown = () => sendLine(`SET ${w.id} 1`);
+      b.onpointerup   = () => sendLine(`SET ${w.id} 0`);
+      card.appendChild(b);
+    }
+    else if(w.t === "tgl"){
+      let v = w.value ?? 0;
+      localState.set(w.id, v);
+
+      const b = document.createElement('button');
+      b.textContent = v ? "ON" : "OFF";
+      val.textContent = String(v);
+
+      b.onclick = () => {
+        v = v ? 0 : 1;
+        localState.set(w.id, v);
+        b.textContent = v ? "ON" : "OFF";
+        val.textContent = String(v);
+        sendLine(`SET ${w.id} ${v}`);
+      };
+      card.appendChild(b);
+    }
+    else if(w.t === "sld"){
+      const r = document.createElement('input');
+      r.type = "range";
+      r.min = w.min ?? 0;
+      r.max = w.max ?? 100;
+      r.step = w.step ?? 1;
+      r.value = w.value ?? 0;
+      val.textContent = r.value;
+
+      r.oninput = () => val.textContent = r.value;
+      r.onchange = () => sendLine(`SET ${w.id} ${r.value}`);
+      card.appendChild(r);
+    }
+    else if(w.t === "g"){
+      const r = document.createElement('input');
+      r.type = "range";
+      r.min = w.min ?? 0;
+      r.max = w.max ?? 100;
+      r.step = 1;
+      r.value = w.value ?? 0;
+      r.disabled = true;
+      val.textContent = r.value;
+      card.appendChild(r);
+    }
+    else if(w.t === "lvl"){
+      // vertical level bar, read-only
+      const wrap = document.createElement("div");
+      wrap.className = "levelwrap";
+      const bar = document.createElement("div");
+      bar.className = "levelbar";
+      wrap.appendChild(bar);
+      card.appendChild(wrap);
+
+      const min = w.min ?? 0, max = w.max ?? 100;
+      const v = w.value ?? min;
+      const pct = Math.max(0, Math.min(100, Math.round(100*(v - min)/(max - min))));
+      bar.style.height = pct + "%";
+      val.textContent = String(v);
+      localState.set(w.id, {min,max});
+    }
+    else if(w.t === "txt"){
+      const p = document.createElement('div');
+      p.className = "small";
+      p.dataset.text = "1";
+      p.textContent = String(w.value ?? "");
+      card.appendChild(p);
+    }
+    else if(w.t === "joy"){
+      const dz = w.deadzone ?? 5;
+      localState.set(w.id, {x:0,y:0,deadzone:dz});
+
+      const box = document.createElement("div");
+      box.className = "joybox";
+      const dot = document.createElement("div");
+      dot.className = "joydot";
+      box.appendChild(dot);
+
+      function setDot(px, py){
+        dot.style.left = px + "%";
+        dot.style.top  = py + "%";
+      }
+      setDot(50,50);
+
+      let pointerDown = false;
+
+      function emitFromEvent(ev){
+        const rect = box.getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+
+        const dx = (ev.clientX - cx) / (rect.width/2);
+        const dy = (ev.clientY - cy) / (rect.height/2);
+
+        // clamp to unit circle-ish
+        const clx = Math.max(-1, Math.min(1, dx));
+        const cly = Math.max(-1, Math.min(1, dy));
+
+        let x = Math.round(clx * 100);
+        let y = Math.round(cly * 100);
+
+        // deadzone
+        if(Math.abs(x) < dz) x = 0;
+        if(Math.abs(y) < dz) y = 0;
+
+        const st = localState.get(w.id);
+        st.x = x; st.y = y;
+
+        // UI: convert to 0..100% for dot
+        setDot(50 + clx*50, 50 + cly*50);
+        val.textContent = `${x},${y}`;
+
+        // Protocol: SET joy1 x y
+        sendLine(`SET ${w.id} ${x} ${y}`);
+      }
+
+      box.addEventListener("pointerdown", (ev) => { pointerDown = true; box.setPointerCapture(ev.pointerId); emitFromEvent(ev); });
+      box.addEventListener("pointermove", (ev) => { if(pointerDown) emitFromEvent(ev); });
+      box.addEventListener("pointerup", (ev) => {
+        pointerDown = false;
+        // spring back to center
+        setDot(50,50);
+        val.textContent = "0,0";
+        sendLine(`SET ${w.id} 0 0`);
+      });
+
+      card.appendChild(box);
+    }
+    else if(w.t === "led"){
+      // 5x5 bitstring
+      let bits = (w.bits && w.bits.length === 25) ? w.bits : "0000000000000000000000000";
+      localState.set(w.id, {bits});
+
+      const grid = document.createElement("div");
+      grid.className = "ledgrid";
+
+      function renderBits(){
+        grid.innerHTML = "";
+        for(let i=0;i<25;i++){
+          const cell = document.createElement("div");
+          cell.className = "ledcell" + (bits[i]==="1" ? " on" : "");
+          cell.onclick = () => {
+            bits = bits.substring(0,i) + (bits[i]==="1" ? "0":"1") + bits.substring(i+1);
+            localState.get(w.id).bits = bits;
+            renderBits();
+            sendLine(`SET ${w.id} ${bits}`);
+          };
+          grid.appendChild(cell);
+        }
+        val.textContent = bits;
+      }
+      renderBits();
+      card.appendChild(grid);
+    }
+    else if(w.t === "snd"){
+      let vol = w.vol ?? 60;
+      localState.set(w.id, {vol});
+
+      const r = document.createElement("input");
+      r.type = "range";
+      r.min = 0; r.max = 100; r.step = 1;
+      r.value = vol;
+      val.textContent = String(vol);
+
+      r.oninput = () => { val.textContent = r.value; };
+      r.onchange = () => {
+        vol = parseInt(r.value);
+        localState.get(w.id).vol = vol;
+        sendLine(`SET ${w.id} VOL ${vol}`);
+      };
+
+      const b = document.createElement("button");
+      b.textContent = "Play";
+      b.onclick = () => sendLine(`SET ${w.id} PLAY`);
+
+      card.appendChild(r);
+      card.appendChild(b);
+    }
+
+    ui.appendChild(card);
+  }
+}
+
+function applyUpdate(id, value){
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if(!card) return;
+
+  const valEl = card.querySelector('[data-val="1"]');
+  if(valEl) valEl.textContent = value;
+
+  // Gauge (disabled range)
+  const range = card.querySelector('input[type="range"]');
+  if(range && range.disabled) range.value = value;
+
+  // Text widget
+  const text = card.querySelector('[data-text="1"]');
+  if(text) text.textContent = value;
+
+  // Level widget (vertical bar)
+  const levelBar = card.querySelector('.levelbar');
+  if(levelBar){
+    const meta = localState.get(id);
+    if(meta && meta.min !== undefined){
+      const v = parseFloat(value);
+      const pct = Math.max(0, Math.min(100, Math.round(100*(v - meta.min)/(meta.max - meta.min))));
+      levelBar.style.height = pct + "%";
+    }
+  }
+
+  // LED widget remote update
+  const ledGrid = card.querySelector('.ledgrid');
+  if(ledGrid && typeof value === "string" && value.length === 25){
+    const st = localState.get(id);
+    if(st) st.bits = value;
+    // rerender by simulating clickless rebuild
+    ledGrid.innerHTML = "";
+    const bits = value;
+    for(let i=0;i<25;i++){
+      const cell = document.createElement("div");
+      cell.className = "ledcell" + (bits[i]==="1" ? " on" : "");
+      ledGrid.appendChild(cell);
+    }
+  }
+}
+
+/** ---------------------------
+ *  Offline preview
+ *  ---------------------------
+ */
+function openModal(){
+  document.getElementById("modalBack").style.display = "flex";
+  document.getElementById("offlineJson").value = "";
+}
+function closeModal(){
+  document.getElementById("modalBack").style.display = "none";
+}
+document.getElementById("offline").onclick = openModal;
+document.getElementById("closeModal").onclick = closeModal;
+
+document.getElementById("loadFromBuilder").onclick = () => {
+  try{
+    const saved = localStorage.getItem(LS_KEY);
+    if(!saved) { alert("No saved config found. Open builder.html first and create a UI."); return; }
+    document.getElementById("offlineJson").value = saved;
+  } catch(e){
+    alert("Failed to access localStorage: " + e);
+  }
+};
+
+document.getElementById("applyPaste").onclick = () => {
+  const txt = document.getElementById("offlineJson").value.trim();
+  if(!txt) { alert("Paste JSON first."); return; }
+  try{
+    const cfg = JSON.parse(txt);
+    renderUI(cfg);
+    status("Offline UI loaded: " + (cfg.title ?? "offline"));
+    modePill("offline");
+    closeModal();
+  } catch(e){
+    alert("JSON parse error: " + e);
+  }
+};
+
+document.getElementById("resetUi").onclick = () => {
+  document.getElementById("ui").innerHTML = "";
+  activeCfg = null;
+  status("UI cleared");
+  modePill("idle");
+};
+
+/** ---------------------------
+ *  BLE connect/disconnect
+ *  ---------------------------
+ */
+async function connect(){
+  if(!navigator.bluetooth){
+    alert("Web Bluetooth not supported in this browser.");
+    return;
+  }
+
+  device = await navigator.bluetooth.requestDevice({
+    filters: [{ namePrefix: "BBC micro:bit" }],
+    optionalServices: [UART_SERVICE_UUID]
+  });
+
+  device.addEventListener("gattserverdisconnected", () => {
+    status("Disconnected");
+    document.getElementById('connect').disabled = false;
+    document.getElementById('disconnect').disabled = true;
+    modePill("idle");
+  });
+
+  const server = await device.gatt.connect();
+  const svc = await server.getPrimaryService(UART_SERVICE_UUID);
+  rxChar = await svc.getCharacteristic(UART_RX_UUID);
+  txChar = await svc.getCharacteristic(UART_TX_UUID);
+
+  await txChar.startNotifications();
+  txChar.addEventListener("characteristicvaluechanged", (e) => {
+    // Chunk may contain partial or multiple lines
+    const chunk = dec.decode(e.target.value);
+    handleRawTextChunk(chunk);
+  });
+
+  document.getElementById('connect').disabled = true;
+  document.getElementById('disconnect').disabled = false;
+
+  status("Connected: requesting config…");
+  modePill("connected");
+  await sendLine("GETCFG");
+}
+
+document.getElementById('connect').onclick = () => connect().catch(err => log("❌ " + err));
+document.getElementById('disconnect').onclick = () => device?.gatt?.disconnect();
+</script>
+</body>
+</html>
