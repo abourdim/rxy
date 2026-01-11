@@ -49,27 +49,33 @@ async function tryNus(server) {
   log("BLE: trying Nordic UART service (NUS)…", "info");
   const service = await server.getPrimaryService(NUS_SERVICE_UUID);
 
-  const isNotifier = (c) => !!(c && c.properties && (c.properties.notify || c.properties.indicate));
-  const isWriter = (c) => !!(c && c.properties && (c.properties.writeWithoutResponse || c.properties.write));
-
   // Try exact UUIDs first
   let rx = null, tx = null;
   try { rx = await service.getCharacteristic(NUS_RX_UUID); } catch (e) {}
   try { tx = await service.getCharacteristic(NUS_TX_UUID); } catch (e) {}
 
-  // Validate properties; some firmwares expose different UUIDs / properties.
-  if (rx && !isWriter(rx)) rx = null;
-  if (tx && !isNotifier(tx)) tx = null;
-
-  // If that fails, pick by properties
-  if (!rx || !tx) {
-    log("BLE: notify failed, rescanning NUS chars…", "info");
+  // Helper: pick characteristics by properties (more reliable across firmwares)
+  async function pickByProps() {
     const chars = await service.getCharacteristics();
-    if (!tx) tx = chars.find(isNotifier);
-    if (!rx) rx = chars.find(isWriter);
+    // TX must support notify OR indicate
+    const tx2 = chars.find(c => c.properties && (c.properties.notify || c.properties.indicate));
+    // RX must support write OR writeWithoutResponse
+    const rx2 = chars.find(c => c.properties && (c.properties.writeWithoutResponse || c.properties.write));
+    return { rx2, tx2 };
   }
 
-  if (!rx || !tx) throw new Error("NUS characteristics not found (need notify/indicate + write)");
+  // Validate properties even if UUID lookup succeeded
+  const txOk = !!(tx && tx.properties && (tx.properties.notify || tx.properties.indicate));
+  const rxOk = !!(rx && rx.properties && (rx.properties.writeWithoutResponse || rx.properties.write));
+
+  if (!txOk || !rxOk) {
+    log("BLE: NUS char properties mismatch, rescanning by properties…", "info");
+    const picked = await pickByProps();
+    if (!rxOk) rx = picked.rx2;
+    if (!txOk) tx = picked.tx2;
+  }
+
+  if (!rx || !tx) throw new Error("NUS characteristics not found");
   return { name: "nus", rx, tx, service };
 }
 
@@ -81,8 +87,10 @@ async function mbConnect() {
     }
 
     log("BLE: requesting device…", "info");
+    // Prefer filtering to avoid accidentally selecting a non-micro:bit device
+    // that happens to expose a UART-like service.
     btDevice = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
+      filters: [{ namePrefix: "BBC micro:bit" }],
       optionalServices: [MB_UART_SERVICE_UUID, NUS_SERVICE_UUID]
     });
 
@@ -108,24 +116,26 @@ async function mbConnect() {
 
     writeWithoutResponse = !!(writeChar.properties && writeChar.properties.writeWithoutResponse);
 
+    // Start notifications; if the chosen TX does not actually support notify,
+    // rescan and retry once (some stacks still return the UUID but disallow notify)
     log("BLE: starting notifications…", "info");
     try {
       await notifyChar.startNotifications();
-    } catch (eNotify) {
-      // Some NUS implementations expose different TX characteristics or only indicate.
-      // Retry by rescanning characteristics and picking one that supports notify/indicate.
-      if (activeProfile === "nus" && prof.service) {
-        log("BLE: notify failed, rescanning NUS chars…", "info");
-        const chars = await prof.service.getCharacteristics();
+    } catch (e2) {
+      // Only retry for NUS profile
+      if (activeProfile === "nus") {
+        log("BLE: startNotifications failed, rescanning NUS chars and retrying…", "error");
+        // Re-open service and pick by properties
+        const service = await server.getPrimaryService(NUS_SERVICE_UUID);
+        const chars = await service.getCharacteristics();
         const tx2 = chars.find(c => c.properties && (c.properties.notify || c.properties.indicate));
-        if (tx2) {
-          notifyChar = tx2;
-          await notifyChar.startNotifications();
-        } else {
-          throw eNotify;
-        }
+        const rx2 = chars.find(c => c.properties && (c.properties.writeWithoutResponse || c.properties.write));
+        if (rx2) writeChar = rx2;
+        if (tx2) notifyChar = tx2;
+        writeWithoutResponse = !!(writeChar && writeChar.properties && writeChar.properties.writeWithoutResponse);
+        await notifyChar.startNotifications();
       } else {
-        throw eNotify;
+        throw e2;
       }
     }
     notifyChar.addEventListener("characteristicvaluechanged", onNotify);
