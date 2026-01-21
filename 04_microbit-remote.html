@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>micro:bit Remote</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --card: #1f2b47;
+  --border: #2a3a5a;
+  --text: #ffffff;
+  --text-dim: #8892b0;
+  --primary: #00d9ff;
+  --primary-glow: rgba(0, 217, 255, 0.3);
+  --success: #00ff88;
+  --warning: #ffcc00;
+  --danger: #ff4477;
+  --button: #4361ee;
+  --slider: #7209b7;
+  --toggle: #06d6a0;
+  --led: #ff006e;
+  --label: #fb5607;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.tabs {
+  display: flex;
+  background: var(--card);
+  border-radius: 25px;
+  padding: 4px;
+}
+
+.tab {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.ble-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ble-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.ble-btn.connected {
+  border-color: var(--success);
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.ble-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  transition: all 0.3s;
+}
+
+.ble-dot.on {
+  background: var(--success);
+  box-shadow: 0 0 10px var(--success);
+}
+
+main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+}
+
+.view {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.view.active { display: flex; }
+
+.builder {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .builder { flex-direction: row; }
+}
+
+.palette {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .palette {
+    flex-direction: column;
+    width: 100px;
+    border-bottom: none;
+    border-right: 2px solid var(--border);
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+}
+
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: grab;
+  transition: all 0.2s;
+  min-width: 70px;
+}
+
+.palette-item:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.palette-item:active { cursor: grabbing; }
+
+.palette-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+}
+
+.palette-icon.button { background: var(--button); }
+.palette-icon.slider { background: var(--slider); }
+.palette-icon.toggle { background: var(--toggle); }
+.palette-icon.led { background: var(--led); }
+.palette-icon.label { background: var(--label); }
+
+.palette-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.canvas-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+.canvas-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.title-input {
+  padding: 8px 14px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  width: 180px;
+  text-align: center;
+}
+
+.title-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.toolbar-btn {
+  padding: 8px 14px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.toolbar-btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--bg);
+}
+
+.canvas {
+  position: relative;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: 4px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.grid-cell {
+  background: var(--card);
+  border-radius: 4px;
+}
+
+.grid-cell.highlight {
+  background: var(--primary);
+  opacity: 0.5;
+}
+
+.grid-cell.invalid {
+  background: var(--danger);
+  opacity: 0.5;
+}
+
+.widgets {
+  position: absolute;
+  inset: 0;
+  padding: 4px;
+}
+
+.widget {
+  position: absolute;
+  background: var(--card);
+  border: 3px solid var(--border);
+  border-radius: var(--radius);
+  cursor: move;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.widget:hover { border-color: var(--text-dim); }
+
+.widget.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
+}
+
+.widget-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 4px;
+  color: white;
+}
+
+.widget[data-type="button"] .widget-badge { background: var(--button); }
+.widget[data-type="slider"] .widget-badge { background: var(--slider); }
+.widget[data-type="toggle"] .widget-badge { background: var(--toggle); }
+.widget[data-type="led"] .widget-badge { background: var(--led); }
+.widget[data-type="label"] .widget-badge { background: var(--label); }
+
+.widget-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 14px;
+  text-align: center;
+  word-break: break-word;
+}
+
+.widget-id {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  cursor: se-resize;
+  opacity: 0;
+}
+
+.widget:hover .resize-handle,
+.widget.selected .resize-handle { opacity: 1; }
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+}
+
+.props {
+  display: none;
+  width: 220px;
+  background: var(--surface);
+  border-left: 2px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+@media (min-width: 900px) {
+  .props { display: block; }
+}
+
+.props-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.prop-group {
+  margin-bottom: 14px;
+}
+
+.prop-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.prop-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.prop-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.prop-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.delete-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 2px solid var(--danger);
+  border-radius: 8px;
+  color: var(--danger);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
+.no-selection {
+  text-align: center;
+  padding: 30px 10px;
+  color: var(--text-dim);
+}
+
+.no-selection-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.runtime {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.runtime-card {
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.runtime-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.connect-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.connect-text {
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  border: none;
+  border-radius: 30px;
+  color: var(--bg);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.connect-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+.runtime-grid {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  margin: 0 auto;
+}
+
+.rt-widget {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.rt-button {
+  width: 100%;
+  height: 100%;
+  background: var(--button);
+  border: none;
+  border-radius: var(--radius);
+  color: white;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+}
+
+.rt-button:hover { filter: brightness(1.1); }
+.rt-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+}
+
+.rt-slider-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rt-slider-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rt-slider-label { color: var(--text-dim); }
+.rt-slider-val { color: var(--slider); }
+
+.rt-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  background: var(--border);
+  border-radius: 4px;
+  outline: none;
+}
+
+.rt-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--slider);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.rt-toggle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.rt-toggle {
+  width: 56px;
+  height: 32px;
+  background: var(--border);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.rt-toggle.on { background: var(--toggle); }
+
+.rt-toggle::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.rt-toggle.on::after { left: 28px; }
+
+.rt-toggle-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.rt-led-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.rt-led {
+  width: 32px;
+  height: 32px;
+  background: var(--border);
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.rt-led.on {
+  background: var(--led);
+  box-shadow: 0 0 20px var(--led);
+}
+
+.rt-led-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.rt-label-text {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--label);
+}
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal-bg.show { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 550px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  background: var(--card);
+  border: none;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-close:hover { background: var(--border); }
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.code-box {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.modal-foot {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 2px solid var(--border);
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-btn:hover {
+  border-color: var(--primary);
+}
+
+.modal-btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--bg);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 700;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 200;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error { border-color: var(--danger); color: var(--danger); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">📡</div>
+      <span>micro:bit Remote</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="builder">Build</button>
+      <button class="tab" data-view="runtime">Run</button>
+    </div>
+    <button class="ble-btn" id="bleBtn">
+      <span class="ble-dot" id="bleDot"></span>
+      <span id="bleText">Connect</span>
+    </button>
+  </header>
+
+  <main>
+    <div class="view builder active" id="builderView">
+      <div class="palette">
+        <div class="palette-item" draggable="true" data-type="button" data-w="2" data-h="1">
+          <div class="palette-icon button">👆</div>
+          <span class="palette-name">Button</span>
+        </div>
+        <div class="palette-item" draggable="true" data-type="slider" data-w="3" data-h="1">
+          <div class="palette-icon slider">↔</div>
+          <span class="palette-name">Slider</span>
+        </div>
+        <div class="palette-item" draggable="true" data-type="toggle" data-w="2" data-h="1">
+          <div class="palette-icon toggle">◐</div>
+          <span class="palette-name">Toggle</span>
+        </div>
+        <div class="palette-item" draggable="true" data-type="led" data-w="1" data-h="1">
+          <div class="palette-icon led">●</div>
+          <span class="palette-name">LED</span>
+        </div>
+        <div class="palette-item" draggable="true" data-type="label" data-w="2" data-h="1">
+          <div class="palette-icon label">A</div>
+          <span class="palette-name">Label</span>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div class="canvas-toolbar">
+          <input type="text" class="title-input" id="titleInput" value="My Remote" placeholder="Project name">
+          <button class="toolbar-btn" id="clearBtn">🗑️ Clear</button>
+          <button class="toolbar-btn" id="exportBtn">📤 Export</button>
+          <button class="toolbar-btn" id="loadBtn">📥 Load</button>
+          <button class="toolbar-btn primary" id="sendBtn">⚡ Send</button>
+        </div>
+        <div class="canvas" id="canvas">
+          <div class="grid-overlay" id="gridOverlay"></div>
+          <div class="widgets" id="widgetsLayer"></div>
+        </div>
+      </div>
+
+      <div class="props" id="propsPanel">
+        <div class="props-title">Properties</div>
+        <div id="propsContent">
+          <div class="no-selection">
+            <div class="no-selection-icon">📦</div>
+            <p>Select a widget<br>to edit</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view runtime" id="runtimeView">
+      <div class="runtime-card" id="runtimeCard">
+        <div id="connectPrompt">
+          <div class="connect-icon">📲</div>
+          <div class="runtime-title">Connect to micro:bit</div>
+          <p class="connect-text">Pair your micro:bit via Bluetooth to load and use the remote control interface.</p>
+          <button class="connect-btn" id="connectBtn">
+            <span>🔗</span>
+            <span>Connect</span>
+          </button>
+        </div>
+        <div id="runtimeContent" style="display:none;">
+          <div class="runtime-title" id="runtimeTitle">Remote</div>
+          <div class="runtime-grid" id="runtimeGrid"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modalTitle">Export</span>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <pre class="code-box" id="modalCode"></pre>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" id="downloadBtn">💾 Download</button>
+      <button class="modal-btn primary" id="copyBtn">📋 Copy</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".json" hidden>
+
+<script>
+// Nordic UART Service UUIDs
+// TX = micro:bit transmits TO us (we subscribe/notify)
+// RX = micro:bit receives FROM us (we write)
+const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e'; // Notify (micro:bit → web)
+const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'; // Write  (web → micro:bit)
+
+const CELL = 50;
+const GAP = 4;
+
+const state = {
+  grid: { w: 6, h: 5 },
+  widgets: [],
+  selected: null,
+  nextId: 1,
+  ble: { device: null, server: null, service: null, notifyChar: null, writeChar: null, connected: false },
+  config: null,
+  values: {},
+  rxBuffer: ''
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const encoder = new TextEncoder();
+
+function init() {
+  renderGrid();
+  bindEvents();
+}
+
+function renderGrid() {
+  const canvas = $('#canvas');
+  const overlay = $('#gridOverlay');
+  const w = state.grid.w * CELL + (state.grid.w + 1) * GAP;
+  const h = state.grid.h * CELL + (state.grid.h + 1) * GAP;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+  overlay.style.gridTemplateColumns = `repeat(${state.grid.w}, ${CELL}px)`;
+  overlay.style.gridTemplateRows = `repeat(${state.grid.h}, ${CELL}px)`;
+  overlay.style.gap = `${GAP}px`;
+  overlay.innerHTML = Array(state.grid.w * state.grid.h).fill('<div class="grid-cell"></div>').join('');
+  renderWidgets();
+}
+
+function renderWidgets() {
+  const layer = $('#widgetsLayer');
+  layer.innerHTML = '';
+  state.widgets.forEach(w => {
+    const el = document.createElement('div');
+    el.className = `widget${w.id === state.selected ? ' selected' : ''}`;
+    el.dataset.id = w.id;
+    el.dataset.type = w.t;
+    el.style.left = `${w.x * (CELL + GAP) + GAP}px`;
+    el.style.top = `${w.y * (CELL + GAP) + GAP}px`;
+    el.style.width = `${w.w * CELL + (w.w - 1) * GAP}px`;
+    el.style.height = `${w.h * CELL + (w.h - 1) * GAP}px`;
+    el.innerHTML = `
+      <span class="widget-badge">${w.t}</span>
+      <span class="widget-label">${w.label || ''}</span>
+      <span class="widget-id">${w.id}</span>
+      <div class="resize-handle"></div>
+    `;
+    layer.appendChild(el);
+  });
+}
+
+function getCell(e) {
+  const rect = $('#canvas').getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left - GAP) / (CELL + GAP));
+  const y = Math.floor((e.clientY - rect.top - GAP) / (CELL + GAP));
+  return { x: Math.max(0, Math.min(x, state.grid.w - 1)), y: Math.max(0, Math.min(y, state.grid.h - 1)) };
+}
+
+function canPlace(x, y, w, h, exclude = null) {
+  if (x < 0 || y < 0 || x + w > state.grid.w || y + h > state.grid.h) return false;
+  return !state.widgets.some(wgt => {
+    if (wgt.id === exclude) return false;
+    return x < wgt.x + wgt.w && x + w > wgt.x && y < wgt.y + wgt.h && y + h > wgt.y;
+  });
+}
+
+function highlight(x, y, w, h, valid) {
+  $$('.grid-cell').forEach((c, i) => {
+    c.classList.remove('highlight', 'invalid');
+    const cx = i % state.grid.w, cy = Math.floor(i / state.grid.w);
+    if (cx >= x && cx < x + w && cy >= y && cy < y + h) {
+      c.classList.add(valid ? 'highlight' : 'invalid');
+    }
+  });
+}
+
+function clearHighlight() {
+  $$('.grid-cell').forEach(c => c.classList.remove('highlight', 'invalid'));
+}
+
+function select(id) {
+  state.selected = id;
+  renderWidgets();
+  renderProps();
+}
+
+function renderProps() {
+  const container = $('#propsContent');
+  const w = state.widgets.find(x => x.id === state.selected);
+  if (!w) {
+    container.innerHTML = '<div class="no-selection"><div class="no-selection-icon">📦</div><p>Select a widget<br>to edit</p></div>';
+    return;
+  }
+  container.innerHTML = `
+    <div class="prop-group">
+      <div class="prop-label">ID</div>
+      <input class="prop-input" type="text" id="propId" value="${w.id}">
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Label</div>
+      <input class="prop-input" type="text" id="propLabel" value="${w.label || ''}" placeholder="Widget label">
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Position</div>
+      <div class="prop-row">
+        <input class="prop-input" type="number" id="propX" value="${w.x}" min="0">
+        <input class="prop-input" type="number" id="propY" value="${w.y}" min="0">
+      </div>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Size</div>
+      <div class="prop-row">
+        <input class="prop-input" type="number" id="propW" value="${w.w}" min="1">
+        <input class="prop-input" type="number" id="propH" value="${w.h}" min="1">
+      </div>
+    </div>
+    <div class="prop-group">
+      <button class="delete-btn" id="deleteBtn">🗑️ Delete</button>
+    </div>
+  `;
+  $('#propId').onchange = e => { w.id = e.target.value; renderWidgets(); };
+  $('#propLabel').oninput = e => { w.label = e.target.value; renderWidgets(); };
+  $('#propX').onchange = e => {
+    const v = parseInt(e.target.value);
+    if (canPlace(v, w.y, w.w, w.h, w.id)) { w.x = v; renderWidgets(); }
+    else e.target.value = w.x;
+  };
+  $('#propY').onchange = e => {
+    const v = parseInt(e.target.value);
+    if (canPlace(w.x, v, w.w, w.h, w.id)) { w.y = v; renderWidgets(); }
+    else e.target.value = w.y;
+  };
+  $('#propW').onchange = e => {
+    const v = parseInt(e.target.value);
+    if (canPlace(w.x, w.y, v, w.h, w.id)) { w.w = v; renderWidgets(); renderProps(); }
+    else e.target.value = w.w;
+  };
+  $('#propH').onchange = e => {
+    const v = parseInt(e.target.value);
+    if (canPlace(w.x, w.y, w.w, v, w.id)) { w.h = v; renderWidgets(); renderProps(); }
+    else e.target.value = w.h;
+  };
+  $('#deleteBtn').onclick = () => {
+    state.widgets = state.widgets.filter(x => x.id !== state.selected);
+    state.selected = null;
+    renderWidgets();
+    renderProps();
+  };
+}
+
+function bindEvents() {
+  $$('.tab').forEach(t => t.onclick = () => {
+    $$('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    $$('.view').forEach(v => v.classList.remove('active'));
+    $(`#${t.dataset.view}View`).classList.add('active');
+  });
+
+  $$('.palette-item').forEach(item => {
+    item.ondragstart = e => {
+      e.dataTransfer.setData('type', item.dataset.type);
+      e.dataTransfer.setData('w', item.dataset.w);
+      e.dataTransfer.setData('h', item.dataset.h);
+    };
+  });
+
+  const canvas = $('#canvas');
+  canvas.ondragover = e => {
+    e.preventDefault();
+    const { x, y } = getCell(e);
+    const w = 2, h = 1;
+    highlight(x, y, w, h, canPlace(x, y, w, h));
+  };
+  canvas.ondragleave = clearHighlight;
+  canvas.ondrop = e => {
+    e.preventDefault();
+    clearHighlight();
+    const type = e.dataTransfer.getData('type');
+    if (!type) return;
+    const { x, y } = getCell(e);
+    const w = parseInt(e.dataTransfer.getData('w')) || 2;
+    const h = parseInt(e.dataTransfer.getData('h')) || 1;
+    if (canPlace(x, y, w, h)) {
+      const id = `${type}${state.nextId++}`;
+      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text' };
+      state.widgets.push({ id, t: type, x, y, w, h, label: labels[type] || type });
+      select(id);
+    } else {
+      toast('No space here', 'error');
+    }
+  };
+
+  let drag = null, resize = null;
+
+  canvas.onmousedown = e => {
+    const wEl = e.target.closest('.widget');
+    if (!wEl) { select(null); return; }
+    const id = wEl.dataset.id;
+    select(id);
+    const w = state.widgets.find(x => x.id === id);
+    if (e.target.classList.contains('resize-handle')) {
+      resize = w;
+    } else {
+      drag = w;
+    }
+  };
+
+  document.onmousemove = e => {
+    if (drag) {
+      const { x, y } = getCell(e);
+      highlight(x, y, drag.w, drag.h, canPlace(x, y, drag.w, drag.h, drag.id));
+    }
+    if (resize) {
+      const { x, y } = getCell(e);
+      const nw = Math.max(1, x - resize.x + 1);
+      const nh = Math.max(1, y - resize.y + 1);
+      highlight(resize.x, resize.y, nw, nh, canPlace(resize.x, resize.y, nw, nh, resize.id));
+    }
+  };
+
+  document.onmouseup = e => {
+    if (drag) {
+      const { x, y } = getCell(e);
+      if (canPlace(x, y, drag.w, drag.h, drag.id)) {
+        drag.x = x;
+        drag.y = y;
+      }
+      drag = null;
+      clearHighlight();
+      renderWidgets();
+      renderProps();
+    }
+    if (resize) {
+      const { x, y } = getCell(e);
+      const nw = Math.max(1, x - resize.x + 1);
+      const nh = Math.max(1, y - resize.y + 1);
+      if (canPlace(resize.x, resize.y, nw, nh, resize.id)) {
+        resize.w = nw;
+        resize.h = nh;
+      }
+      resize = null;
+      clearHighlight();
+      renderWidgets();
+      renderProps();
+    }
+  };
+
+  $('#clearBtn').onclick = () => {
+    if (confirm('Clear all widgets?')) {
+      state.widgets = [];
+      state.selected = null;
+      state.nextId = 1;
+      renderWidgets();
+      renderProps();
+    }
+  };
+
+  $('#exportBtn').onclick = () => showModal('MakeCode Export', generateMakeCode());
+  $('#loadBtn').onclick = () => $('#fileInput').click();
+  $('#fileInput').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        loadConfig(JSON.parse(ev.target.result));
+        toast('Loaded!', 'success');
+      } catch { toast('Invalid file', 'error'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  $('#sendBtn').onclick = async () => {
+    if (!state.ble.connected) {
+      toast('Connect first!', 'error');
+      return;
+    }
+    const cfg = getConfig();
+    const json = JSON.stringify(cfg);
+    const b64 = btoa(json);
+    await send(`SETCFG ${b64.length}`);
+    for (let i = 0; i < b64.length; i += 18) {
+      await send(`CFG ${b64.substr(i, 18)}`);
+      await sleep(50);
+    }
+    await send('CFGEND');
+    toast('Sent!', 'success');
+  };
+
+  $('#bleBtn').onclick = connectBle;
+  $('#connectBtn').onclick = connectBle;
+
+  $('#modalClose').onclick = hideModal;
+  $('#modalBg').onclick = e => { if (e.target === $('#modalBg')) hideModal(); };
+  $('#copyBtn').onclick = () => {
+    navigator.clipboard.writeText($('#modalCode').textContent);
+    toast('Copied!', 'success');
+  };
+  $('#downloadBtn').onclick = () => {
+    const blob = new Blob([$('#modalCode').textContent], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'microbit-remote.ts';
+    a.click();
+  };
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function getConfig() {
+  return {
+    v: 1,
+    title: $('#titleInput').value || 'Remote',
+    grid: { w: state.grid.w, h: state.grid.h },
+    widgets: state.widgets.map(w => ({ id: w.id, t: w.t, x: w.x, y: w.y, w: w.w, h: w.h, label: w.label || '' }))
+  };
+}
+
+function loadConfig(cfg) {
+  if (cfg.grid) {
+    state.grid.w = cfg.grid.w || 6;
+    state.grid.h = cfg.grid.h || 5;
+  }
+  if (cfg.title) $('#titleInput').value = cfg.title;
+  state.widgets = (cfg.widgets || []).map(w => ({ ...w }));
+  state.nextId = Math.max(...state.widgets.map(w => {
+    const m = w.id.match(/\d+$/);
+    return m ? parseInt(m[0]) + 1 : 1;
+  }), 1);
+  state.selected = null;
+  renderGrid();
+  renderProps();
+}
+
+function generateMakeCode() {
+  const cfg = getConfig();
+  const b64 = btoa(JSON.stringify(cfg));
+  return `// micro:bit Remote - MakeCode
+// Paste into MakeCode TypeScript editor
+
+const CFG = "${b64}"
+let cfgSent = false
+
+bluetooth.startUartService()
+
+bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), () => {
+    let cmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+    
+    if (cmd == "GETCFG") {
+        bluetooth.uartWriteLine("CFGBEGIN " + CFG.length)
+        for (let i = 0; i < CFG.length; i += 18) {
+            bluetooth.uartWriteLine("CFG " + CFG.substr(i, 18))
+        }
+        bluetooth.uartWriteLine("CFGEND")
+        cfgSent = true
+    }
+    else if (cmd.indexOf("SET ") == 0) {
+        let parts = cmd.substr(4).split(" ")
+        let id = parts[0]
+        let val = parts.slice(1).join(" ")
+        handleInput(id, val)
+    }
+})
+
+function handleInput(id: string, val: string) {
+    serial.writeLine(id + " = " + val)
+    basic.showString(val.substr(0, 1))
+}
+
+function sendValue(id: string, val: string) {
+    if (cfgSent) {
+        bluetooth.uartWriteLine("UPD " + id + " " + val)
+    }
+}
+
+basic.forever(() => {
+    // sendValue("led1", input.lightLevel() > 100 ? "1" : "0")
+})
+
+basic.showIcon(IconNames.Yes)`;
+}
+
+function showModal(title, code) {
+  $('#modalTitle').textContent = title;
+  $('#modalCode').textContent = code;
+  $('#modalBg').classList.add('show');
+}
+
+function hideModal() {
+  $('#modalBg').classList.remove('show');
+}
+
+function toast(msg, type = '') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// BLE Connection - Fixed TX/RX mapping
+async function connectBle() {
+  try {
+    // Request device
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ namePrefix: 'BBC micro:bit' }],
+      optionalServices: [UART_SERVICE]
+    });
+
+    device.addEventListener('gattserverdisconnected', onDisconnect);
+
+    // Connect to GATT server
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(UART_SERVICE);
+
+    // Get characteristics with CORRECT mapping:
+    // TX (0002) = micro:bit transmits, we receive via notifications
+    // RX (0003) = micro:bit receives, we write to it
+    const notifyChar = await service.getCharacteristic(UART_TX_CHAR);
+    const writeChar = await service.getCharacteristic(UART_RX_CHAR);
+
+    // Start notifications on TX characteristic
+    await notifyChar.startNotifications();
+    notifyChar.addEventListener('characteristicvaluechanged', onNotify);
+
+    // Store references
+    state.ble.device = device;
+    state.ble.server = server;
+    state.ble.service = service;
+    state.ble.notifyChar = notifyChar;
+    state.ble.writeChar = writeChar;
+    state.ble.connected = true;
+    state.rxBuffer = '';
+
+    updateBleUI();
+    toast('Connected!', 'success');
+    
+    // Request config from micro:bit
+    setTimeout(() => requestConfig(), 500);
+    
+  } catch (err) {
+    console.error('BLE Error:', err);
+    toast('Connection failed: ' + err.message, 'error');
+  }
+}
+
+function onDisconnect() {
+  state.ble.connected = false;
+  state.ble.device = null;
+  state.ble.server = null;
+  state.ble.service = null;
+  state.ble.notifyChar = null;
+  state.ble.writeChar = null;
+  updateBleUI();
+  toast('Disconnected', 'error');
+}
+
+function updateBleUI() {
+  const btn = $('#bleBtn');
+  const dot = $('#bleDot');
+  const text = $('#bleText');
+  if (state.ble.connected) {
+    btn.classList.add('connected');
+    dot.classList.add('on');
+    text.textContent = 'Connected';
+    $('#connectPrompt').style.display = 'none';
+    $('#runtimeContent').style.display = 'block';
+  } else {
+    btn.classList.remove('connected');
+    dot.classList.remove('on');
+    text.textContent = 'Connect';
+    $('#connectPrompt').style.display = 'block';
+    $('#runtimeContent').style.display = 'none';
+  }
+}
+
+// Write to RX characteristic (web → micro:bit)
+async function send(msg) {
+  if (!state.ble.writeChar) return;
+  try {
+    const data = encoder.encode(msg + '\n');
+    await state.ble.writeChar.writeValue(data);
+    console.log('TX:', msg);
+  } catch (err) {
+    console.error('Write error:', err);
+  }
+}
+
+function requestConfig() {
+  state.rxBuffer = '';
+  send('GETCFG');
+}
+
+// Handle notifications from TX characteristic (micro:bit → web)
+function onNotify(event) {
+  const value = event.target.value;
+  let str = '';
+  for (let i = 0; i < value.byteLength; i++) {
+    const byte = value.getUint8(i);
+    if (byte !== 13) str += String.fromCharCode(byte); // skip CR
+  }
+
+  state.rxBuffer += str;
+
+  // Process complete lines
+  let nl;
+  while ((nl = state.rxBuffer.indexOf('\n')) !== -1) {
+    const line = state.rxBuffer.slice(0, nl).trim();
+    state.rxBuffer = state.rxBuffer.slice(nl + 1);
+    if (line) {
+      console.log('RX:', line);
+      processLine(line);
+    }
+  }
+}
+
+let configBuffer = '';
+
+function processLine(line) {
+  if (line.startsWith('CFGBEGIN')) {
+    configBuffer = '';
+  } else if (line.startsWith('CFG ')) {
+    configBuffer += line.substr(4);
+  } else if (line === 'CFGEND') {
+    try {
+      state.config = JSON.parse(atob(configBuffer));
+      renderRuntime();
+      toast('Config loaded!', 'success');
+    } catch (e) {
+      console.error('Config parse error:', e);
+      toast('Config error', 'error');
+    }
+  } else if (line.startsWith('UPD ')) {
+    const parts = line.substr(4).split(' ');
+    const id = parts[0];
+    const val = parts.slice(1).join(' ');
+    state.values[id] = val;
+    updateRuntimeWidget(id, val);
+  }
+}
+
+function renderRuntime() {
+  if (!state.config) return;
+  const cfg = state.config;
+  $('#runtimeTitle').textContent = cfg.title || 'Remote';
+  const grid = $('#runtimeGrid');
+  const w = cfg.grid.w * CELL + (cfg.grid.w + 1) * GAP;
+  const h = cfg.grid.h * CELL + (cfg.grid.h + 1) * GAP;
+  grid.style.width = `${w}px`;
+  grid.style.height = `${h}px`;
+  grid.innerHTML = '';
+  cfg.widgets.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'rt-widget';
+    el.dataset.id = w.id;
+    el.style.left = `${w.x * (CELL + GAP) + GAP}px`;
+    el.style.top = `${w.y * (CELL + GAP) + GAP}px`;
+    el.style.width = `${w.w * CELL + (w.w - 1) * GAP}px`;
+    el.style.height = `${w.h * CELL + (w.h - 1) * GAP}px`;
+    el.innerHTML = createRuntimeWidget(w);
+    grid.appendChild(el);
+    bindRuntimeWidget(el, w);
+  });
+}
+
+function createRuntimeWidget(w) {
+  const val = state.values[w.id] || '0';
+  switch (w.t) {
+    case 'button':
+      return `<button class="rt-button">${w.label || 'Press'}</button>`;
+    case 'slider':
+      return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span class="rt-slider-label">${w.label || 'Value'}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${val}"></div>`;
+    case 'toggle':
+      return `<div class="rt-toggle-wrap"><button class="rt-toggle${val === '1' ? ' on' : ''}"></button><span class="rt-toggle-label">${w.label || 'Switch'}</span></div>`;
+    case 'led':
+      return `<div class="rt-led-wrap"><div class="rt-led${val === '1' ? ' on' : ''}"></div><span class="rt-led-label">${w.label || 'LED'}</span></div>`;
+    case 'label':
+      return `<div class="rt-label-text">${val || w.label || 'Text'}</div>`;
+    default:
+      return `<div>${w.t}</div>`;
+  }
+}
+
+function bindRuntimeWidget(el, w) {
+  switch (w.t) {
+    case 'button':
+      const btn = el.querySelector('.rt-button');
+      const pressHandler = e => { e.preventDefault(); send(`SET ${w.id} 1`); };
+      const releaseHandler = () => send(`SET ${w.id} 0`);
+      btn.onmousedown = pressHandler;
+      btn.ontouchstart = pressHandler;
+      btn.onmouseup = releaseHandler;
+      btn.onmouseleave = releaseHandler;
+      btn.ontouchend = releaseHandler;
+      break;
+    case 'slider':
+      const slider = el.querySelector('.rt-slider');
+      slider.oninput = e => {
+        el.querySelector('.rt-slider-val').textContent = e.target.value;
+        send(`SET ${w.id} ${e.target.value}`);
+      };
+      break;
+    case 'toggle':
+      const tog = el.querySelector('.rt-toggle');
+      tog.onclick = () => {
+        const on = tog.classList.toggle('on');
+        send(`SET ${w.id} ${on ? '1' : '0'}`);
+      };
+      break;
+  }
+}
+
+function updateRuntimeWidget(id, val) {
+  const el = $(`.rt-widget[data-id="${id}"]`);
+  if (!el || !state.config) return;
+  const w = state.config.widgets.find(x => x.id === id);
+  if (!w) return;
+  switch (w.t) {
+    case 'slider':
+      el.querySelector('.rt-slider').value = val;
+      el.querySelector('.rt-slider-val').textContent = val;
+      break;
+    case 'toggle':
+      el.querySelector('.rt-toggle').classList.toggle('on', val === '1');
+      break;
+    case 'led':
+      el.querySelector('.rt-led').classList.toggle('on', val === '1');
+      break;
+    case 'label':
+      el.querySelector('.rt-label-text').textContent = val;
+      break;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
