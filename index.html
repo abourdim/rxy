@@ -4,30 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>micro:bit Remote</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #1a1a2e;
-  --surface: #16213e;
-  --card: #1f2b47;
-  --border: #2a3a5a;
-  --text: #ffffff;
-  --text-dim: #8892b0;
-  --primary: #00d9ff;
-  --primary-glow: rgba(0, 217, 255, 0.3);
-  --success: #00ff88;
-  --warning: #ffcc00;
-  --danger: #ff4477;
-  --button: #4361ee;
-  --slider: #7209b7;
-  --toggle: #06d6a0;
-  --led: #ff006e;
-  --label: #fb5607;
-  --radius: 12px;
-  --radius-lg: 20px;
+  --bg-color: #020617;
+  --panel-bg: #020617;
+  --accent: #22c55e;
+  --accent-soft: rgba(34, 197, 94, 0.15);
+  --accent-strong: rgba(34, 197, 94, 0.7);
+  --danger: #f97373;
+  --warning: #f59e0b;
+  --muted: #9ca3af;
+  --border: #1f2937;
+  --text: #f9fafb;
+  --text-dim: #9ca3af;
+  --button: #3b82f6;
+  --slider: #8b5cf6;
+  --toggle: #22c55e;
+  --led: #ef4444;
+  --label: #f59e0b;
 }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
@@ -36,52 +33,88 @@ html, body {
 }
 
 body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--bg);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), transparent 50%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.2), transparent 55%),
+    #020617;
+  background-attachment: fixed;
   color: var(--text);
-  line-height: 1.4;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
 }
 
 .app {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
   height: 100vh;
   height: 100dvh;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
+  padding: 12px 18px;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 55%),
+    rgba(2, 6, 23, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   flex-shrink: 0;
+  gap: 12px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  font-size: 18px;
+  gap: 12px;
 }
 
 .logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--primary), var(--success));
-  border-radius: 10px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  overflow: hidden;
+}
+
+.logo-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #35e0b7;
+  text-shadow: 0 0 6px rgba(53,224,183,.45);
+}
+
+.logo-subtitle {
+  font-size: 0.7rem;
+  color: #f3c623;
+  letter-spacing: 0.1em;
 }
 
 .tabs {
   display: flex;
-  background: var(--card);
-  border-radius: 25px;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
   padding: 4px;
 }
 
@@ -89,64 +122,93 @@ header {
   padding: 8px 20px;
   border: none;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--muted);
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tab:hover { color: var(--text); }
+
 .tab.active {
-  background: var(--primary);
-  color: var(--bg);
+  background: linear-gradient(135deg, var(--accent), #4ade80);
+  color: #052e16;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 }
 
-.ble-btn {
-  display: flex;
+.status-pill {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  border: 2px solid var(--border);
-  background: var(--card);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(148, 163, 184, 0.4);
   color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 25px;
+  background: rgba(15, 23, 42, 0.9);
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.ble-btn:hover {
-  border-color: var(--primary);
-  background: var(--surface);
+.status-pill:hover {
+  border-color: var(--accent);
 }
 
-.ble-btn.connected {
-  border-color: var(--success);
-  background: rgba(0, 255, 136, 0.1);
+.status-pill.connected {
+  border-color: rgba(34, 197, 94, 0.9);
+  background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.3), rgba(15, 23, 42, 0.9));
 }
 
-.ble-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
   background: var(--danger);
-  transition: all 0.3s;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.5), 0 0 10px rgba(248, 113, 113, 0.7);
 }
 
-.ble-dot.on {
-  background: var(--success);
-  box-shadow: 0 0 10px var(--success);
+.status-pill.connected .status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5), 0 0 14px rgba(22, 163, 74, 0.9);
+}
+
+@media (min-width: 768px) {
+  .app {
+    grid-template-columns: 1fr 240px;
+  }
 }
 
 main {
   flex: 1;
   overflow: hidden;
   display: flex;
+  flex-direction: row;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.sidebar {
+  width: 240px;
+  background: rgba(15, 23, 42, 0.8);
+  border-left: 1px solid var(--border);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  grid-column: 2;
+  grid-row: 2;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
 }
 
 .view {
@@ -169,8 +231,8 @@ main {
   display: flex;
   gap: 8px;
   padding: 12px;
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid var(--border);
   overflow-x: auto;
   flex-shrink: 0;
 }
@@ -178,9 +240,9 @@ main {
 @media (min-width: 768px) {
   .palette {
     flex-direction: column;
-    width: 100px;
+    width: 110px;
     border-bottom: none;
-    border-right: 2px solid var(--border);
+    border-right: 1px solid var(--border);
     overflow-x: visible;
     overflow-y: auto;
   }
@@ -190,19 +252,20 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 12px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+  gap: 6px;
+  padding: 12px 10px;
+  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), var(--panel-bg));
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
   cursor: grab;
   transition: all 0.2s;
-  min-width: 70px;
+  min-width: 80px;
 }
 
 .palette-item:hover {
-  border-color: var(--primary);
-  transform: scale(1.05);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .palette-item:active { cursor: grabbing; }
@@ -214,20 +277,26 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.palette-icon.button { background: var(--button); }
-.palette-icon.slider { background: var(--slider); }
-.palette-icon.toggle { background: var(--toggle); }
-.palette-icon.led { background: var(--led); }
-.palette-icon.label { background: var(--label); }
+.palette-icon.button { background: linear-gradient(135deg, var(--button), #60a5fa); }
+.palette-icon.slider { background: linear-gradient(135deg, var(--slider), #a78bfa); }
+.palette-icon.toggle { background: linear-gradient(135deg, var(--toggle), #4ade80); }
+.palette-icon.led { background: linear-gradient(135deg, var(--led), #f87171); }
+.palette-icon.label { background: linear-gradient(135deg, var(--label), #fbbf24); }
+.palette-icon.spinner { background: linear-gradient(135deg, #f59e0b, #f97316); }
+.palette-icon.emoji { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+.palette-icon.dial { background: linear-gradient(135deg, #06b6d4, #0891b2); }
 
 .palette-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .canvas-wrap {
@@ -243,705 +312,718 @@ main {
 .canvas-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 16px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   flex-wrap: wrap;
-  justify-content: center;
 }
 
-.title-input {
-  padding: 8px 14px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+.canvas-toolbar label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.canvas-toolbar input {
+  width: 50px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  background: rgba(31, 41, 55, 0.8);
   color: var(--text);
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  width: 180px;
+  border-radius: 6px;
+  font-size: 0.9rem;
   text-align: center;
 }
 
-.title-input:focus {
+.canvas-toolbar input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--accent);
 }
 
-.toolbar-btn {
-  padding: 8px 14px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
+.canvas-toolbar button {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, var(--accent), #4ade80);
+  color: #052e16;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.toolbar-btn:hover {
-  border-color: var(--primary);
-  background: var(--surface);
+.canvas-toolbar button:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 }
 
-.toolbar-btn.primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--bg);
-}
-
-.canvas {
+#canvas {
   position: relative;
-  background: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.grid-overlay {
+#gridOverlay {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: grid;
-  padding: 4px;
   pointer-events: none;
-  opacity: 0.4;
+  gap: 4px;
+  padding: 4px;
 }
 
 .grid-cell {
-  background: var(--card);
-  border-radius: 4px;
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
 }
 
-.grid-cell.highlight {
-  background: var(--primary);
-  opacity: 0.5;
-}
-
-.grid-cell.invalid {
-  background: var(--danger);
-  opacity: 0.5;
-}
-
-.widgets {
+#widgetsLayer {
   position: absolute;
-  inset: 0;
-  padding: 4px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .widget {
   position: absolute;
-  background: var(--card);
-  border: 3px solid var(--border);
-  border-radius: var(--radius);
+  padding: 8px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
   cursor: move;
+  transition: all 0.2s;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
 }
 
-.widget:hover { border-color: var(--text-dim); }
-
 .widget.selected {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-glow);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
 }
 
 .widget-badge {
   position: absolute;
   top: 4px;
-  left: 4px;
-  padding: 2px 6px;
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  border-radius: 4px;
+  right: 4px;
+  background: var(--button);
   color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
 }
-
-.widget[data-type="button"] .widget-badge { background: var(--button); }
-.widget[data-type="slider"] .widget-badge { background: var(--slider); }
-.widget[data-type="toggle"] .widget-badge { background: var(--toggle); }
-.widget[data-type="led"] .widget-badge { background: var(--led); }
-.widget[data-type="label"] .widget-badge { background: var(--label); }
 
 .widget-label {
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 14px;
+  font-weight: 600;
+  color: var(--text);
   text-align: center;
   word-break: break-word;
-}
-
-.widget-id {
-  font-size: 10px;
-  color: var(--text-dim);
-  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .resize-handle {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 14px;
-  height: 14px;
-  cursor: se-resize;
-  opacity: 0;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, transparent 50%, var(--accent) 50%);
+  cursor: nwse-resize;
+  border-radius: 0 0 10px 0;
 }
 
-.widget:hover .resize-handle,
-.widget.selected .resize-handle { opacity: 1; }
-
-.resize-handle::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--text-dim);
-  border-bottom: 2px solid var(--text-dim);
-}
-
-.props {
-  display: none;
-  width: 220px;
-  background: var(--surface);
-  border-left: 2px solid var(--border);
-  padding: 16px;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-@media (min-width: 900px) {
-  .props { display: block; }
-}
-
-.props-title {
-  font-size: 12px;
-  font-weight: 800;
+.sidebar-header {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--accent), #4ade80);
+  color: #052e16;
+  font-weight: 700;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
 }
 
 .prop-group {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .prop-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: var(--accent);
   margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .prop-input {
   width: 100%;
-  padding: 8px 10px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  background: rgba(2, 6, 23, 0.8);
   color: var(--text);
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
 }
 
 .prop-input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
 }
 
 .prop-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
-.delete-btn {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: 2px solid var(--danger);
-  border-radius: 8px;
-  color: var(--danger);
+.no-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.no-selection-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+button {
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.delete-btn:hover {
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4ade80);
+  color: #052e16;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-danger {
   background: var(--danger);
   color: white;
 }
 
-.no-selection {
-  text-align: center;
-  padding: 30px 10px;
-  color: var(--text-dim);
+.btn-danger:hover {
+  background: #f55555;
 }
 
-.no-selection-icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-  opacity: 0.5;
+.sidebar-buttons {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.runtime {
+.sidebar-buttons .btn {
+  width: 100%;
+  padding: 10px;
+}
+
+.toast {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  background: rgba(2, 6, 23, 0.95);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: bottom 0.3s;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.toast.show {
+  bottom: 20px;
+}
+
+.toast.success {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toast.error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.modal-bg {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-bg.show {
+  display: flex;
+}
+
+.modal {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+
+.modal-code {
+  background: rgba(2, 6, 23, 0.8);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  color: #4ade80;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.runtime-view {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.runtime-content {
+  flex: 1;
+  overflow: auto;
+  width: 100%;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
 }
 
-.runtime-card {
-  background: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
-}
-
-.runtime-title {
-  font-size: 22px;
-  font-weight: 800;
+#runtimeTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
   margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
 }
 
-.connect-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.connect-text {
-  color: var(--text-dim);
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.connect-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, var(--primary), var(--success));
-  border: none;
-  border-radius: 30px;
-  color: var(--bg);
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.connect-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px var(--primary-glow);
-}
-
-.runtime-grid {
+#runtimeGrid {
   position: relative;
-  background: var(--card);
-  border-radius: var(--radius);
-  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .rt-widget {
   position: absolute;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
 }
 
 .rt-button {
   width: 100%;
   height: 100%;
-  background: var(--button);
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
   border: none;
-  border-radius: var(--radius);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--button), #60a5fa);
   color: white;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 800;
   cursor: pointer;
-  transition: all 0.1s;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.rt-button:hover { filter: brightness(1.1); }
 .rt-button:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  transform: scale(0.95);
 }
 
 .rt-slider-wrap {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 6px;
 }
 
 .rt-slider-info {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text);
 }
-
-.rt-slider-label { color: var(--text-dim); }
-.rt-slider-val { color: var(--slider); }
 
 .rt-slider {
   width: 100%;
-  height: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(139, 92, 246, 0.3);
   -webkit-appearance: none;
-  background: var(--border);
-  border-radius: 4px;
-  outline: none;
 }
 
 .rt-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  background: var(--slider);
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
+  background: linear-gradient(135deg, var(--slider), #a78bfa);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rt-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--slider), #a78bfa);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .rt-toggle-wrap {
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
 .rt-toggle {
-  width: 56px;
-  height: 32px;
-  background: var(--border);
+  width: 50px;
+  height: 50px;
   border: none;
-  border-radius: 16px;
+  border-radius: 8px;
+  background: var(--danger);
   cursor: pointer;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.rt-toggle.on { background: var(--toggle); }
-
-.rt-toggle::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 50%;
-  transition: left 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.rt-toggle.on::after { left: 28px; }
-
-.rt-toggle-label {
-  font-size: 12px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   font-weight: 700;
-  color: var(--text-dim);
+  color: white;
+}
+
+.rt-toggle.on {
+  background: var(--toggle);
 }
 
 .rt-led-wrap {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
 .rt-led {
-  width: 32px;
-  height: 32px;
-  background: var(--border);
-  border-radius: 50%;
+  width: 70%;
+  height: 70%;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.2);
   transition: all 0.2s;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .rt-led.on {
   background: var(--led);
-  box-shadow: 0 0 20px var(--led);
-}
-
-.rt-led-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-dim);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .rt-label-text {
-  font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text);
   text-align: center;
-  color: var(--label);
+  word-break: break-word;
 }
 
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 100;
+.rt-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(245, 158, 11, 0.2);
+  border-top-color: var(--warning);
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
 }
 
-.modal-bg.show { display: flex; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-.modal {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 550px;
-  max-height: 80vh;
+.rt-emoji {
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.rt-emoji:active {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+.connect-prompt {
   display: flex;
   flex-direction: column;
-}
-
-.modal-head {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 2px solid var(--border);
-}
-
-.modal-title {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.modal-close {
-  width: 36px;
-  height: 36px;
-  background: var(--card);
-  border: none;
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.modal-close:hover { background: var(--border); }
-
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
+  justify-content: center;
+  gap: 16px;
   flex: 1;
 }
 
-.code-box {
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  max-height: 300px;
-  overflow-y: auto;
+.connect-prompt-icon {
+  font-size: 3rem;
 }
 
-.modal-foot {
-  display: flex;
-  gap: 10px;
-  padding: 16px 20px;
-  border-top: 2px solid var(--border);
-}
-
-.modal-btn {
-  flex: 1;
-  padding: 12px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+.connect-prompt-text {
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.modal-btn:hover {
-  border-color: var(--primary);
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+  }
+  
+  header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    max-height: 25%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    display: flex;
+    grid-column: 1;
+    grid-row: 3;
+  }
+  
+  main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  }
+  
+  .tabs {
+    flex-wrap: wrap;
+  }
 }
-
-.modal-btn.primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--bg);
-}
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  padding: 12px 24px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  font-weight: 700;
-  opacity: 0;
-  transition: all 0.3s;
-  z-index: 200;
-}
-
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-.toast.success { border-color: var(--success); color: var(--success); }
-.toast.error { border-color: var(--danger); color: var(--danger); }
-
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 </style>
 </head>
 <body>
+
 <div class="app">
   <header>
     <div class="logo">
-      <div class="logo-icon">📡</div>
-      <span>micro:bit Remote</span>
+      <div class="logo-icon"><img src="logo.svg" alt="Logo"></div>
+      <div class="logo-text">
+        <div class="logo-title">micro:bit Remote</div>
+        <div class="logo-subtitle">Builder</div>
+      </div>
     </div>
+    <div style="flex:1"></div>
     <div class="tabs">
-      <button class="tab active" data-view="builder">Build</button>
-      <button class="tab" data-view="runtime">Run</button>
+      <button class="tab active" onclick="switchTab('builder')">Builder</button>
+      <button class="tab" onclick="switchTab('runtime')">Runtime</button>
     </div>
-    <button class="ble-btn" id="bleBtn">
-      <span class="ble-dot" id="bleDot"></span>
-      <span id="bleText">Connect</span>
+    <button id="bleBtn" class="status-pill">
+      <span class="status-dot"></span>
+      <span id="bleText">Disconnected</span>
     </button>
   </header>
 
   <main>
-    <div class="view builder active" id="builderView">
+    <div class="view builder active">
       <div class="palette">
-        <div class="palette-item" draggable="true" data-type="button" data-w="2" data-h="1">
+        <div class="palette-item" draggable="true" data-type="button">
           <div class="palette-icon button">👆</div>
-          <span class="palette-name">Button</span>
+          <div class="palette-name">Button</div>
         </div>
-        <div class="palette-item" draggable="true" data-type="slider" data-w="3" data-h="1">
-          <div class="palette-icon slider">↔</div>
-          <span class="palette-name">Slider</span>
+        <div class="palette-item" draggable="true" data-type="slider">
+          <div class="palette-icon slider">🎚️</div>
+          <div class="palette-name">Slider</div>
         </div>
-        <div class="palette-item" draggable="true" data-type="toggle" data-w="2" data-h="1">
-          <div class="palette-icon toggle">◐</div>
-          <span class="palette-name">Toggle</span>
+        <div class="palette-item" draggable="true" data-type="toggle">
+          <div class="palette-icon toggle">🔘</div>
+          <div class="palette-name">Toggle</div>
         </div>
-        <div class="palette-item" draggable="true" data-type="led" data-w="1" data-h="1">
-          <div class="palette-icon led">●</div>
-          <span class="palette-name">LED</span>
+        <div class="palette-item" draggable="true" data-type="led">
+          <div class="palette-icon led">💡</div>
+          <div class="palette-name">LED</div>
         </div>
-        <div class="palette-item" draggable="true" data-type="label" data-w="2" data-h="1">
-          <div class="palette-icon label">A</div>
-          <span class="palette-name">Label</span>
+        <div class="palette-item" draggable="true" data-type="label">
+          <div class="palette-icon label">📝</div>
+          <div class="palette-name">Label</div>
+        </div>
+        <div class="palette-item" draggable="true" data-type="spinner">
+          <div class="palette-icon spinner">⏳</div>
+          <div class="palette-name">Spinner</div>
+        </div>
+        <div class="palette-item" draggable="true" data-type="emoji">
+          <div class="palette-icon emoji">😂</div>
+          <div class="palette-name">Emoji</div>
+        </div>
+        <div class="palette-item" draggable="true" data-type="dial">
+          <div class="palette-icon dial">🎛️</div>
+          <div class="palette-name">Dial</div>
         </div>
       </div>
 
       <div class="canvas-wrap">
         <div class="canvas-toolbar">
-          <input type="text" class="title-input" id="titleInput" value="My Remote" placeholder="Project name">
-          <button class="toolbar-btn" id="clearBtn">🗑️ Clear</button>
-          <button class="toolbar-btn" id="exportBtn">📤 Export</button>
-          <button class="toolbar-btn" id="loadBtn">📥 Load</button>
-          <button class="toolbar-btn primary" id="sendBtn">⚡ Send</button>
+          <label>Grid:</label>
+          <input type="number" id="gridW" value="6" min="3" max="12" title="Width" oninput="updateGridSize()">
+          <span style="color:var(--muted)">×</span>
+          <input type="number" id="gridH" value="5" min="3" max="10" title="Height" oninput="updateGridSize()">
+          <span style="color:var(--muted); margin-left:6px">Title:</span>
+          <input type="text" id="titleInput" placeholder="My Remote" maxlength="50" style="flex:1; min-width:120px">
         </div>
-        <div class="canvas" id="canvas">
-          <div class="grid-overlay" id="gridOverlay"></div>
-          <div class="widgets" id="widgetsLayer"></div>
-        </div>
-      </div>
-
-      <div class="props" id="propsPanel">
-        <div class="props-title">Properties</div>
-        <div id="propsContent">
-          <div class="no-selection">
-            <div class="no-selection-icon">📦</div>
-            <p>Select a widget<br>to edit</p>
-          </div>
+        <div id="canvas">
+          <div id="gridOverlay"></div>
+          <div id="widgetsLayer"></div>
         </div>
       </div>
     </div>
 
-    <div class="view runtime" id="runtimeView">
-      <div class="runtime-card" id="runtimeCard">
-        <div id="connectPrompt">
-          <div class="connect-icon">📲</div>
-          <div class="runtime-title">Connect to micro:bit</div>
-          <p class="connect-text">Pair your micro:bit via Bluetooth to load and use the remote control interface.</p>
-          <button class="connect-btn" id="connectBtn">
-            <span>🔗</span>
-            <span>Connect</span>
-          </button>
+    <div class="view runtime-view">
+      <div class="runtime-content">
+        <div id="connectPrompt" class="connect-prompt">
+          <div class="connect-prompt-icon">📡</div>
+          <div class="connect-prompt-text">Connect to micro:bit to start</div>
+          <button id="connectBtn" class="btn btn-primary" style="margin-top:12px">Connect</button>
         </div>
-        <div id="runtimeContent" style="display:none;">
-          <div class="runtime-title" id="runtimeTitle">Remote</div>
-          <div class="runtime-grid" id="runtimeGrid"></div>
+        <div id="runtimeContent" style="display:none; width:100%">
+          <div id="runtimeTitle"></div>
+          <div id="runtimeGrid"></div>
         </div>
       </div>
     </div>
   </main>
-</div>
 
-<div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <div class="modal-head">
-      <span class="modal-title" id="modalTitle">Export</span>
-      <button class="modal-close" id="modalClose">×</button>
+  <div class="sidebar">
+    <div class="sidebar-header">⚙️ Properties</div>
+    <div id="propsContent" class="sidebar-content">
+      <div class="no-selection">
+        <div class="no-selection-icon">👈</div>
+        <p>Select widget</p>
+      </div>
     </div>
-    <div class="modal-body">
-      <pre class="code-box" id="modalCode"></pre>
-    </div>
-    <div class="modal-foot">
-      <button class="modal-btn" id="downloadBtn">💾 Download</button>
-      <button class="modal-btn primary" id="copyBtn">📋 Copy</button>
+    <div class="sidebar-buttons">
+      <button class="btn btn-primary" onclick="showCode()">📋 Code</button>
+      <button class="btn btn-primary" onclick="downloadConfig()">💾 Export</button>
+      <button class="btn btn-primary" onclick="loadConfigFile()">📂 Import</button>
+      <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
+<div id="modalBg" class="modal-bg">
+  <div class="modal">
+    <div id="modalTitle" class="modal-title"></div>
+    <div id="modalCode" class="modal-code"></div>
+    <div class="modal-buttons">
+      <button class="btn btn-primary" id="copyBtn">Copy</button>
+      <button class="btn btn-primary" id="downloadBtn">Download</button>
+      <button class="btn" id="modalClose" style="background:var(--border);color:var(--text)">Close</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="fileInput" accept=".json" hidden>
 
 <script>
-// Nordic UART Service UUIDs
-// TX = micro:bit transmits TO us (we subscribe/notify)
-// RX = micro:bit receives FROM us (we write)
 const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e'; // Notify (micro:bit → web)
-const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'; // Write  (web → micro:bit)
+const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
 const CELL = 50;
 const GAP = 4;
+
+const encoder = new TextEncoder();
+const escape = str => {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
 
 const state = {
   grid: { w: 6, h: 5 },
@@ -956,7 +1038,6 @@ const state = {
 
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const encoder = new TextEncoder();
 
 function init() {
   renderGrid();
@@ -966,6 +1047,11 @@ function init() {
 function renderGrid() {
   const canvas = $('#canvas');
   const overlay = $('#gridOverlay');
+  state.grid.w = Math.max(3, Math.min(parseInt($('#gridW').value) || 6, 12));
+  state.grid.h = Math.max(3, Math.min(parseInt($('#gridH').value) || 5, 10));
+  $('#gridW').value = state.grid.w;
+  $('#gridH').value = state.grid.h;
+  
   const w = state.grid.w * CELL + (state.grid.w + 1) * GAP;
   const h = state.grid.h * CELL + (state.grid.h + 1) * GAP;
   canvas.style.width = `${w}px`;
@@ -975,6 +1061,12 @@ function renderGrid() {
   overlay.style.gap = `${GAP}px`;
   overlay.innerHTML = Array(state.grid.w * state.grid.h).fill('<div class="grid-cell"></div>').join('');
   renderWidgets();
+}
+
+function updateGridSize() {
+  state.widgets = state.widgets.filter(w => w.x + w.w <= state.grid.w && w.y + w.h <= state.grid.h);
+  renderGrid();
+  renderProps();
 }
 
 function renderWidgets() {
@@ -990,13 +1082,76 @@ function renderWidgets() {
     el.style.width = `${w.w * CELL + (w.w - 1) * GAP}px`;
     el.style.height = `${w.h * CELL + (w.h - 1) * GAP}px`;
     el.innerHTML = `
-      <span class="widget-badge">${w.t}</span>
-      <span class="widget-label">${w.label || ''}</span>
-      <span class="widget-id">${w.id}</span>
+      <span class="widget-badge">${escape(w.t)}</span>
+      <span class="widget-label">${escape(w.label || '')}</span>
       <div class="resize-handle"></div>
     `;
     layer.appendChild(el);
   });
+}
+
+function renderProps() {
+  const container = $('#propsContent');
+  const w = state.widgets.find(x => x.id === state.selected);
+  if (!w) {
+    container.innerHTML = '<div class="no-selection"><div class="no-selection-icon">👈</div><p>Select widget</p></div>';
+    return;
+  }
+  container.innerHTML = `
+    <div class="prop-group">
+      <div class="prop-label">ID</div>
+      <input class="prop-input" type="text" value="${escape(w.id)}" disabled>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Label</div>
+      <input class="prop-input" type="text" id="propLabel" value="${escape(w.label || '')}" placeholder="Widget label" maxlength="30">
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Position</div>
+      <div class="prop-row">
+        <div><span style="font-size:0.65rem;color:var(--muted)">X</span><input class="prop-input" type="number" id="propX" value="${w.x}" min="0" max="${state.grid.w-1}"></div>
+        <div><span style="font-size:0.65rem;color:var(--muted)">Y</span><input class="prop-input" type="number" id="propY" value="${w.y}" min="0" max="${state.grid.h-1}"></div>
+      </div>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Size</div>
+      <div class="prop-row">
+        <div><span style="font-size:0.65rem;color:var(--muted)">W</span><input class="prop-input" type="number" id="propW" value="${w.w}" min="1"></div>
+        <div><span style="font-size:0.65rem;color:var(--muted)">H</span><input class="prop-input" type="number" id="propH" value="${w.h}" min="1"></div>
+      </div>
+    </div>
+  `;
+  ['propLabel', 'propX', 'propY', 'propW', 'propH'].forEach(id => {
+    const el = $(`#${id}`);
+    if (el) el.onchange = () => updateProps(w.id);
+  });
+}
+
+function updateProps(id) {
+  const w = state.widgets.find(x => x.id === id);
+  if (!w) return;
+  w.label = $('#propLabel').value;
+  w.x = Math.max(0, Math.min(parseInt($('#propX').value) || w.x, state.grid.w - 1));
+  w.y = Math.max(0, Math.min(parseInt($('#propY').value) || w.y, state.grid.h - 1));
+  w.w = Math.max(1, parseInt($('#propW').value) || 1);
+  w.h = Math.max(1, parseInt($('#propH').value) || 1);
+  renderWidgets();
+  renderProps();
+}
+
+function select(id) {
+  state.selected = id;
+  renderWidgets();
+  renderProps();
+}
+
+function deleteSelected() {
+  if (!state.selected) return;
+  state.widgets = state.widgets.filter(w => w.id !== state.selected);
+  state.selected = null;
+  renderWidgets();
+  renderProps();
+  toast('Deleted', 'success');
 }
 
 function getCell(e) {
@@ -1006,207 +1161,93 @@ function getCell(e) {
   return { x: Math.max(0, Math.min(x, state.grid.w - 1)), y: Math.max(0, Math.min(y, state.grid.h - 1)) };
 }
 
-function canPlace(x, y, w, h, exclude = null) {
-  if (x < 0 || y < 0 || x + w > state.grid.w || y + h > state.grid.h) return false;
-  return !state.widgets.some(wgt => {
-    if (wgt.id === exclude) return false;
-    return x < wgt.x + wgt.w && x + w > wgt.x && y < wgt.y + wgt.h && y + h > wgt.y;
-  });
-}
-
-function highlight(x, y, w, h, valid) {
-  $$('.grid-cell').forEach((c, i) => {
-    c.classList.remove('highlight', 'invalid');
-    const cx = i % state.grid.w, cy = Math.floor(i / state.grid.w);
-    if (cx >= x && cx < x + w && cy >= y && cy < y + h) {
-      c.classList.add(valid ? 'highlight' : 'invalid');
-    }
-  });
-}
-
-function clearHighlight() {
-  $$('.grid-cell').forEach(c => c.classList.remove('highlight', 'invalid'));
-}
-
-function select(id) {
-  state.selected = id;
-  renderWidgets();
-  renderProps();
-}
-
-function renderProps() {
-  const container = $('#propsContent');
-  const w = state.widgets.find(x => x.id === state.selected);
-  if (!w) {
-    container.innerHTML = '<div class="no-selection"><div class="no-selection-icon">📦</div><p>Select a widget<br>to edit</p></div>';
-    return;
+function canPlace(x, y, w, h, excludeId) {
+  for (let widget of state.widgets) {
+    if (widget.id === excludeId) continue;
+    if (x < widget.x + widget.w && x + w > widget.x && y < widget.y + widget.h && y + h > widget.y) return false;
   }
-  container.innerHTML = `
-    <div class="prop-group">
-      <div class="prop-label">ID</div>
-      <input class="prop-input" type="text" id="propId" value="${w.id}">
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Label</div>
-      <input class="prop-input" type="text" id="propLabel" value="${w.label || ''}" placeholder="Widget label">
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Position</div>
-      <div class="prop-row">
-        <input class="prop-input" type="number" id="propX" value="${w.x}" min="0">
-        <input class="prop-input" type="number" id="propY" value="${w.y}" min="0">
-      </div>
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Size</div>
-      <div class="prop-row">
-        <input class="prop-input" type="number" id="propW" value="${w.w}" min="1">
-        <input class="prop-input" type="number" id="propH" value="${w.h}" min="1">
-      </div>
-    </div>
-    <div class="prop-group">
-      <button class="delete-btn" id="deleteBtn">🗑️ Delete</button>
-    </div>
-  `;
-  $('#propId').onchange = e => { w.id = e.target.value; renderWidgets(); };
-  $('#propLabel').oninput = e => { w.label = e.target.value; renderWidgets(); };
-  $('#propX').onchange = e => {
-    const v = parseInt(e.target.value);
-    if (canPlace(v, w.y, w.w, w.h, w.id)) { w.x = v; renderWidgets(); }
-    else e.target.value = w.x;
-  };
-  $('#propY').onchange = e => {
-    const v = parseInt(e.target.value);
-    if (canPlace(w.x, v, w.w, w.h, w.id)) { w.y = v; renderWidgets(); }
-    else e.target.value = w.y;
-  };
-  $('#propW').onchange = e => {
-    const v = parseInt(e.target.value);
-    if (canPlace(w.x, w.y, v, w.h, w.id)) { w.w = v; renderWidgets(); renderProps(); }
-    else e.target.value = w.w;
-  };
-  $('#propH').onchange = e => {
-    const v = parseInt(e.target.value);
-    if (canPlace(w.x, w.y, w.w, v, w.id)) { w.h = v; renderWidgets(); renderProps(); }
-    else e.target.value = w.h;
-  };
-  $('#deleteBtn').onclick = () => {
-    state.widgets = state.widgets.filter(x => x.id !== state.selected);
-    state.selected = null;
-    renderWidgets();
-    renderProps();
-  };
+  return x + w <= state.grid.w && y + h <= state.grid.h;
 }
 
 function bindEvents() {
-  $$('.tab').forEach(t => t.onclick = () => {
-    $$('.tab').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    $$('.view').forEach(v => v.classList.remove('active'));
-    $(`#${t.dataset.view}View`).classList.add('active');
-  });
+  let draggedType = null;
+  const canvas = $('#canvas');
 
   $$('.palette-item').forEach(item => {
     item.ondragstart = e => {
-      e.dataTransfer.setData('type', item.dataset.type);
-      e.dataTransfer.setData('w', item.dataset.w);
-      e.dataTransfer.setData('h', item.dataset.h);
+      draggedType = item.dataset.type;
+      e.dataTransfer.effectAllowed = 'copy';
     };
   });
 
-  const canvas = $('#canvas');
-  canvas.ondragover = e => {
-    e.preventDefault();
-    const { x, y } = getCell(e);
-    const w = 2, h = 1;
-    highlight(x, y, w, h, canPlace(x, y, w, h));
-  };
-  canvas.ondragleave = clearHighlight;
   canvas.ondrop = e => {
     e.preventDefault();
-    clearHighlight();
-    const type = e.dataTransfer.getData('type');
-    if (!type) return;
+    if (!draggedType) return;
     const { x, y } = getCell(e);
-    const w = parseInt(e.dataTransfer.getData('w')) || 2;
-    const h = parseInt(e.dataTransfer.getData('h')) || 1;
-    if (canPlace(x, y, w, h)) {
-      const id = `${type}${state.nextId++}`;
-      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text' };
-      state.widgets.push({ id, t: type, x, y, w, h, label: labels[type] || type });
+    if (canPlace(x, y, 1, 1)) {
+      const id = `${draggedType}${state.nextId++}`;
+      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text', spinner: 'Load', emoji: 'Fun', dial: 'Ctrl' };
+      state.widgets.push({ id, t: draggedType, x, y, w: 1, h: 1, label: labels[draggedType] || draggedType });
       select(id);
     } else {
-      toast('No space here', 'error');
+      toast('No space', 'error');
     }
   };
 
-  let drag = null, resize = null;
+  canvas.ondragover = e => e.preventDefault();
 
+  let drag = null, resize = null;
   canvas.onmousedown = e => {
     const wEl = e.target.closest('.widget');
     if (!wEl) { select(null); return; }
     const id = wEl.dataset.id;
     select(id);
     const w = state.widgets.find(x => x.id === id);
-    if (e.target.classList.contains('resize-handle')) {
-      resize = w;
-    } else {
-      drag = w;
-    }
+    if (e.target.classList.contains('resize-handle')) resize = w;
+    else drag = w;
   };
 
   document.onmousemove = e => {
     if (drag) {
       const { x, y } = getCell(e);
-      highlight(x, y, drag.w, drag.h, canPlace(x, y, drag.w, drag.h, drag.id));
-    }
-    if (resize) {
-      const { x, y } = getCell(e);
-      const nw = Math.max(1, x - resize.x + 1);
-      const nh = Math.max(1, y - resize.y + 1);
-      highlight(resize.x, resize.y, nw, nh, canPlace(resize.x, resize.y, nw, nh, resize.id));
-    }
-  };
-
-  document.onmouseup = e => {
-    if (drag) {
-      const { x, y } = getCell(e);
-      if (canPlace(x, y, drag.w, drag.h, drag.id)) {
-        drag.x = x;
-        drag.y = y;
-      }
-      drag = null;
-      clearHighlight();
-      renderWidgets();
-      renderProps();
-    }
-    if (resize) {
-      const { x, y } = getCell(e);
-      const nw = Math.max(1, x - resize.x + 1);
-      const nh = Math.max(1, y - resize.y + 1);
-      if (canPlace(resize.x, resize.y, nw, nh, resize.id)) {
-        resize.w = nw;
-        resize.h = nh;
-      }
-      resize = null;
-      clearHighlight();
-      renderWidgets();
-      renderProps();
+      if (canPlace(x, y, drag.w, drag.h, drag.id)) { drag.x = x; drag.y = y; renderWidgets(); }
+    } else if (resize) {
+      const { x: sx, y: sy } = getCell(e);
+      const w = Math.max(1, sx - resize.x + 1);
+      const h = Math.max(1, sy - resize.y + 1);
+      if (canPlace(resize.x, resize.y, w, h, resize.id)) { resize.w = w; resize.h = h; renderWidgets(); }
     }
   };
 
-  $('#clearBtn').onclick = () => {
-    if (confirm('Clear all widgets?')) {
-      state.widgets = [];
-      state.selected = null;
-      state.nextId = 1;
-      renderWidgets();
-      renderProps();
-    }
-  };
+  document.onmouseup = () => { drag = null; resize = null; };
 
-  $('#exportBtn').onclick = () => showModal('MakeCode Export', generateMakeCode());
-  $('#loadBtn').onclick = () => $('#fileInput').click();
+  $('#bleBtn').onclick = connectBle;
+  $('#connectBtn').onclick = connectBle;
+}
+
+function switchTab(tab) {
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $$('.tab').forEach(t => t.classList.remove('active'));
+  $(`.view.${tab === 'builder' ? 'builder' : 'runtime-view'}`).classList.add('active');
+  $$(`.tab`)[tab === 'builder' ? 0 : 1].classList.add('active');
+}
+
+function showCode() {
+  const code = generateMakeCode();
+  showModal('MakeCode Firmware', code);
+}
+
+function downloadConfig() {
+  const cfg = getConfig();
+  const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'remote-config.json';
+  a.click();
+  toast('Exported', 'success');
+}
+
+function loadConfigFile() {
   $('#fileInput').onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1214,51 +1255,16 @@ function bindEvents() {
     reader.onload = ev => {
       try {
         loadConfig(JSON.parse(ev.target.result));
-        toast('Loaded!', 'success');
+        toast('Imported', 'success');
       } catch { toast('Invalid file', 'error'); }
     };
     reader.readAsText(file);
     e.target.value = '';
   };
-
-  $('#sendBtn').onclick = async () => {
-    if (!state.ble.connected) {
-      toast('Connect first!', 'error');
-      return;
-    }
-    const cfg = getConfig();
-    const json = JSON.stringify(cfg);
-    const b64 = btoa(json);
-    await send(`SETCFG ${b64.length}`);
-    for (let i = 0; i < b64.length; i += 18) {
-      await send(`CFG ${b64.substr(i, 18)}`);
-      await sleep(50);
-    }
-    await send('CFGEND');
-    toast('Sent!', 'success');
-  };
-
-  $('#bleBtn').onclick = connectBle;
-  $('#connectBtn').onclick = connectBle;
-
-  $('#modalClose').onclick = hideModal;
-  $('#modalBg').onclick = e => { if (e.target === $('#modalBg')) hideModal(); };
-  $('#copyBtn').onclick = () => {
-    navigator.clipboard.writeText($('#modalCode').textContent);
-    toast('Copied!', 'success');
-  };
-  $('#downloadBtn').onclick = () => {
-    const blob = new Blob([$('#modalCode').textContent], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'microbit-remote.ts';
-    a.click();
-  };
+  $('#fileInput').click();
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function getConfig() {
   return {
@@ -1270,16 +1276,10 @@ function getConfig() {
 }
 
 function loadConfig(cfg) {
-  if (cfg.grid) {
-    state.grid.w = cfg.grid.w || 6;
-    state.grid.h = cfg.grid.h || 5;
-  }
+  if (cfg.grid) { state.grid.w = Math.max(3, cfg.grid.w || 6); state.grid.h = Math.max(3, cfg.grid.h || 5); }
   if (cfg.title) $('#titleInput').value = cfg.title;
   state.widgets = (cfg.widgets || []).map(w => ({ ...w }));
-  state.nextId = Math.max(...state.widgets.map(w => {
-    const m = w.id.match(/\d+$/);
-    return m ? parseInt(m[0]) + 1 : 1;
-  }), 1);
+  state.nextId = Math.max(...state.widgets.map(w => { const m = w.id.match(/\d+$/); return m ? parseInt(m[0]) + 1 : 1; }), 1);
   state.selected = null;
   renderGrid();
   renderProps();
@@ -1288,9 +1288,7 @@ function loadConfig(cfg) {
 function generateMakeCode() {
   const cfg = getConfig();
   const b64 = btoa(JSON.stringify(cfg));
-  return `// micro:bit Remote - MakeCode
-// Paste into MakeCode TypeScript editor
-
+  return `// Funny Remote - MakeCode
 const CFG = "${b64}"
 let cfgSent = false
 
@@ -1298,17 +1296,15 @@ bluetooth.startUartService()
 
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), () => {
     let cmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
-    
     if (cmd == "GETCFG") {
         bluetooth.uartWriteLine("CFGBEGIN " + CFG.length)
         for (let i = 0; i < CFG.length; i += 18) {
-            bluetooth.uartWriteLine("CFG " + CFG.substr(i, 18))
+            bluetooth.uartWriteLine("CFG " + CFG.substring(i, i + 18))
         }
         bluetooth.uartWriteLine("CFGEND")
         cfgSent = true
-    }
-    else if (cmd.indexOf("SET ") == 0) {
-        let parts = cmd.substr(4).split(" ")
+    } else if (cmd.indexOf("SET ") == 0) {
+        let parts = cmd.substring(4).split(" ")
         let id = parts[0]
         let val = parts.slice(1).join(" ")
         handleInput(id, val)
@@ -1317,18 +1313,11 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), () => {
 
 function handleInput(id: string, val: string) {
     serial.writeLine(id + " = " + val)
-    basic.showString(val.substr(0, 1))
 }
 
 function sendValue(id: string, val: string) {
-    if (cfgSent) {
-        bluetooth.uartWriteLine("UPD " + id + " " + val)
-    }
+    if (cfgSent) bluetooth.uartWriteLine("UPD " + id + " " + val)
 }
-
-basic.forever(() => {
-    // sendValue("led1", input.lightLevel() > 100 ? "1" : "0")
-})
 
 basic.showIcon(IconNames.Yes)`;
 }
@@ -1339,9 +1328,7 @@ function showModal(title, code) {
   $('#modalBg').classList.add('show');
 }
 
-function hideModal() {
-  $('#modalBg').classList.remove('show');
-}
+function hideModal() { $('#modalBg').classList.remove('show'); }
 
 function toast(msg, type = '') {
   const t = $('#toast');
@@ -1350,140 +1337,90 @@ function toast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// BLE Connection - Fixed TX/RX mapping
 async function connectBle() {
   try {
-    // Request device
     const device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: 'BBC micro:bit' }],
       optionalServices: [UART_SERVICE]
     });
-
     device.addEventListener('gattserverdisconnected', onDisconnect);
-
-    // Connect to GATT server
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService(UART_SERVICE);
-
-    // Get characteristics with CORRECT mapping:
-    // TX (0002) = micro:bit transmits, we receive via notifications
-    // RX (0003) = micro:bit receives, we write to it
     const notifyChar = await service.getCharacteristic(UART_TX_CHAR);
     const writeChar = await service.getCharacteristic(UART_RX_CHAR);
-
-    // Start notifications on TX characteristic
     await notifyChar.startNotifications();
     notifyChar.addEventListener('characteristicvaluechanged', onNotify);
-
-    // Store references
-    state.ble.device = device;
-    state.ble.server = server;
-    state.ble.service = service;
-    state.ble.notifyChar = notifyChar;
-    state.ble.writeChar = writeChar;
-    state.ble.connected = true;
+    state.ble = { device, server, service, notifyChar, writeChar, connected: true };
     state.rxBuffer = '';
-
     updateBleUI();
     toast('Connected!', 'success');
-    
-    // Request config from micro:bit
     setTimeout(() => requestConfig(), 500);
-    
   } catch (err) {
     console.error('BLE Error:', err);
-    toast('Connection failed: ' + err.message, 'error');
+    toast('Connection failed', 'error');
   }
 }
 
 function onDisconnect() {
-  state.ble.connected = false;
-  state.ble.device = null;
-  state.ble.server = null;
-  state.ble.service = null;
-  state.ble.notifyChar = null;
-  state.ble.writeChar = null;
+  state.ble = { device: null, server: null, service: null, notifyChar: null, writeChar: null, connected: false };
   updateBleUI();
   toast('Disconnected', 'error');
 }
 
 function updateBleUI() {
   const btn = $('#bleBtn');
-  const dot = $('#bleDot');
   const text = $('#bleText');
   if (state.ble.connected) {
     btn.classList.add('connected');
-    dot.classList.add('on');
     text.textContent = 'Connected';
     $('#connectPrompt').style.display = 'none';
-    $('#runtimeContent').style.display = 'block';
+    $('#runtimeContent').style.display = 'flex';
   } else {
     btn.classList.remove('connected');
-    dot.classList.remove('on');
-    text.textContent = 'Connect';
-    $('#connectPrompt').style.display = 'block';
+    text.textContent = 'Disconnected';
+    $('#connectPrompt').style.display = 'flex';
     $('#runtimeContent').style.display = 'none';
   }
 }
 
-// Write to RX characteristic (web → micro:bit)
 async function send(msg) {
   if (!state.ble.writeChar) return;
   try {
-    const data = encoder.encode(msg + '\n');
-    await state.ble.writeChar.writeValue(data);
-    console.log('TX:', msg);
-  } catch (err) {
-    console.error('Write error:', err);
-  }
+    await state.ble.writeChar.writeValue(encoder.encode(msg + '\n'));
+  } catch (err) { console.error('Write error:', err); }
 }
 
-function requestConfig() {
-  state.rxBuffer = '';
-  send('GETCFG');
-}
+function requestConfig() { state.rxBuffer = ''; send('GETCFG'); }
 
-// Handle notifications from TX characteristic (micro:bit → web)
 function onNotify(event) {
   const value = event.target.value;
   let str = '';
   for (let i = 0; i < value.byteLength; i++) {
     const byte = value.getUint8(i);
-    if (byte !== 13) str += String.fromCharCode(byte); // skip CR
+    if (byte !== 13) str += String.fromCharCode(byte);
   }
-
   state.rxBuffer += str;
-
-  // Process complete lines
   let nl;
   while ((nl = state.rxBuffer.indexOf('\n')) !== -1) {
     const line = state.rxBuffer.slice(0, nl).trim();
     state.rxBuffer = state.rxBuffer.slice(nl + 1);
-    if (line) {
-      console.log('RX:', line);
-      processLine(line);
-    }
+    if (line) processLine(line);
   }
 }
 
 let configBuffer = '';
 
 function processLine(line) {
-  if (line.startsWith('CFGBEGIN')) {
-    configBuffer = '';
-  } else if (line.startsWith('CFG ')) {
-    configBuffer += line.substr(4);
-  } else if (line === 'CFGEND') {
+  if (line.startsWith('CFGBEGIN')) configBuffer = '';
+  else if (line.startsWith('CFG ')) configBuffer += line.substring(4);
+  else if (line === 'CFGEND') {
     try {
       state.config = JSON.parse(atob(configBuffer));
       renderRuntime();
       toast('Config loaded!', 'success');
-    } catch (e) {
-      console.error('Config parse error:', e);
-      toast('Config error', 'error');
-    }
+    } catch (e) { console.error('Config parse error:', e); toast('Config error', 'error'); }
   } else if (line.startsWith('UPD ')) {
-    const parts = line.substr(4).split(' ');
+    const parts = line.substring(4).split(' ');
     const id = parts[0];
     const val = parts.slice(1).join(' ');
     state.values[id] = val;
@@ -1516,20 +1453,19 @@ function renderRuntime() {
 }
 
 function createRuntimeWidget(w) {
-  const val = state.values[w.id] || '0';
+  const val = escape(state.values[w.id] || '0');
+  const label = escape(w.label || '');
+  const rawVal = state.values[w.id] || '0';
   switch (w.t) {
-    case 'button':
-      return `<button class="rt-button">${w.label || 'Press'}</button>`;
-    case 'slider':
-      return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span class="rt-slider-label">${w.label || 'Value'}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${val}"></div>`;
-    case 'toggle':
-      return `<div class="rt-toggle-wrap"><button class="rt-toggle${val === '1' ? ' on' : ''}"></button><span class="rt-toggle-label">${w.label || 'Switch'}</span></div>`;
-    case 'led':
-      return `<div class="rt-led-wrap"><div class="rt-led${val === '1' ? ' on' : ''}"></div><span class="rt-led-label">${w.label || 'LED'}</span></div>`;
-    case 'label':
-      return `<div class="rt-label-text">${val || w.label || 'Text'}</div>`;
-    default:
-      return `<div>${w.t}</div>`;
+    case 'button': return `<button class="rt-button">${label || 'Press'}</button>`;
+    case 'slider': return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span class="rt-slider-label">${label || 'Value'}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${rawVal}"></div>`;
+    case 'toggle': return `<button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '◯'}</button><span style="color:var(--text);font-weight:600">${label || 'Switch'}</span>`;
+    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span style="color:var(--text);font-weight:600">${label || 'LED'}</span></div>`;
+    case 'spinner': return `<div class="rt-led-wrap"><div class="rt-spinner"></div><span style="color:var(--text);font-weight:600">${label || 'Wait'}</span></div>`;
+    case 'emoji': return `<div class="rt-emoji">${label || '😂'}</div>`;
+    case 'dial': return `<div style="text-align:center"><div style="font-size:1.8rem">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px">${val}</div></div>`;
+    case 'label': return `<div class="rt-label-text">${val || label || 'Text'}</div>`;
+    default: return `<div>${escape(w.t)}</div>`;
   }
 }
 
@@ -1537,27 +1473,29 @@ function bindRuntimeWidget(el, w) {
   switch (w.t) {
     case 'button':
       const btn = el.querySelector('.rt-button');
-      const pressHandler = e => { e.preventDefault(); send(`SET ${w.id} 1`); };
-      const releaseHandler = () => send(`SET ${w.id} 0`);
-      btn.onmousedown = pressHandler;
-      btn.ontouchstart = pressHandler;
-      btn.onmouseup = releaseHandler;
-      btn.onmouseleave = releaseHandler;
-      btn.ontouchend = releaseHandler;
+      const press = e => { e.preventDefault(); send(`SET ${w.id} 1`); };
+      const release = () => send(`SET ${w.id} 0`);
+      btn.onmousedown = press; btn.ontouchstart = press;
+      btn.onmouseup = release; btn.onmouseleave = release; btn.ontouchend = release;
       break;
     case 'slider':
-      const slider = el.querySelector('.rt-slider');
-      slider.oninput = e => {
+      el.querySelector('.rt-slider').oninput = e => {
         el.querySelector('.rt-slider-val').textContent = e.target.value;
         send(`SET ${w.id} ${e.target.value}`);
       };
       break;
     case 'toggle':
-      const tog = el.querySelector('.rt-toggle');
-      tog.onclick = () => {
-        const on = tog.classList.toggle('on');
+      el.querySelector('.rt-toggle').onclick = function() {
+        const on = this.classList.toggle('on');
+        this.textContent = on ? '✓' : '◯';
         send(`SET ${w.id} ${on ? '1' : '0'}`);
       };
+      break;
+    case 'emoji':
+      el.querySelector('.rt-emoji').onclick = () => send(`SET ${w.id} clicked`);
+      break;
+    case 'dial':
+      el.onclick = () => send(`SET ${w.id} dialed`);
       break;
   }
 }
@@ -1568,21 +1506,24 @@ function updateRuntimeWidget(id, val) {
   const w = state.config.widgets.find(x => x.id === id);
   if (!w) return;
   switch (w.t) {
-    case 'slider':
-      el.querySelector('.rt-slider').value = val;
-      el.querySelector('.rt-slider-val').textContent = val;
-      break;
-    case 'toggle':
-      el.querySelector('.rt-toggle').classList.toggle('on', val === '1');
-      break;
-    case 'led':
-      el.querySelector('.rt-led').classList.toggle('on', val === '1');
-      break;
-    case 'label':
-      el.querySelector('.rt-label-text').textContent = val;
-      break;
+    case 'slider': el.querySelector('.rt-slider').value = val; el.querySelector('.rt-slider-val').textContent = val; break;
+    case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '◯'; break;
+    case 'led': el.querySelector('.rt-led').classList.toggle('on', val === '1'); break;
+    case 'label': el.querySelector('.rt-label-text').textContent = val; break;
+    case 'dial': el.querySelector('div').innerHTML = `<div style="font-size:1.8rem">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px">${escape(val)}</div>`; break;
   }
 }
+
+$('#modalClose').onclick = hideModal;
+$('#modalBg').onclick = e => { if (e.target === $('#modalBg')) hideModal(); };
+$('#copyBtn').onclick = () => { navigator.clipboard.writeText($('#modalCode').textContent); toast('Copied!', 'success'); };
+$('#downloadBtn').onclick = () => {
+  const blob = new Blob([$('#modalCode').textContent], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'microbit-remote.ts';
+  a.click();
+};
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
