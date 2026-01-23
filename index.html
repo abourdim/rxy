@@ -290,6 +290,8 @@ main {
 .palette-icon.spinner { background: linear-gradient(135deg, #f59e0b, #f97316); }
 .palette-icon.emoji { background: linear-gradient(135deg, #ec4899, #f43f5e); }
 .palette-icon.dial { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.palette-icon.joystick { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.palette-icon.graph { background: linear-gradient(135deg, #10b981, #34d399); }
 
 .palette-name {
   font-size: 0.7rem;
@@ -697,16 +699,54 @@ button {
   font-size: 0.9rem;
   font-weight: 700;
   border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--button), #60a5fa);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rt-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .rt-button:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.rt-joystick-base {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1));
+  border: 3px solid rgba(139, 92, 246, 0.5);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rt-joystick-base:active {
+  cursor: grabbing;
+}
+
+.rt-joystick-stick {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.6);
+  transition: transform 0.1s;
 }
 
 .rt-slider-wrap {
@@ -944,6 +984,14 @@ button {
         <div class="palette-item" draggable="true" data-type="dial">
           <div class="palette-icon dial">🎛️</div>
           <div class="palette-name">Dial</div>
+        </div>
+        <div class="palette-item" draggable="true" data-type="joystick">
+          <div class="palette-icon joystick">🕹️</div>
+          <div class="palette-name">Joystick</div>
+        </div>
+        <div class="palette-item" draggable="true" data-type="graph">
+          <div class="palette-icon graph">📈</div>
+          <div class="palette-name">Graph</div>
         </div>
       </div>
 
@@ -1186,7 +1234,7 @@ function bindEvents() {
     const { x, y } = getCell(e);
     if (canPlace(x, y, 1, 1)) {
       const id = `${draggedType}${state.nextId++}`;
-      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text', spinner: 'Load', emoji: 'Fun', dial: 'Ctrl' };
+      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text', spinner: 'Load', emoji: 'Fun', dial: 'Ctrl', joystick: 'Move', graph: 'Data' };
       state.widgets.push({ id, t: draggedType, x, y, w: 1, h: 1, label: labels[draggedType] || draggedType });
       select(id);
     } else {
@@ -1457,14 +1505,16 @@ function createRuntimeWidget(w) {
   const label = escape(w.label || '');
   const rawVal = state.values[w.id] || '0';
   switch (w.t) {
-    case 'button': return `<button class="rt-button">${label || 'Press'}</button>`;
+    case 'button': return `<button class="rt-button"><span style="font-size:2rem">👆</span><div>${label || 'Press'}</div></button>`;
     case 'slider': return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span class="rt-slider-label">${label || 'Value'}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${rawVal}"></div>`;
-    case 'toggle': return `<button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '◯'}</button><span style="color:var(--text);font-weight:600">${label || 'Switch'}</span>`;
-    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span style="color:var(--text);font-weight:600">${label || 'LED'}</span></div>`;
-    case 'spinner': return `<div class="rt-led-wrap"><div class="rt-spinner"></div><span style="color:var(--text);font-weight:600">${label || 'Wait'}</span></div>`;
-    case 'emoji': return `<div class="rt-emoji">${label || '😂'}</div>`;
-    case 'dial': return `<div style="text-align:center"><div style="font-size:1.8rem">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px">${val}</div></div>`;
-    case 'label': return `<div class="rt-label-text">${val || label || 'Text'}</div>`;
+    case 'toggle': return `<div style="display:flex;flex-direction:column;align-items:center;gap:8px"><button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '◯'}</button><span style="color:var(--text);font-weight:600">${label || 'Switch'}</span></div>`;
+    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span style="color:var(--text);font-weight:600">${label || '💡'}</span></div>`;
+    case 'spinner': return `<div class="rt-led-wrap"><div class="rt-spinner"></div><span style="color:var(--text);font-weight:600">${label || '⏳'}</span></div>`;
+    case 'emoji': return `<div class="rt-emoji">${label || '🎉'}</div>`;
+    case 'dial': return `<div style="text-align:center"><div style="font-size:2rem;transform:rotate(${rawVal*3.6}deg);transition:transform 0.2s">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px;font-size:0.9rem">${val}</div></div>`;
+    case 'joystick': return `<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center"><div class="rt-joystick-base"><div class="rt-joystick-stick"></div></div><span style="position:absolute;bottom:4px;color:var(--text);font-size:0.75rem;font-weight:600">${label || 'Move'}</span></div>`;
+    case 'graph': return `<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden"><svg width="100%" height="100%" style="background:linear-gradient(to bottom, rgba(34,197,94,0.2), rgba(34,197,94,0.05))"><polyline points="5,45 15,35 25,40 35,20 45,30 55,15 65,25 75,10 85,20 95,5" style="fill:none;stroke:#22c55e;stroke-width:2"/></svg><span style="position:absolute;color:var(--text);font-weight:600;font-size:0.7rem">${label || 'Data'}</span></div>`;
+    case 'label': return `<div class="rt-label-text" style="font-size:1.2rem">${val || label || 'Text'}</div>`;
     default: return `<div>${escape(w.t)}</div>`;
   }
 }
@@ -1497,6 +1547,31 @@ function bindRuntimeWidget(el, w) {
     case 'dial':
       el.onclick = () => send(`SET ${w.id} dialed`);
       break;
+    case 'joystick':
+      const stick = el.querySelector('.rt-joystick-stick');
+      const base = el.querySelector('.rt-joystick-base');
+      let isDown = false;
+      const handleMove = e => {
+        if (!isDown) return;
+        const rect = base.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const dx = clientX - centerX;
+        const dy = clientY - centerY;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const distance = Math.min(40, Math.hypot(dx, dy));
+        stick.style.transform = `translate(${Math.cos(angle * Math.PI / 180) * distance}px, ${Math.sin(angle * Math.PI / 180) * distance}px)`;
+        send(`SET ${w.id} ${Math.round(angle)} ${Math.round(distance)}`);
+      };
+      base.onmousedown = () => { isDown = true; };
+      base.ontouchstart = () => { isDown = true; };
+      document.onmousemove = handleMove;
+      document.ontouchmove = handleMove;
+      document.onmouseup = () => { isDown = false; stick.style.transform = ''; };
+      document.ontouchend = () => { isDown = false; stick.style.transform = ''; };
+      break;
   }
 }
 
@@ -1510,7 +1585,15 @@ function updateRuntimeWidget(id, val) {
     case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '◯'; break;
     case 'led': el.querySelector('.rt-led').classList.toggle('on', val === '1'); break;
     case 'label': el.querySelector('.rt-label-text').textContent = val; break;
-    case 'dial': el.querySelector('div').innerHTML = `<div style="font-size:1.8rem">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px">${escape(val)}</div>`; break;
+    case 'dial': 
+      const rotDeg = parseFloat(val) * 3.6 || 0;
+      el.querySelector('div:first-child').style.transform = `rotate(${rotDeg}deg)`;
+      el.querySelector('div:last-child').textContent = escape(val);
+      break;
+    case 'graph':
+      const graphVal = Math.min(45, Math.max(5, parseFloat(val) * 45 || 25));
+      el.querySelector('polyline').setAttribute('points', `5,${45-graphVal} 15,${45-graphVal*0.8} 25,${45-graphVal*0.9} 35,${45-graphVal*0.6} 45,${45-graphVal*0.7} 55,${45-graphVal*0.4} 65,${45-graphVal*0.5} 75,${45-graphVal*0.2} 85,${45-graphVal*0.3} 95,5`);
+      break;
   }
 }
 
