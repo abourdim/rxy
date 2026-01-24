@@ -143,6 +143,51 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 #runtimeGrid { position: relative; background: var(--card); border: 3px solid var(--surface); border-radius: 20px; }
 
 /* Runtime Widgets */
+/* Graph (Online) */
+.rt-graph-wrap{
+  width: 100%; height: 100%;
+  display:flex; flex-direction:column; gap:8px;
+  padding: 10px;
+  border-radius: 16px;
+}
+.rt-graph-head{ display:flex; justify-content:space-between; font-weight:800; font-size:0.9rem; color: var(--text); }
+.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size:0.75rem; color: var(--text-dim); font-weight:800; }
+.rt-graph-dot{ width:10px; height:10px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; }
+.rt-graph-canvas{
+  width: 100%; flex:1;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.14);
+  border: 2px solid rgba(255,255,255,0.10);
+}
+.rt-graph-wrap.model-grid{
+  background: linear-gradient(135deg, rgba(0,212,255,0.10), rgba(179,136,255,0.10));
+}
+.rt-graph-wrap.model-dark{
+  background: rgba(0,0,0,0.15);
+}
+.rt-graph-wrap.model-min{
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.10);
+}
+
+/* Gauge */
+.rt-gauge-wrap{
+  width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; padding:10px;
+  border-radius: 16px;
+}
+.rt-gauge-svg{ width: 100%; height: 100%; max-height: 120px; }
+.rt-gauge-label{ font-weight:800; color: var(--text-dim); font-size:0.85rem; text-align:center; }
+.rt-gauge-value{ font-weight:900; font-size:1.1rem; color: var(--text); text-align:center; }
+.rt-gauge-wrap.model-classic{ background: rgba(0,0,0,0.10); border: 2px solid rgba(255,255,255,0.10); }
+.rt-gauge-wrap.model-neon{ background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(255,107,157,0.10)); box-shadow: 0 0 30px rgba(0,212,255,0.12); }
+.rt-gauge-wrap.model-min{ background: transparent; border: 2px solid rgba(255,255,255,0.10); }
+
+.rt-gauge-bg{ stroke: rgba(255,255,255,0.18); stroke-width: 10; fill: none; }
+.rt-gauge-fg{ stroke: var(--accent); stroke-width: 10; fill: none; stroke-linecap: round; }
+
+
 .rt-widget { position: absolute; padding: 10px; display: flex; align-items: center; justify-content: center; }
 .rt-button {
   width: 100%; height: 100%; border: none; border-radius: 16px;
@@ -172,6 +217,121 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .rt-joystick-stick { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); pointer-events: none; }
 
 .rt-label-text { font-weight: 700; font-size: 1.2rem; text-align: center; }
+
+/* --- Widget Models (Runtime) --- */
+/* Buttons */
+.rt-button.model-neo{
+  background: linear-gradient(135deg, #6366f1, var(--purple));
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+.rt-button.model-flat{
+  background: var(--accent);
+  color: #000;
+  box-shadow: none;
+}
+.rt-button.model-glass{
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+/* Sliders */
+.rt-slider.model-track{ height: 12px; border-radius: 6px; }
+.rt-slider.model-min{ height: 6px; border-radius: 999px; }
+.rt-slider.model-neon{
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 20px rgba(0,212,255,0.25);
+}
+.rt-slider.model-neon::-webkit-slider-thumb{
+  box-shadow: 0 0 25px rgba(179,136,255,0.7);
+}
+.rt-slider.model-min::-webkit-slider-thumb{
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+}
+
+/* Toggles */
+.rt-toggle.model-square{ border-radius: 16px; }
+.rt-toggle.model-pill{
+  width: 90px; height: 46px;
+  border-radius: 999px;
+  display:flex; align-items:center; justify-content:center;
+  font-size: 1.4rem;
+}
+.rt-toggle.model-icon{
+  background: var(--card);
+  border: 3px solid var(--surface);
+  color: var(--text);
+}
+.rt-toggle.model-icon.on{
+  border-color: var(--green);
+  box-shadow: 0 0 30px rgba(0,230,118,0.35);
+}
+
+/* LEDs */
+.rt-led.model-dot{ border-radius: 50%; }
+.rt-led.model-bar{
+  width: 90%;
+  height: 28%;
+  min-height: 18px;
+  border-radius: 999px;
+}
+.rt-led.model-ring{
+  background: transparent !important;
+  border: 6px solid rgba(255,255,255,0.18);
+  box-shadow: none !important;
+}
+.rt-led.model-ring.on{
+  background: transparent !important;
+}
+
+/* Joysticks */
+.rt-joystick-base.model-classic{ border: 4px solid var(--accent); }
+.rt-joystick-base.model-neon{
+  border: 4px solid var(--accent);
+  box-shadow: 0 0 35px rgba(0,212,255,0.35);
+}
+.rt-joystick-base.model-min{
+  border: 3px solid rgba(255,255,255,0.18);
+}
+.rt-joystick-stick.model-min{
+  background: rgba(255,255,255,0.14);
+}
+
+/* Labels */
+.rt-label-text.model-plain{ }
+.rt-label-text.model-card{
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  padding: 10px 14px;
+}
+.rt-label-text.model-glow{
+  text-shadow: 0 0 18px rgba(0,212,255,0.55);
+}
+
+/* Props panel helpers */
+.props-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.props-apply{
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.props-apply:hover{
+  border-color: var(--accent);
+}
 
 /* Toast */
 .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 16px 32px; background: var(--card); border: 3px solid var(--accent); border-radius: 30px; font-weight: 700; font-size: 1rem; transition: 0.3s; z-index: 1000; }
@@ -322,6 +482,8 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
         <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
         <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
+        <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
+        <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
       </div>
     </div>
 
@@ -360,8 +522,8 @@ const esc = s => { const d = document.createElement('div'); d.textContent = s; r
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
-const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️' };
-const SIZES = { button:[90,90], slider:[90,160], toggle:[90,90], joystick:[120,120], led:[90,90], label:[120,60] };
+const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️', graph:'📈', gauge:'🧭' };
+const SIZES = { button:[90,90], slider:[90,160], toggle:[90,90], joystick:[120,120], led:[90,90], label:[120,60], graph:[240,140], gauge:[150,150] };
 
 const templates = {
   gamepad: [
@@ -405,6 +567,102 @@ const state = {
   config: null, values: {}, rxBuffer: '',
   justDragged: false, _dragT: null
 };
+
+// Ensure older configs/templates still look good when new properties are added
+function applyWidgetDefaults(w){
+  if (!w || !w.t) return w;
+
+  // Default models (3 per widget type)
+  if (!w.model){
+    if (w.t === 'button') w.model = 'neo';
+    if (w.t === 'slider') w.model = 'track';
+    if (w.t === 'toggle') w.model = 'square';
+    if (w.t === 'led') w.model = 'dot';
+    if (w.t === 'joystick') w.model = 'classic';
+    if (w.t === 'label') w.model = 'plain';
+    if (w.t === 'gauge') w.model = 'classic';
+    if (w.t === 'graph') w.model = 'grid';
+  }
+
+  // Existing per-type defaults
+  if (w.t === 'led'){
+    if (!w.colorOn) w.colorOn = '#ff5252';
+    if (!w.colorOff) w.colorOff = '#2a2a3a';
+  }
+  if (w.t === 'slider'){
+    if (w.min == null) w.min = 0;
+    if (w.max == null) w.max = 100;
+    if (w.step == null) w.step = 1;
+  }
+
+  // Gauge defaults
+  if (w.t === 'gauge'){
+    if (w.min == null) w.min = 0;
+    if (w.max == null) w.max = 100;
+    if (w.decimals == null) w.decimals = 1;
+    if (w.units == null) w.units = '';
+    if (w.warn == null) w.warn = null;   // optional threshold
+    if (w.danger == null) w.danger = null;
+  }
+
+  // Graph defaults (comma-separated multi-series values: "23.4,2.1")
+  if (w.t === 'graph'){
+    if (w.series == null) w.series = 1;      // 1..10
+    if (w.windowSec == null) w.windowSec = 30; // visible time window
+    if (w.autoScale == null) w.autoScale = true;
+    if (w.min == null) w.min = 0;
+    if (w.max == null) w.max = 100;
+    if (w.showLegend == null) w.showLegend = true;
+  }
+
+  return w;
+}
+
+function modelOptionsForType(t){
+  switch(t){
+    case 'button': return [
+      { v:'neo',   name:'Neo (gradient)' },
+      { v:'flat',  name:'Flat' },
+      { v:'glass', name:'Glass' }
+    ];
+    case 'slider': return [
+      { v:'track', name:'Track' },
+      { v:'neon',  name:'Neon' },
+      { v:'min',   name:'Minimal' }
+    ];
+    case 'toggle': return [
+      { v:'square', name:'Square' },
+      { v:'pill',   name:'Pill' },
+      { v:'icon',   name:'Icon' }
+    ];
+    case 'led': return [
+      { v:'dot',  name:'Dot' },
+      { v:'bar',  name:'Bar' },
+      { v:'ring', name:'Ring' }
+    ];
+    case 'joystick': return [
+      { v:'classic', name:'Classic' },
+      { v:'neon',    name:'Neon' },
+      { v:'min',     name:'Minimal' }
+    ];
+    case 'label': return [
+      { v:'plain', name:'Plain' },
+      { v:'card',  name:'Card' },
+      { v:'glow',  name:'Glow' }
+    ];
+    case 'gauge': return [
+      { v:'classic', name:'Classic' },
+      { v:'neon',    name:'Neon' },
+      { v:'min',     name:'Minimal' }
+    ];
+    case 'graph': return [
+      { v:'grid',    name:'Grid' },
+      { v:'dark',    name:'Dark' },
+      { v:'min',     name:'Minimal' }
+    ];
+    default: return null;
+  }
+}
 
 // BLE send with verbose debug logging
 async function send(msg) {
@@ -454,6 +712,7 @@ function showDemo() {
     { id: 'led_alert', t: 'led', x: 300, y: 260, w: 100, h: 100, label: 'Alert' },
     { id: 'label_score', t: 'label', x: 180, y: 380, w: 150, h: 50, label: 'Score: 0' }
   ];
+  state.widgets = state.widgets.map(applyWidgetDefaults);
   state.nextId = 20;
   state.selected = null;
   $('#titleInput').value = 'Super Demo Remote';
@@ -625,9 +884,7 @@ function init() {
       const [w, h] = SIZES[state.selectedType];
       const x = Math.max(0, Math.min(e.clientX - rect.left - w/2, rect.width - w));
       const y = Math.max(0, Math.min(e.clientY - rect.top - h/2, rect.height - h));
-      const base = { id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' };
-      if (base.t === 'led') { base.colorOn = '#ff5252'; base.colorOff = '#2a2a3a'; }
-      if (base.t === 'slider') { base.min = 0; base.max = 100; base.step = 1; }
+      const base = applyWidgetDefaults({ id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' });
       state.widgets.push(base);
       renderWidgets();
       toast(`✨ ${ICONS[state.selectedType]} added!`, 'success');
@@ -655,7 +912,7 @@ function init() {
 function selectTemplate(name) {
   const t = templates[name];
   if (!t) return;
-  state.widgets = t.map((w, i) => ({ id: `${w.t}${state.nextId + i}`, ...w }));
+  state.widgets = t.map((w, i) => applyWidgetDefaults({ id: `${w.t}${state.nextId + i}`, ...w }));
   state.nextId += t.length || 1;
   state.selected = null;
   $('#templateModal').classList.add('hidden');
@@ -747,6 +1004,18 @@ function renderPropsPanel(){
     <input id="prop_label" value="${esc(w.label || '')}" />
   `;
 
+  // Model selector (3 presets per widget type)
+  const opts = modelOptionsForType(w.t);
+  if (opts){
+    html += `
+      <label>Model</label>
+      <select id="prop_model">
+        ${opts.map(o => `<option value="${o.v}" ${w.model === o.v ? 'selected' : ''}>${o.name}</option>`).join('')}
+      </select>
+      <button class="props-apply" id="prop_applyAll">Apply this model to ALL ${w.t}s</button>
+    `;
+  }
+
   // Type-specific fields
   if (w.t === 'led'){
     html += `
@@ -802,6 +1071,24 @@ function renderPropsPanel(){
     updateSelectionUI();
     toast('✅ ID updated', 'success');
   };
+
+  // Model wiring (and quick apply to all widgets of same type)
+  const modelSel = $('#prop_model');
+  if (modelSel){
+    modelSel.onchange = e => { w.model = e.target.value; toast('✅ Model updated', 'success'); };
+  }
+  const applyBtn = $('#prop_applyAll');
+  if (applyBtn){
+    applyBtn.onclick = () => {
+      const val = w.model;
+      state.widgets.forEach(x => { if (x.t === w.t) x.model = val; });
+      if (state.config?.widgets) state.config.widgets.forEach(x => { if (x.t === w.t) x.model = val; });
+      renderWidgets();
+      if (state.config) renderRuntime();
+      toast(`✨ Applied model to all ${w.t}s`, 'success');
+    };
+  }
+
 
   if (w.t === 'led'){
     $('#prop_colorOn').oninput = e => { w.colorOn = e.target.value; };
@@ -957,7 +1244,8 @@ function processLine(line) {
     console.log('[BLE] Config end, decoding...');
     try { 
       // Unicode-safe base64 decoding (handles emojis!)
-      state.config = JSON.parse(decodeURIComponent(escape(atob(configBuffer)))); 
+      state.config = JSON.parse(decodeURIComponent(escape(atob(configBuffer))));
+      if (state.config?.widgets) state.config.widgets.forEach(applyWidgetDefaults); 
       console.log('[BLE] Config decoded:', state.config);
       renderRuntime(); 
       toast('Remote loaded!', 'success'); 
@@ -991,22 +1279,128 @@ function renderRuntime() {
     grid.appendChild(el);
     bindRuntimeWidget(el, w);
   });
+
+  // Initial draw for graphs & gauges
+  cfg.widgets.forEach(w => {
+    applyWidgetDefaults(w);
+    if (w.t === 'graph') drawGraphWidget(w);
+    if (w.t === 'gauge') updateGaugeWidget(w, state.values[w.id] || '0');
+  });
 }
+
 
 function createRuntimeWidget(w) {
   const val = esc(state.values[w.id] || '0');
   const label = esc(w.label || w.t);
   const rawVal = state.values[w.id] || '0';
+  const model = (w.model || '').trim();
+
   switch (w.t) {
-    case 'button': return `<button class="rt-button"><span class="icon">👆</span><span>${label}</span></button>`;
-    case 'slider': return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span>${label}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${rawVal}"></div>`;
-    case 'toggle': return `<div class="rt-toggle-wrap"><button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '○'}</button><span>${label}</span></div>`;
-    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span>${label}</span></div>`;
-    case 'joystick': return `<div class="rt-joystick-wrap"><div class="rt-joystick-base"><div class="rt-joystick-stick"></div></div><span>${label}</span></div>`;
-    case 'label': return `<div class="rt-label-text">${val || label}</div>`;
-    default: return `<div>${w.t}</div>`;
+    case 'button': {
+      const m = model || 'neo';
+      return `<button class="rt-button model-${m}"><span class="icon">👆</span><span>${label}</span></button>`;
+    }
+
+    case 'slider': {
+      const m = model || 'track';
+      const min = (w.min ?? 0);
+      const max = (w.max ?? 100);
+      const step = (w.step ?? 1);
+      const clamped = Math.max(min, Math.min(max, parseFloat(rawVal) || min));
+      return `<div class="rt-slider-wrap">
+        <div class="rt-slider-info"><span>${label}</span><span class="rt-slider-val">${esc(String(clamped))}</span></div>
+        <input type="range" class="rt-slider model-${m}" min="${min}" max="${max}" step="${step}" value="${clamped}">
+      </div>`;
+    }
+
+    case 'toggle': {
+      const m = model || 'square';
+      const on = rawVal === '1';
+      const glyph = m === 'icon' ? (on ? '⏻' : '⭘') : (on ? '✓' : '○');
+      return `<div class="rt-toggle-wrap">
+        <button class="rt-toggle model-${m}${on ? ' on' : ''}">${glyph}</button>
+        <span>${label}</span>
+      </div>`;
+    }
+
+    case 'led': {
+      const m = model || 'dot';
+      const on = rawVal === '1';
+      const onColor = w.colorOn || '#ff5252';
+      const offColor = w.colorOff || '#2a2a3a';
+      const style = (m === 'ring')
+        ? `border-color:${on ? onColor : 'rgba(255,255,255,0.18)'};`
+        : `background:${on ? onColor : offColor};`;
+      const shadow = (m === 'ring')
+        ? (on ? `box-shadow:0 0 40px ${onColor};` : 'box-shadow:none;')
+        : (on ? `box-shadow:0 0 40px ${onColor};` : 'box-shadow:none;');
+
+      return `<div class="rt-led-wrap">
+        <div class="rt-led model-${m}${on ? ' on' : ''}" style="${style}${shadow}"></div>
+        <span>${label}</span>
+      </div>`;
+    }
+
+    case 'joystick': {
+      const m = model || 'classic';
+      const stickM = m === 'min' ? 'min' : 'classic';
+      return `<div class="rt-joystick-wrap">
+        <div class="rt-joystick-base model-${m}"><div class="rt-joystick-stick model-${stickM}"></div></div>
+        <span>${label}</span>
+      </div>`;
+    }
+
+    case 'label': {
+      const m = model || 'plain';
+      return `<div class="rt-label-text model-${m}">${val || label}</div>`;
+    }
+
+    
+    case 'gauge': {
+      const m = model || 'classic';
+      const min = (w.min ?? 0);
+      const dec = (w.decimals ?? 1);
+      const units = esc((w.units || '').trim());
+      const current = state.values[w.id];
+      let v = parseFloat(current);
+      if (!isFinite(v)) v = parseFloat(min) || 0;
+
+      return `<div class="rt-gauge-wrap model-${m}">
+        <svg class="rt-gauge-svg" viewBox="0 0 120 72" aria-label="gauge">
+          <path class="rt-gauge-bg" d="M12 60 A48 48 0 0 1 108 60"></path>
+          <path class="rt-gauge-fg" d="M12 60 A48 48 0 0 1 108 60"></path>
+        </svg>
+        <div class="rt-gauge-value" data-role="gaugeValue">${v.toFixed(dec)}${units ? ' ' + units : ''}</div>
+        <div class="rt-gauge-label">${label}</div>
+      </div>`;
+    }
+
+    case 'graph': {
+      const m = model || 'grid';
+      const series = Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10)));
+      const win = parseFloat(w.windowSec ?? 30);
+      const auto = (w.autoScale ?? true);
+      const min = (w.min ?? 0);
+      const max = (w.max ?? 100);
+
+      const dots = Array.from({length: series}).map((_,i)=>`<span><span class="rt-graph-dot" data-s="${i}"></span>S${i+1}</span>`).join('');
+
+      return `<div class="rt-graph-wrap model-${m}">
+        <div class="rt-graph-head"><span>${label}</span><span data-role="graphLast">—</span></div>
+        <div class="rt-graph-sub" data-role="graphLegend">${dots}</div>
+        <canvas class="rt-graph-canvas" data-role="graphCanvas"></canvas>
+        <div class="rt-graph-sub">
+          <span>Win: ${win}s</span>
+          <span>${auto ? 'Auto' : `Min ${min} Max ${max}`}</span>
+        </div>
+      </div>`;
+    }
+
+default:
+      return `<div>${w.t}</div>`;
   }
 }
+
 
 function bindRuntimeWidget(el, w) {
   switch (w.t) {
@@ -1084,6 +1478,202 @@ function bindRuntimeWidget(el, w) {
   }
 }
 
+
+// --- Graph & Gauge helpers ---
+state.history = state.history || {}; // { [id]: { points: Array<{t:number, v:number[]}>, colors:string[] } }
+
+function parseCsvNumbers(s){
+  return String(s ?? '').split(',').map(x => parseFloat(x.trim())).filter(x => isFinite(x));
+}
+
+function ensureGraphState(id, series){
+  if (!state.history[id]) state.history[id] = { points: [], colors: [] };
+  const hs = state.history[id];
+  if (!hs.colors || hs.colors.length !== series){
+    // generate distinct-ish hues using HSL (no hard-coded palette)
+    hs.colors = Array.from({length: series}).map((_,i)=>`hsl(${(i*360/series)|0} 85% 60%)`);
+  }
+  return hs;
+}
+
+function pushGraphPoint(w, csvVal){
+  const nums = parseCsvNumbers(csvVal);
+  const series = Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10)));
+  const hs = ensureGraphState(w.id, series);
+  const now = performance.now();
+  const arr = Array.from({length: series}).map((_,i)=> (nums[i] != null ? nums[i] : NaN));
+  hs.points.push({ t: now, v: arr });
+
+  // trim window
+  const winMs = Math.max(5, Math.min(300, parseFloat(w.windowSec ?? 30))) * 1000;
+  const cutoff = now - winMs;
+  while (hs.points.length && hs.points[0].t < cutoff) hs.points.shift();
+}
+
+function resizeCanvasToDisplaySize(canvas){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const w = Math.max(10, Math.floor(rect.width * dpr));
+  const h = Math.max(10, Math.floor(rect.height * dpr));
+  if (canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+    return true;
+  }
+  return false;
+}
+
+function drawGraphWidget(w){
+  const root = document.querySelector(`.rt-widget[data-id="${w.id}"]`);
+  if (!root) return;
+  const canvas = root.querySelector('[data-role="graphCanvas"]');
+  if (!canvas) return;
+
+  resizeCanvasToDisplaySize(canvas);
+  const ctx = canvas.getContext('2d');
+  const hs = ensureGraphState(w.id, Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10))));
+  const pts = hs.points || [];
+  const W = canvas.width, H = canvas.height;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Plot area paddings for axes
+  const padL = 36, padR = 10, padT = 10, padB = 24;
+  const PW = Math.max(10, W - padL - padR);
+  const PH = Math.max(10, H - padT - padB);
+
+  // background
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  ctx.fillRect(0,0,W,H);
+
+  // frame helper
+  const frame = () => {
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.rect(padL, padT, PW, PH);
+    ctx.stroke();
+  };
+
+  if (pts.length < 2){
+    frame();
+    return;
+  }
+
+  const t0 = pts[0].t;
+  const t1 = pts[pts.length-1].t;
+  const span = Math.max(1, t1 - t0);
+
+  // y scale
+  let yMin = Infinity, yMax = -Infinity;
+  if (w.autoScale ?? true){
+    pts.forEach(p => p.v.forEach(v => { if (isFinite(v)) { yMin = Math.min(yMin, v); yMax = Math.max(yMax, v); } }));
+    if (!isFinite(yMin) || !isFinite(yMax) || yMin === yMax){ yMin = 0; yMax = 1; }
+  } else {
+    yMin = parseFloat(w.min ?? 0);
+    yMax = parseFloat(w.max ?? 100);
+    if (!isFinite(yMin) || !isFinite(yMax) || yMin === yMax){ yMin = 0; yMax = 1; }
+  }
+
+  const pad = (yMax - yMin) * 0.08;
+  yMin -= pad; yMax += pad;
+
+  const xForT = t => padL + ((t - t0) / span) * PW;
+  const yForV = v => padT + (PH - ((v - yMin) / (yMax - yMin)) * PH);
+
+  // axes/grid
+  ctx.font = '12px Segoe UI, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+  ctx.lineWidth = 1;
+
+  // Y ticks (5 lines)
+  const yTicks = 4;
+  for (let i=0;i<=yTicks;i++){
+    const yy = padT + (PH * i/yTicks);
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL+PW, yy); ctx.stroke();
+    const v = yMax - (yMax - yMin) * (i/yTicks);
+    const lab = (Math.round(v*100)/100).toString();
+    ctx.fillText(lab, 4, yy + 4);
+  }
+
+  // X ticks (0, mid, end) seconds
+  const xFracs = [0, 0.5, 1];
+  xFracs.forEach(frac => {
+    const xx = padL + PW*frac;
+    ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT+PH); ctx.stroke();
+    const sec = (span/1000)*frac;
+    const sLab = (Math.round(sec*10)/10) + 's';
+    ctx.fillText(sLab, xx - 12, padT + PH + 18);
+  });
+
+  // border
+  ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+  ctx.beginPath();
+  ctx.rect(padL, padT, PW, PH);
+  ctx.stroke();
+
+  // series lines
+  hs.colors.forEach((c, si) => {
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let started = false;
+    for (let i=0;i<pts.length;i++){
+      const v = pts[i].v[si];
+      if (!isFinite(v)) continue;
+      const x = xForT(pts[i].t);
+      const y = yForV(v);
+      if (!started){ ctx.moveTo(x,y); started = true; }
+      else ctx.lineTo(x,y);
+    }
+    if (started) ctx.stroke();
+  });
+
+  // legend dots colors
+  const legend = root.querySelector('[data-role="graphLegend"]');
+  if (legend){
+    legend.querySelectorAll('.rt-graph-dot').forEach(dot => {
+      const i = parseInt(dot.getAttribute('data-s') || '0', 10);
+      dot.style.background = hs.colors[i] || 'var(--accent)';
+    });
+  }
+}
+
+function updateGaugeWidget(w, valStr){
+  const root = document.querySelector(`.rt-widget[data-id="${w.id}"]`);
+  if (!root) return;
+  const wrap = root.querySelector('.rt-gauge-wrap');
+  if (!wrap) return;
+  const fg = wrap.querySelector('.rt-gauge-fg');
+  const txt = wrap.querySelector('[data-role="gaugeValue"]');
+
+  const min = parseFloat(w.min ?? 0);
+  const max = parseFloat(w.max ?? 100);
+  const dec = parseInt(w.decimals ?? 1, 10);
+  const units = (w.units || '').trim();
+
+  let v = parseFloat(valStr);
+  if (!isFinite(v)) v = min;
+  const t = Math.max(0, Math.min(1, (v - min) / (max - min || 1)));
+
+  // path length constant for our arc
+  const L = 126;
+  if (fg){
+    fg.style.strokeDasharray = String(L);
+    fg.style.strokeDashoffset = String(L * (1 - t));
+    // simple threshold coloring
+    const warn = w.warn != null ? parseFloat(w.warn) : null;
+    const danger = w.danger != null ? parseFloat(w.danger) : null;
+    if (danger != null && isFinite(danger) && v >= danger) fg.style.stroke = 'var(--red)';
+    else if (warn != null && isFinite(warn) && v >= warn) fg.style.stroke = 'var(--orange)';
+    else fg.style.stroke = 'var(--accent)';
+  }
+  if (txt){
+    txt.textContent = `${v.toFixed(isFinite(dec) ? dec : 1)}${units ? ' ' + units : ''}`;
+  }
+}
+
+
 function updateRuntimeWidget(id, val) {
   console.log('[UI] Updating widget:', id, 'to', val);
   const el = $(`.rt-widget[data-id="${id}"]`);
@@ -1105,13 +1695,35 @@ function updateRuntimeWidget(id, val) {
       const wdef = state.config.widgets.find(x => x.id === id);
       const onColor = wdef?.colorOn || '#ff5252';
       const offColor = wdef?.colorOff || '#2a2a3a';
+      const model = (wdef?.model || 'dot');
       const on = val === '1';
-      ledEl.style.background = on ? onColor : offColor;
-      ledEl.style.boxShadow = on ? `0 0 40px ${onColor}` : 'none';
+
+      // Ensure model class is present (in case config changed live)
+      ledEl.className = `rt-led model-${model}${on ? ' on' : ''}`;
+
+      if (model === 'ring'){
+        ledEl.style.background = 'transparent';
+        ledEl.style.borderColor = on ? onColor : 'rgba(255,255,255,0.18)';
+        ledEl.style.boxShadow = on ? `0 0 40px ${onColor}` : 'none';
+      } else {
+        ledEl.style.borderColor = '';
+        ledEl.style.background = on ? onColor : offColor;
+        ledEl.style.boxShadow = on ? `0 0 40px ${onColor}` : 'none';
+      }
+
       console.log('[UI] LED', id, 'is now', on ? 'ON' : 'OFF');
       break;
     }
     case 'label': el.querySelector('.rt-label-text').textContent = val; break;
+    case 'gauge': updateGaugeWidget(w, val); break;
+    case 'graph': {
+      // val is comma-separated numbers: "23.4,2.1"
+      pushGraphPoint(w, val);
+      const last = el.querySelector('[data-role="graphLast"]');
+      if (last) last.textContent = val;
+      drawGraphWidget(w);
+      break;
+    }
   }
 }
 
