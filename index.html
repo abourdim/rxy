@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>micro:bit Remote</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js">
+document.addEventListener('click', (e)=>{
+  const btn = e.target && e.target.closest ? e.target.closest('[data-tab]') : null;
+  if (!btn) return;
+  const tab = btn.getAttribute('data-tab');
+  try{ updateToolbarForMode(tab); }catch(e){}
+});
+
+</script>
 <link rel="stylesheet" href="style.css">
 <style>
 :root {
@@ -127,6 +135,18 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   background: var(--accent); border-radius: 0 0 14px 0;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
+.widget .widget-orient-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,212,255,0.3);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 8px;
+  pointer-events: none;
+}
 
 /* Runtime View */
 .runtime-view { align-items: center; justify-content: center; padding: 20px; }
@@ -148,12 +168,19 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .rt-graph-wrap{
   width: 100%; height: 100%;
   display:flex; flex-direction:column; gap:8px;
-  padding: 10px;
-  border-radius: 16px;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+  border: 3px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
 }
-.rt-graph-head{ display:flex; justify-content:space-between; font-weight:800; font-size:0.9rem; color: var(--text); }
-.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size:0.75rem; color: var(--text-dim); font-weight:800; }
-.rt-graph-dot{  height:10px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; }
+.rt-graph-head{ 
+  display:flex; justify-content:space-between; align-items: center;
+  font-weight:800; font-size: clamp(0.8rem, 2vw, 1.1rem); color: var(--text); 
+}
+.rt-graph-head::before { content: '📊 '; }
+.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size: clamp(0.6rem, 1.5vw, 0.8rem); color: var(--text-dim); font-weight:800; }
+.rt-graph-dot{ width: 12px; height:12px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; box-shadow: 0 0 8px currentColor; }
 .rt-graph-canvas{
   width: 100%; flex:1;
   border-radius: 14px;
@@ -176,91 +203,277 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   width:100%; height:100%;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:8px; padding:10px;
-  border-radius: 16px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(0,0,0,0.1), rgba(0,0,0,0.2));
+  border: 3px solid rgba(255,255,255,0.1);
 }
-.rt-gauge-svg{ width: 100%; height: 100%; max-height: 130px; }
-.rt-gauge-ticks line{ stroke: rgba(255,255,255,0.22); stroke-width: 2; stroke-linecap: round; }
-.rt-gauge-bg{ fill:none; stroke: rgba(255,255,255,0.14); stroke-width: 12; stroke-linecap: round; }
-.rt-gauge-fg{ fill:none; stroke: var(--green); stroke-width: 12; stroke-linecap: round;
-  stroke-dasharray: 157.1; /* approx half circumference with r=50 */
+.rt-gauge-svg{ width: 100%; height: auto; max-height: 60%; min-height: 60px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.rt-gauge-ticks line{ stroke: rgba(255,255,255,0.3); stroke-width: 3; stroke-linecap: round; }
+.rt-gauge-bg{ fill:none; stroke: rgba(255,255,255,0.15); stroke-width: 14; stroke-linecap: round; }
+.rt-gauge-fg{ 
+  fill:none; stroke: url(#gaugeGradient); stroke-width: 14; stroke-linecap: round;
+  stroke-dasharray: 157.1;
   stroke-dashoffset: 157.1;
-  transition: stroke-dashoffset 0.25s ease, stroke 0.25s ease;
+  transition: stroke-dashoffset 0.25s ease;
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
-.rt-gauge-label{ font-weight:800; color: var(--text-dim); font-size:0.85rem; text-align:center; }
-.rt-gauge-value{ font-weight:900; font-size:1.1rem; color: var(--text); text-align:center; }
-.rt-gauge-wrap.model-classic{ background: rgba(0,0,0,0.10); border: 2px solid rgba(255,255,255,0.10); }
-.rt-gauge-wrap.model-neon{ background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(255,107,157,0.10)); box-shadow: 0 0 30px rgba(0,212,255,0.12); }
-.rt-gauge-wrap.model-min{ background: transparent; border: 2px solid rgba(255,255,255,0.10); }
+.rt-gauge-label{ font-weight:800; color: var(--text-dim); font-size: clamp(0.7rem, 2vw, 0.9rem); text-align:center; }
+.rt-gauge-value{ font-weight:900; font-size: clamp(1rem, 4vw, 1.6rem); color: var(--text); text-align:center; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.rt-gauge-emoji { font-size: clamp(1.2rem, 4vw, 2rem); }
+.rt-gauge-wrap.model-classic{ 
+  background: linear-gradient(145deg, rgba(0,0,0,0.2), rgba(0,0,0,0.3)); 
+  border: 3px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+}
+.rt-gauge-wrap.model-neon{ 
+  background: linear-gradient(145deg, rgba(0,255,135,0.1), rgba(96,239,255,0.1)); 
+  box-shadow: 0 0 40px rgba(0,255,135,0.15), inset 0 2px 10px rgba(0,0,0,0.2);
+  border: 3px solid rgba(0,255,135,0.3);
+}
+.rt-gauge-wrap.model-min{ 
+  background: transparent; 
+  border: 3px dashed rgba(255,255,255,0.2);
+}
 
 .rt-widget { position: absolute; padding: 10px; display: flex; align-items: center; justify-content: center; }
 .rt-button {
-  width: 100%; height: 100%; border: none; border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1, var(--purple));
-  color: #fff; font-weight: 700; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  font-size: 1rem; transition: 0.1s;
+  width: 100%; height: 100%; border: none; border-radius: 20px;
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  color: #fff; font-weight: 800; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  font-size: clamp(0.8rem, 2.5vw, 1.3rem); 
+  transition: all 0.15s ease;
+  box-shadow: 
+    0 8px 25px rgba(102,126,234,0.5),
+    inset 0 2px 4px rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.2);
+  border: 3px solid rgba(255,255,255,0.2);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-.rt-button:active { transform: scale(0.9); }
-.rt-button .icon { font-size: 2rem; }
+.rt-button:hover { 
+  transform: scale(1.03) translateY(-2px); 
+  box-shadow: 0 12px 35px rgba(102,126,234,0.6), inset 0 2px 4px rgba(255,255,255,0.3);
+}
+.rt-button:active { 
+  transform: scale(0.95); 
+  box-shadow: 0 4px 15px rgba(102,126,234,0.4), inset 0 2px 8px rgba(0,0,0,0.3);
+}
+.rt-button .icon { font-size: clamp(1.5rem, 5vw, 3rem); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
 .rt-slider-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
-.rt-slider-info { display: flex; justify-content: space-between; font-weight: 700; }
-.rt-slider { width: 100%; height: 12px; border-radius: 6px; background: var(--surface); -webkit-appearance: none; }
-.rt-slider::-webkit-slider-thumb { -webkit-appearance: none;  height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--pink)); cursor: pointer; }
+.rt-slider-info { display: flex; justify-content: space-between; font-weight: 700; font-size: clamp(0.8rem, 2vw, 1rem); }
+.rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider { 
+  width: 100%; height: 18px; border-radius: 999px; 
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff); 
+  -webkit-appearance: none; 
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  border: 3px solid rgba(255,255,255,0.3);
+}
+.rt-slider::-webkit-slider-thumb { 
+  width: 36px; height: 36px; -webkit-appearance: none; 
+  border-radius: 50%; 
+  background: linear-gradient(145deg, #fff, #e0e0e0); 
+  border: 4px solid var(--accent);
+  cursor: pointer; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.8);
+  transition: transform 0.1s;
+}
+.rt-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.rt-slider::-webkit-slider-thumb:active { transform: scale(0.95); }
+.rt-slider::-moz-range-thumb { 
+  width: 36px; height: 36px; border-radius: 50%; 
+  background: linear-gradient(145deg, #fff, #e0e0e0); 
+  border: 4px solid var(--accent);
+  cursor: pointer;
+}
 
-.rt-toggle-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.rt-toggle {  height: 70px; border: none; border-radius: 16px; background: var(--red); color: #fff; font-size: 2rem; cursor: pointer; transition: 0.2s; }
-.rt-toggle.on { background: var(--green); }
+/* Vertical slider support */
+.rt-slider-wrap.vertical {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.rt-slider-wrap.vertical .rt-slider-info {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+.rt-slider-wrap.vertical .rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider-wrap.vertical .rt-slider {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 18px;
+  height: 100%;
+  min-height: 80px;
+  background: linear-gradient(0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+}
+.rt-slider-wrap.vertical .rt-slider::-webkit-slider-thumb {
+  width: 36px;
+  height: 36px;
+}
 
-.rt-led-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-.rt-led {  height: 60px; border-radius: 50%; background: rgba(255,82,82,0.2); transition: 0.2s; }
-.rt-led.on { background: var(--red); box-shadow: 0 0 40px var(--red); }
+.rt-toggle-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
+.rt-toggle { 
+  width: 70%; height: 70%; max-width: 120px; max-height: 120px; min-width: 50px; min-height: 50px; 
+  aspect-ratio: 1; border: none; border-radius: 20px; 
+  background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+  color: #fff; font-size: clamp(1.5rem, 5vw, 3rem); 
+  cursor: pointer; transition: all 0.2s ease;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 
+    0 6px 20px rgba(238,90,90,0.5),
+    inset 0 2px 4px rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.2);
+  border: 3px solid rgba(255,255,255,0.2);
+}
+.rt-toggle:hover { transform: scale(1.05); }
+.rt-toggle:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(238,90,90,0.5), inset 0 2px 8px rgba(0,0,0,0.3); }
+.rt-toggle.on { 
+  background: linear-gradient(145deg, #2ed573, #26b863);
+  box-shadow: 
+    0 6px 20px rgba(46,213,115,0.5),
+    inset 0 2px 4px rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.2);
+}
+.rt-toggle-wrap > span { font-weight: 800; font-size: clamp(0.7rem, 2vw, 1rem); }
 
-.rt-joystick-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.rt-joystick-base {  height: 100px; border-radius: 50%; background: var(--surface); border: 4px solid var(--accent); display: flex; align-items: center; justify-content: center; touch-action: none; }
-.rt-joystick-stick {  height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); pointer-events: none; }
+.rt-led-wrap { 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; 
+  gap: 10px; width: 100%; height: 100%; 
+}
+.rt-led { 
+  width: 60%; height: 60%; max-width: 80%; max-height: 80%; min-width: 30px; min-height: 30px; 
+  aspect-ratio: 1; 
+  border-radius: 50%; 
+  background: radial-gradient(circle at 30% 30%, #666, #333 40%, #222 70%, #111);
+  border: 4px solid #444;
+  box-shadow: 
+    inset 0 -8px 15px rgba(0,0,0,0.6),
+    inset 0 8px 15px rgba(255,255,255,0.1),
+    0 4px 10px rgba(0,0,0,0.5);
+  transition: all 0.15s ease;
+  position: relative;
+}
+.rt-led::before {
+  content: '';
+  position: absolute;
+  top: 15%; left: 20%;
+  width: 25%; height: 20%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.4), transparent);
+  border-radius: 50%;
+}
+.rt-led.on { 
+  background: radial-gradient(circle at 30% 30%, #ff8a8a, #ff5252 30%, #ff0000 60%, #cc0000);
+  border-color: #ff6666;
+  box-shadow: 
+    inset 0 -8px 15px rgba(0,0,0,0.3),
+    inset 0 8px 15px rgba(255,255,255,0.3),
+    0 0 30px #ff0000,
+    0 0 60px rgba(255,0,0,0.6),
+    0 0 90px rgba(255,0,0,0.3);
+  animation: led-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes led-pulse {
+  0% { box-shadow: inset 0 -8px 15px rgba(0,0,0,0.3), inset 0 8px 15px rgba(255,255,255,0.3), 0 0 30px #ff0000, 0 0 60px rgba(255,0,0,0.6); }
+  100% { box-shadow: inset 0 -8px 15px rgba(0,0,0,0.3), inset 0 8px 15px rgba(255,255,255,0.3), 0 0 40px #ff0000, 0 0 80px rgba(255,0,0,0.8), 0 0 120px rgba(255,0,0,0.4); }
+}
+.rt-led-wrap span { font-weight: 800; font-size: clamp(0.7rem, 2vw, 0.9rem); }
 
-.rt-label-text { font-weight: 700; font-size: 1.2rem; text-align: center; }
+.rt-joystick-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 100%; }
+.rt-joystick-base { 
+  width: 80%; height: 80%; max-width: 150px; max-height: 150px; min-width: 60px; min-height: 60px; 
+  aspect-ratio: 1; border-radius: 50%; 
+  background: linear-gradient(145deg, #2d3436, #1e2526);
+  border: 5px solid #3d4446;
+  display: flex; align-items: center; justify-content: center; touch-action: none;
+  box-shadow: 
+    inset 0 4px 15px rgba(0,0,0,0.5),
+    inset 0 -4px 10px rgba(255,255,255,0.05),
+    0 8px 25px rgba(0,0,0,0.4);
+}
+.rt-joystick-stick { 
+  width: 50%; height: 50%; border-radius: 50%; 
+  background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+  pointer-events: none;
+  box-shadow: 
+    0 6px 20px rgba(238,90,90,0.5),
+    inset 0 3px 6px rgba(255,255,255,0.4),
+    inset 0 -3px 6px rgba(0,0,0,0.3);
+  border: 3px solid rgba(255,255,255,0.2);
+  transition: transform 0.05s ease;
+}
+.rt-joystick-wrap > span { font-weight: 800; font-size: clamp(0.7rem, 2vw, 1rem); }
+
+.rt-label-text { 
+  font-weight: 800; 
+  font-size: clamp(0.9rem, 3.5vw, 1.8rem); 
+  text-align: center; 
+  width: 100%; height: 100%; 
+  display: flex; align-items: center; justify-content: center; 
+  word-break: break-word; overflow: hidden;
+  background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+  border-radius: 16px;
+  border: 3px solid rgba(255,255,255,0.15);
+  padding: 10px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
 
 /* --- Widget Models (Runtime) --- */
 /* Buttons */
 .rt-button.model-neo{
-  background: linear-gradient(135deg, #6366f1, var(--purple));
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  box-shadow: 0 8px 25px rgba(102,126,234,0.5), inset 0 2px 4px rgba(255,255,255,0.3);
 }
 .rt-button.model-flat{
-  background: var(--accent);
-  color: #000;
-  box-shadow: none;
+  background: linear-gradient(145deg, #00b894, #00cec9);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0,206,201,0.4);
 }
 .rt-button.model-glass{
-  background: rgba(255,255,255,0.08);
-  border: 2px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+  border: 3px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
 }
 
 /* Sliders */
-.rt-slider.model-track{ height: 12px; border-radius: 6px; }
-.rt-slider.model-min{ height: 6px; border-radius: 999px; }
+.rt-slider.model-track{ 
+  height: 18px; border-radius: 999px; 
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+}
+.rt-slider.model-min{ 
+  height: 10px; border-radius: 999px;
+  background: linear-gradient(90deg, #a29bfe, #fd79a8);
+}
 .rt-slider.model-neon{
-  height: 12px;
+  height: 18px;
   border-radius: 999px;
-  box-shadow: 0 0 20px rgba(0,212,255,0.25);
+  background: linear-gradient(90deg, #00ff87, #60efff);
+  box-shadow: 0 0 25px rgba(0,255,135,0.4), 0 0 50px rgba(96,239,255,0.2);
 }
 .rt-slider.model-neon::-webkit-slider-thumb{
-  box-shadow: 0 0 25px rgba(179,136,255,0.7);
+  box-shadow: 0 0 30px rgba(0,255,135,0.8), 0 4px 15px rgba(0,0,0,0.4);
 }
 .rt-slider.model-min::-webkit-slider-thumb{
-   height: 26px;
-  background: linear-gradient(135deg, var(--accent), var(--pink));
+   height: 32px;
+  background: linear-gradient(145deg, #fd79a8, #e84393);
 }
 
 /* Toggles */
 .rt-toggle.model-square{ border-radius: 16px; }
 .rt-toggle.model-pill{
-   height: 46px;
+  width: 80% !important;
+  height: 50% !important;
+  max-width: 100px;
+  min-height: 36px;
+  aspect-ratio: auto;
   border-radius: 999px;
   display:flex; align-items:center; justify-content:center;
   font-size: 1.4rem;
@@ -276,45 +489,67 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* LEDs */
-.rt-led.model-dot{ border-radius: 50%; }
+.rt-led.model-dot{ border-radius: 50%; aspect-ratio: 1; }
 .rt-led.model-bar{
   width: 90%;
-  height: 28%;
+  height: 30%;
   min-height: 18px;
+  max-height: 50%;
   border-radius: 999px;
+  aspect-ratio: auto;
 }
 .rt-led.model-ring{
   background: transparent !important;
   border: 6px solid rgba(255,255,255,0.18);
   box-shadow: none !important;
+  aspect-ratio: 1;
 }
 .rt-led.model-ring.on{
   background: transparent !important;
 }
 
 /* Joysticks */
-.rt-joystick-base.model-classic{ border: 4px solid var(--accent); }
+.rt-joystick-base.model-classic{ 
+  border: 5px solid #3d4446;
+  background: linear-gradient(145deg, #2d3436, #1e2526);
+}
 .rt-joystick-base.model-neon{
-  border: 4px solid var(--accent);
-  box-shadow: 0 0 35px rgba(0,212,255,0.35);
+  border: 4px solid #00ff87;
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  box-shadow: 0 0 40px rgba(0,255,135,0.3), inset 0 4px 15px rgba(0,0,0,0.5);
+}
+.rt-joystick-base.model-neon .rt-joystick-stick {
+  background: linear-gradient(145deg, #00ff87, #60efff);
+  box-shadow: 0 0 25px rgba(0,255,135,0.6), 0 6px 20px rgba(0,0,0,0.4);
 }
 .rt-joystick-base.model-min{
-  border: 3px solid rgba(255,255,255,0.18);
+  border: 3px dashed rgba(255,255,255,0.25);
+  background: transparent;
 }
 .rt-joystick-stick.model-min{
-  background: rgba(255,255,255,0.14);
+  background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+  border: 2px solid rgba(255,255,255,0.3);
 }
 
 /* Labels */
-.rt-label-text.model-plain{ }
+.rt-label-text.model-plain{ 
+  background: transparent;
+  border: none;
+}
 .rt-label-text.model-card{
-  background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(255,255,255,0.14);
-  border-radius: 16px;
-  padding: 10px 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 3px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 .rt-label-text.model-glow{
-  text-shadow: 0 0 18px rgba(0,212,255,0.55);
+  text-shadow: 0 0 20px rgba(102,126,234,0.8), 0 0 40px rgba(118,75,162,0.6);
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 /* Props panel helpers */
@@ -479,6 +714,32 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .props-form input:focus, .props-form select:focus{
   outline: none;
   border-color: var(--accent);
+}
+
+/* Size & Orientation controls */
+.props-form .props-row {
+  display: flex;
+  align-items: flex-end;
+}
+.props-form .props-row label {
+  margin: 0 0 4px 0;
+  text-transform: none;
+  font-size: 0.7rem;
+}
+.props-form .props-row input[type="number"] {
+  margin-top: 0;
+  padding: 8px 10px;
+  text-align: center;
+}
+.props-form .prop-preset-size {
+  background: linear-gradient(135deg, var(--card), var(--surface));
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.props-form .prop-preset-size:hover {
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #000;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px){
@@ -775,7 +1036,7 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
 /* ===== Resizable builder canvas (drag corner) ===== */
 .resizable-wrap{
   position: relative;
-  width: min(100%, 980px);
+  width: 100%;
   height: 520px;
   max-width: 100%;
   border-radius: 18px;
@@ -817,6 +1078,523 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
   background: rgba(0,0,0,.22);
   border: 1px solid rgba(255,255,255,.12);
   user-select:none;
+}
+
+
+}
+
+
+/* Canvas toolbar (Build/Play + Name) centered above canvas */
+.canvas-toolbar{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin: 10px 0 10px 0;
+  pointer-events:auto;
+}
+.canvas-toolbar-inner{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,18,44,.55);
+  box-shadow: 0 14px 34px rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+}
+.canvas-toolbar-inner .tabs{ margin:0 !important; }
+.canvas-toolbar-inner #titleInput{ width: min(360px, 40vw); }
+@media (max-width: 720px){
+  .canvas-toolbar-inner{
+    width: 100%;
+    justify-content:space-between;
+    flex-wrap: wrap;
+  }
+  .canvas-toolbar-inner #titleInput{ width: 100%; }
+}
+
+
+/* Hide the "tap..." helper text */
+.tap-hint, .canvas-hint, .builder-hint, .tap-instruction, .hint-text, .place-hint{
+  display: none !important;
+}
+
+
+/* === Fix: don't let toolbar tab/button styles leak into widgets === */
+.canvas-toolbar-inner .tab{
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Keep icon tiles consistent */
+.widget-palette .icon,
+.widget-btn .icon{
+  border-radius: 14px !important;
+}
+
+/* === NEW FEATURES CSS === */
+.widget.multi-selected { border-color: var(--pink) !important; box-shadow: 0 0 20px rgba(255,107,157,0.5) !important; }
+.widget.locked { opacity: 0.7; cursor: not-allowed !important; }
+.widget.locked::after { content: '🔒'; position: absolute; top: 4px; right: 4px; font-size: 12px; }
+.widget-ghost { position: absolute; background: rgba(0,212,255,0.15); border: 2px dashed var(--accent); border-radius: 16px; pointer-events: none; z-index: 1000; }
+.align-guide { position: absolute; background: var(--accent); pointer-events: none; z-index: 999; opacity: 0.8; }
+.align-guide.horizontal { height: 1px; left: 0; right: 0; }
+.align-guide.vertical { width: 1px; top: 0; bottom: 0; }
+.canvas.show-grid { background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 20px 20px; }
+.minimap { position: absolute; bottom: 40px; right: 10px; width: 120px; height: 80px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; z-index: 100; }
+.minimap-widget { position: absolute; background: var(--accent); border-radius: 2px; opacity: 0.7; }
+.minimap-viewport { position: absolute; border: 1px solid var(--pink); background: rgba(255,107,157,0.1); }
+.zoom-controls { position: absolute; bottom: 40px; left: 10px; display: flex; gap: 4px; z-index: 100; }
+.zoom-btn { width: 32px; height: 32px; border: none; border-radius: 8px; background: rgba(0,0,0,0.5); color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.zoom-btn:hover { background: rgba(0,0,0,0.7); }
+.zoom-level { padding: 0 8px; background: rgba(0,0,0,0.5); border-radius: 8px; color: white; font-size: 12px; display: flex; align-items: center; }
+.canvas-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 100; }
+.canvas-tool-btn { width: 36px; height: 36px; border: none; border-radius: 10px; background: rgba(0,0,0,0.4); color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.canvas-tool-btn:hover { background: rgba(0,0,0,0.6); }
+.canvas-tool-btn.active { background: var(--accent); color: #000; }
+.selection-box { position: absolute; border: 2px dashed var(--accent); background: rgba(0,212,255,0.1); pointer-events: none; z-index: 1000; }
+.widget-color-dot { position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); }
+.widget:not(:active) { transition: left 0.1s ease, top 0.1s ease; }
+
+/* === MEGA FEATURES CSS === */
+/* Layers Panel */
+.layers-panel { position: fixed; right: 10px; top: 50%; transform: translateY(-50%); width: 200px; max-height: 400px; background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; z-index: 200; overflow: hidden; display: none; }
+.layers-panel.show { display: block; }
+.layers-header { padding: 10px; background: rgba(255,255,255,0.05); font-weight: 700; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+.layers-list { max-height: 300px; overflow-y: auto; }
+.layer-item { padding: 8px 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+.layer-item:hover { background: rgba(255,255,255,0.05); }
+.layer-item.selected { background: rgba(0,212,255,0.2); }
+.layer-item .layer-icon { font-size: 16px; }
+.layer-vis { opacity: 0.5; cursor: pointer; }
+.layer-vis.visible { opacity: 1; }
+
+/* Toolbar Panel */
+.smart-toolbar { position: absolute; top: 10px; left: 10px; display: flex; flex-wrap: wrap; gap: 4px; z-index: 100; max-width: 200px; }
+.toolbar-group { display: flex; gap: 2px; background: rgba(0,0,0,0.5); border-radius: 8px; padding: 3px; }
+.toolbar-sep { width: 1px; background: rgba(255,255,255,0.1); margin: 0 2px; }
+
+/* Theme classes */
+body.theme-light { --bg: #f0f4f8; --surface: #ffffff; --card: #e2e8f0; --accent: #3b82f6; --text: #1e293b; --text-dim: #64748b; }
+body.theme-light .canvas { background: #e2e8f0; border-color: #94a3b8; }
+body.theme-light .widget { background: #ffffff; border-color: #cbd5e1; color: #1e293b; }
+body.theme-neon { --bg: #0a0a0a; --surface: #1a1a1a; --card: #2a2a2a; --accent: #ff00ff; --text: #00ffff; }
+body.theme-neon .widget { box-shadow: 0 0 20px rgba(255,0,255,0.3); }
+body.theme-nature { --bg: #1a2f1a; --surface: #2d4a2d; --card: #3d5a3d; --accent: #4ade80; --text: #ecfdf5; }
+body.theme-sunset { --bg: #2d1b2d; --surface: #4a2c4a; --card: #6b3a6b; --accent: #f97316; --text: #fef3c7; }
+
+/* Ruler */
+.ruler { position: absolute; background: rgba(0,0,0,0.3); z-index: 50; }
+.ruler-h { top: 0; left: 0; right: 0; height: 20px; }
+.ruler-v { top: 0; left: 0; bottom: 0; width: 20px; }
+.ruler-mark { position: absolute; color: rgba(255,255,255,0.5); font-size: 8px; }
+
+/* History Panel */
+.history-panel { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); width: 60px; background: rgba(0,0,0,0.85); border-radius: 12px; z-index: 200; padding: 8px; display: none; }
+.history-panel.show { display: block; }
+.history-item { width: 44px; height: 30px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 4px; cursor: pointer; overflow: hidden; }
+.history-item:hover { outline: 2px solid var(--accent); }
+
+/* Search/Filter */
+.widget-search { position: absolute; top: -40px; left: 0; right: 0; display: flex; gap: 8px; padding: 0 10px; }
+.widget-search input { flex: 1; padding: 8px 12px; border: none; border-radius: 20px; background: rgba(0,0,0,0.3); color: white; font-size: 12px; }
+.widget-search input::placeholder { color: rgba(255,255,255,0.5); }
+
+/* Group indicator */
+.widget.grouped::before { content: '⚭'; position: absolute; top: -8px; right: -8px; background: var(--purple); color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+/* D-Pad widget */
+.rt-dpad { 
+  width: 100%; height: 100%; position: relative; 
+  display: grid; grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; gap: 6px; padding: 10px;
+  background: linear-gradient(145deg, rgba(0,0,0,0.2), rgba(0,0,0,0.3));
+  border-radius: 20px;
+  border: 3px solid rgba(255,255,255,0.1);
+}
+.dpad-btn { 
+  background: linear-gradient(145deg, #3d4446, #2d3436);
+  border: 3px solid rgba(255,255,255,0.15);
+  border-radius: 12px; 
+  display: flex; align-items: center; justify-content: center; 
+  font-size: clamp(14px, 4vw, 28px); 
+  cursor: pointer; transition: all 0.1s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1);
+  color: #fff;
+}
+.dpad-btn:hover { background: linear-gradient(145deg, #4d5456, #3d4446); transform: scale(1.02); }
+.dpad-btn:active, .dpad-btn.active { 
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  border-color: rgba(255,255,255,0.3);
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2), 0 0 20px rgba(102,126,234,0.5);
+}
+.dpad-center { 
+  background: linear-gradient(145deg, #1e2526, #151a1b);
+  border-radius: 50%; 
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* XY Pad */
+.rt-xypad { 
+  width: 100%; height: 100%; 
+  background: linear-gradient(145deg, rgba(0,0,0,0.3), rgba(0,0,0,0.4));
+  border-radius: 16px; position: relative; touch-action: none;
+  border: 3px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 4px 15px rgba(0,0,0,0.4);
+}
+.xypad-dot { 
+  position: absolute; width: 20%; height: 20%; 
+  max-width: 40px; max-height: 40px; min-width: 20px; min-height: 20px; 
+  background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%; 
+  transform: translate(-50%, -50%); pointer-events: none; 
+  box-shadow: 0 0 20px rgba(238,90,90,0.6), 0 4px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+  transition: box-shadow 0.1s ease;
+}
+.xypad-crosshair { position: absolute; inset: 0; pointer-events: none; }
+.xypad-crosshair::before, .xypad-crosshair::after { content: ''; position: absolute; background: rgba(255,255,255,0.15); }
+.xypad-crosshair::before { left: 50%; top: 10%; bottom: 10%; width: 2px; border-radius: 1px; }
+.xypad-crosshair::after { top: 50%; left: 10%; right: 10%; height: 2px; border-radius: 1px; }
+
+/* Battery Widget */
+.rt-battery { 
+  width: 100%; height: 100%; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(145deg, rgba(0,0,0,0.1), rgba(0,0,0,0.2));
+  border-radius: 16px;
+  padding: 10px;
+}
+.battery-body { 
+  width: 45%; max-width: 70px; min-width: 35px; height: 65%; max-height: 100px; 
+  background: linear-gradient(145deg, #2d3436, #1e2526);
+  border: 4px solid #4d5456;
+  border-radius: 10px; position: relative; overflow: hidden;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+}
+.battery-tip { 
+  width: 40%; max-width: 30px; height: 10px; 
+  background: linear-gradient(145deg, #4d5456, #3d4446);
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+.battery-level { 
+  position: absolute; bottom: 0; left: 0; right: 0; 
+  background: linear-gradient(0deg, #2ed573, #7bed9f);
+  transition: height 0.3s ease, background 0.3s ease;
+  box-shadow: 0 0 20px rgba(46,213,115,0.5), inset 0 -4px 10px rgba(0,0,0,0.2);
+}
+.battery-level.low { 
+  background: linear-gradient(0deg, #ffa502, #ffbe76);
+  box-shadow: 0 0 20px rgba(255,165,2,0.5), inset 0 -4px 10px rgba(0,0,0,0.2);
+}
+.battery-level.critical { 
+  background: linear-gradient(0deg, #ff4757, #ff6b81);
+  box-shadow: 0 0 20px rgba(255,71,87,0.5), inset 0 -4px 10px rgba(0,0,0,0.2);
+  animation: battery-pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes battery-pulse {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+.battery-text { font-size: clamp(11px, 2.5vw, 16px); font-weight: 800; }
+.battery-emoji { font-size: clamp(1rem, 3vw, 1.5rem); }
+
+/* Timer Widget */
+.rt-timer { 
+  width: 100%; height: 100%; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(145deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+  border-radius: 20px;
+  border: 3px solid rgba(255,255,255,0.15);
+  padding: 10px;
+}
+.timer-display { 
+  font-family: 'Courier New', monospace; 
+  font-size: clamp(20px, 6vw, 42px); 
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.timer-label { font-size: clamp(0.7rem, 2vw, 1rem); font-weight: 800; opacity: 0.8; }
+.timer-controls { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.timer-btn { 
+  padding: 6px 14px; border: none; border-radius: 14px; 
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  color: white; cursor: pointer; 
+  font-size: clamp(12px, 2.5vw, 16px); font-weight: 700;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+  transition: all 0.15s ease;
+}
+.timer-btn:hover { transform: scale(1.05); box-shadow: 0 6px 18px rgba(102,126,234,0.5); }
+.timer-btn:active { transform: scale(0.95); }
+.timer-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* Share Modal */
+.share-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.share-modal.show { display: flex; }
+.share-content { background: var(--surface); padding: 24px; border-radius: 16px; max-width: 400px; width: 90%; text-align: center; }
+.share-qr { width: 200px; height: 200px; margin: 16px auto; background: white; border-radius: 8px; }
+.share-link { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.3); color: white; font-size: 12px; margin: 8px 0; }
+
+/* Sensor Simulator */
+.sensor-sim { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border-radius: 12px; padding: 12px; display: none; z-index: 200; }
+.sensor-sim.show { display: flex; gap: 16px; }
+.sensor-group { text-align: center; }
+.sensor-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.sensor-value { font-size: 14px; font-weight: 700; }
+.sensor-slider { width: 80px; }
+
+/* Touch-friendly resize */
+@media (pointer: coarse) {
+  .resize-handle { width: 32px !important; height: 32px !important; }
+  .canvas-tool-btn { width: 44px; height: 44px; }
+  .zoom-btn { width: 40px; height: 40px; }
+}
+
+/* High contrast mode */
+body.high-contrast { --bg: #000; --surface: #000; --card: #111; --accent: #ffff00; --text: #ffffff; }
+body.high-contrast .widget { border-width: 4px; }
+
+
+/* === Widget Properties scroll fix === */
+.widget-properties,
+#widgetProperties,
+.properties-panel,
+.sidebar-properties {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .widget-properties,
+  #widgetProperties,
+  .properties-panel,
+  .sidebar-properties {
+    max-height: calc(100vh - 110px);
+  }
+}
+
+
+/* === FORCE Widget Properties Scroll === */
+#widgetProperties,
+.widget-properties-panel,
+.widget-properties,
+.properties-panel,
+.right-sidebar,
+aside.widget-properties {
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* ensure inner content can scroll */
+#widgetProperties > * {
+  min-height: max-content;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #widgetProperties,
+  .widget-properties-panel,
+  .widget-properties,
+  .properties-panel,
+  .right-sidebar,
+  aside.widget-properties {
+    height: calc(100vh - 100px) !important;
+  }
+}
+
+
+/* === Polishing: remove boxes around logo & bismillah, keep bismillah discreet & centered === */
+.hero-logo{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.hero-logo svg{
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.25)) !important;
+}
+.bismillah{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  opacity: .55 !important;
+  letter-spacing: .02em;
+  text-align: center !important;
+}
+.hero-center{
+  justify-content: center !important;
+}
+
+
+/* === Widget Properties: guaranteed vertical scrolling === */
+#propsPanel, .props-panel{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+#propsForm, .props-form{
+  flex: 1 1 auto;
+  min-height: 0;           /* critical for flex scroll */
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding-right: 6px;      /* room for scrollbar */
+  overscroll-behavior: contain;
+}
+#propsEmpty, .props-empty{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+
+/* === Header final polish === */
+
+/* Bigger logo */
+.hero-logo,
+.app-logo,
+.logo {
+  transform: scale(1.25);
+  transform-origin: center;
+}
+
+/* Discrete bismillah, top-center */
+.bismillah{
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  opacity: 0.35;
+  letter-spacing: .04em;
+  text-align: center;
+  pointer-events: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure header can host absolute element */
+.header,
+.app-header,
+.top-header{
+  position: relative;
+}
+
+
+/* === Header tweaks: even bigger logo === */
+.hero-logo,
+.app-logo,
+.logo {
+  transform: scale(1.45);
+  transform-origin: center;
+}
+
+
+/* === Header: MUCH bigger logo === */
+.hero-logo,
+.app-logo,
+.logo {
+  transform: scale(1.9);
+  transform-origin: center;
+}
+
+
+/* === Header: FORCE BIG LOGO (real size, not transform) === */
+.hero-logo,
+.app-logo,
+.logo {
+  width: 120px !important;
+  height: auto !important;
+}
+
+.hero-logo svg,
+.app-logo svg,
+.logo svg {
+  width: 120px !important;
+  height: auto !important;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .hero-logo,
+  .app-logo,
+  .logo,
+  .hero-logo svg,
+  .app-logo svg,
+  .logo svg {
+    width: 96px !important;
+  }
+}
+
+
+/* === Header: logo slightly smaller === */
+.hero-logo,
+.app-logo,
+.logo {
+  width: 100px !important;
+  height: auto !important;
+}
+
+.hero-logo svg,
+.app-logo svg,
+.logo svg {
+  width: 100px !important;
+  height: auto !important;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .hero-logo,
+  .app-logo,
+  .logo,
+  .hero-logo svg,
+  .app-logo svg,
+  .logo svg {
+    width: 84px !important;
+  }
+}
+
+
+/* === Header card width expansion === */
+.header-card,
+.app-header-card,
+.hero-card {
+  max-width: 92% !important;
+  width: 92% !important;
+}
+
+/* large screens */
+@media (min-width: 1200px) {
+  .header-card,
+  .app-header-card,
+  .hero-card {
+    max-width: 1200px !important;
+    width: 1200px !important;
+  }
+}
+
+
+/* === Header card width expansion (correct selector) === */
+.hero-header .hero-inner{
+  width: 100% !important;
+  max-width: min(1400px, calc(100% - 8px)) !important;
+}
+@media (min-width: 1200px){
+  .hero-header .hero-inner{
+    max-width: 1500px !important;
+  }
 }
 
 </style>
@@ -1113,7 +1891,7 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
 /* ===== Resizable builder canvas (drag corner) ===== */
 .resizable-wrap{
   position: relative;
-  width: min(100%, 980px);
+  width: 100%;
   height: 520px;
   max-width: 100%;
   border-radius: 18px;
@@ -1155,6 +1933,121 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
   background: rgba(0,0,0,.22);
   border: 1px solid rgba(255,255,255,.12);
   user-select:none;
+}
+
+
+}
+
+
+/* Canvas toolbar (Build/Play + Name) centered above canvas */
+.canvas-toolbar{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin: 10px 0 10px 0;
+  pointer-events:auto;
+}
+.canvas-toolbar-inner{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,18,44,.55);
+  box-shadow: 0 14px 34px rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+}
+.canvas-toolbar-inner .tabs{ margin:0 !important; }
+.canvas-toolbar-inner #titleInput{ width: min(360px, 40vw); }
+@media (max-width: 720px){
+  .canvas-toolbar-inner{
+    width: 100%;
+    justify-content:space-between;
+    flex-wrap: wrap;
+  }
+  .canvas-toolbar-inner #titleInput{ width: 100%; }
+}
+
+
+/* Hide the "tap..." helper text */
+.tap-hint, .canvas-hint, .builder-hint, .tap-instruction, .hint-text, .place-hint{
+  display: none !important;
+}
+
+
+/* === Fix: don't let toolbar tab/button styles leak into widgets === */
+.canvas-toolbar-inner .tab{
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Defensive reset for widget palette/buttons to keep original rounded-square shape */
+.widget-palette button,
+.widget-btn,
+.palette button,
+.widget-list button{
+  border-radius: 18px !important;
+  padding: 12px 10px !important;
+}
+
+/* Keep icon tiles consistent */
+.widget-palette .icon,
+.widget-btn .icon{
+  border-radius: 14px !important;
+}
+
+
+/* === Widget Properties scroll fix === */
+.widget-properties,
+#widgetProperties,
+.properties-panel,
+.sidebar-properties {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .widget-properties,
+  #widgetProperties,
+  .properties-panel,
+  .sidebar-properties {
+    max-height: calc(100vh - 110px);
+  }
+}
+
+
+/* === FORCE Widget Properties Scroll === */
+#widgetProperties,
+.widget-properties-panel,
+.widget-properties,
+.properties-panel,
+.right-sidebar,
+aside.widget-properties {
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* ensure inner content can scroll */
+#widgetProperties > * {
+  min-height: max-content;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #widgetProperties,
+  .widget-properties-panel,
+  .widget-properties,
+  .properties-panel,
+  .right-sidebar,
+  aside.widget-properties {
+    height: calc(100vh - 100px) !important;
+  }
 }
 
 </style>
@@ -1455,7 +2348,7 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
 /* ===== Resizable builder canvas (drag corner) ===== */
 .resizable-wrap{
   position: relative;
-  width: min(100%, 980px);
+  width: 100%;
   height: 520px;
   max-width: 100%;
   border-radius: 18px;
@@ -1497,6 +2390,308 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
   background: rgba(0,0,0,.22);
   border: 1px solid rgba(255,255,255,.12);
   user-select:none;
+}
+
+
+}
+
+
+/* Canvas toolbar (Build/Play + Name) centered above canvas */
+.canvas-toolbar{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin: 10px 0 10px 0;
+  pointer-events:auto;
+}
+.canvas-toolbar-inner{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(10,18,44,.55);
+  box-shadow: 0 14px 34px rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+}
+.canvas-toolbar-inner .tabs{ margin:0 !important; }
+.canvas-toolbar-inner #titleInput{ width: min(360px, 40vw); }
+@media (max-width: 720px){
+  .canvas-toolbar-inner{
+    width: 100%;
+    justify-content:space-between;
+    flex-wrap: wrap;
+  }
+  .canvas-toolbar-inner #titleInput{ width: 100%; }
+}
+
+
+/* Hide the "tap..." helper text */
+.tap-hint, .canvas-hint, .builder-hint, .tap-instruction, .hint-text, .place-hint{
+  display: none !important;
+}
+
+
+/* === Fix: don't let toolbar tab/button styles leak into widgets === */
+.canvas-toolbar-inner .tab{
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Defensive reset for widget palette/buttons to keep original rounded-square shape */
+.widget-palette button,
+.widget-btn,
+.palette button,
+.widget-list button{
+  border-radius: 18px !important;
+  padding: 12px 10px !important;
+}
+
+/* Keep icon tiles consistent */
+.widget-palette .icon,
+.widget-btn .icon{
+  border-radius: 14px !important;
+}
+
+
+/* === Widget Properties scroll fix === */
+.widget-properties,
+#widgetProperties,
+.properties-panel,
+.sidebar-properties {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .widget-properties,
+  #widgetProperties,
+  .properties-panel,
+  .sidebar-properties {
+    max-height: calc(100vh - 110px);
+  }
+}
+
+
+/* === FORCE Widget Properties Scroll === */
+#widgetProperties,
+.widget-properties-panel,
+.widget-properties,
+.properties-panel,
+.right-sidebar,
+aside.widget-properties {
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* ensure inner content can scroll */
+#widgetProperties > * {
+  min-height: max-content;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #widgetProperties,
+  .widget-properties-panel,
+  .widget-properties,
+  .properties-panel,
+  .right-sidebar,
+  aside.widget-properties {
+    height: calc(100vh - 100px) !important;
+  }
+}
+
+</style>
+
+
+<style>
+
+/* === Helper Tools Panel (draggable + collapsible, mobile friendly) === */
+.helper-panel{
+  position: fixed;
+  top: calc(var(--headerH, 90px) + 12px);
+  right: 12px;
+  width: min(340px, 92vw);
+  max-height: calc(100vh - var(--headerH, 90px) - 24px);
+  overflow: auto;
+  z-index: 220;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,18,44,0.62);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.40);
+}
+
+/* Folded state: keep titlebar visible, hide contents (does NOT exit) */
+.helper-panel.folded{
+  width: min(260px, 70vw);
+  max-height: none;
+  overflow: visible;
+}
+.helper-panel.folded .helper-body{ display:none; }
+.helper-panel.folded .helper-titlebar{ border-bottom: none; }
+@media (max-width: 720px){
+  .helper-panel{
+    left: 10px;
+    right: 10px;
+    width: auto;
+    bottom: 10px;
+    top: auto;
+    max-height: 52vh;
+    border-radius: 20px;
+  }
+}
+
+.helper-titlebar{
+  position: sticky;
+  top: 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 10px 12px;
+  user-select:none;
+  cursor: grab;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px 18px 0 0;
+}
+.helper-titlebar:active{ cursor: grabbing; }
+.helper-title{
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.90);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.helper-actions{ display:flex; gap:8px; align-items:center; }
+.helper-action{
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.92);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+}
+.helper-action:hover{ border-color: rgba(0,212,255,0.45); }
+
+.helper-body{ padding: 10px 10px 14px; }
+.helper-details{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.26);
+  overflow:hidden;
+  margin: 10px 0;
+}
+.helper-details summary{
+  list-style:none;
+  cursor:pointer;
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(255,255,255,0.90);
+}
+.helper-details summary::-webkit-details-marker{ display:none; }
+.helper-details .helper-content{
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.helper-fab{
+  position: fixed;
+  bottom: 18px;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0,212,255,0.95), rgba(179,136,255,0.92));
+  color: #000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 24px;
+  font-weight: 900;
+  cursor:pointer;
+  z-index: 230;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.20);
+}
+
+/* When moved into the helper panel, force normal flow */
+.helper-panel .smart-toolbar,
+.helper-panel .canvas-tools,
+.helper-panel .zoom-controls,
+.helper-panel .minimap{
+  position: static !important;
+  top:auto !important; right:auto !important; bottom:auto !important; left:auto !important;
+  transform:none !important;
+}
+.helper-panel .minimap{ width: 100% !important; height: 120px !important; }
+
+
+/* === Widget Properties scroll fix === */
+.widget-properties,
+#widgetProperties,
+.properties-panel,
+.sidebar-properties {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .widget-properties,
+  #widgetProperties,
+  .properties-panel,
+  .sidebar-properties {
+    max-height: calc(100vh - 110px);
+  }
+}
+
+
+/* === FORCE Widget Properties Scroll === */
+#widgetProperties,
+.widget-properties-panel,
+.widget-properties,
+.properties-panel,
+.right-sidebar,
+aside.widget-properties {
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* ensure inner content can scroll */
+#widgetProperties > * {
+  min-height: max-content;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #widgetProperties,
+  .widget-properties-panel,
+  .widget-properties,
+  .properties-panel,
+  .right-sidebar,
+  aside.widget-properties {
+    height: calc(100vh - 100px) !important;
+  }
 }
 
 </style>
@@ -1610,10 +2805,14 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
         <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
         <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
         <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
+        <div class="palette-item" data-type="dpad"><div class="palette-icon">✛</div><div class="palette-name">D-Pad</div></div>
+        <div class="palette-item" data-type="xypad"><div class="palette-icon">📍</div><div class="palette-name">XY Pad</div></div>
         <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
         <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
         <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
         <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
+        <div class="palette-item" data-type="battery"><div class="palette-icon">🔋</div><div class="palette-name">Battery</div></div>
+        <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
       </div>
     </div>
 
@@ -1949,7 +3148,12 @@ function importLayoutJsonFile(file){
       if (typeof applyWidgetDefaults === "function") state.widgets.forEach(applyWidgetDefaults);
       state.selected = null;
       if (typeof renderWidgets === "function") renderWidgets();
-      makeCanvasResizable();
+      try{ ensureCanvasToolbar(); }catch(e){}
+try{ placeToolbarWhereHintWas(); }catch(e){}
+  try{ updateToolbarForMode('builder'); }catch(e){}
+try{ placeToolbarWhereHintWas(); }catch(e){}
+try{ moveBuildPlayNameTopRight(); }catch(e){}
+makeCanvasResizable();
 if (typeof renderPropsPanel === "function") renderPropsPanel();
       if (typeof toast === "function") toast(t.toastImport, "success");
     } catch(e){
@@ -1961,8 +3165,17 @@ if (typeof renderPropsPanel === "function") renderPropsPanel();
 }
 
 
-const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️', graph:'📈', gauge:'🧭' };
-const SIZES = { button:[90,90], slider:[90,160], toggle:[90,90], joystick:[120,120], led:[90,90], label:[120,60], graph:[240,140], gauge:[150,150] };
+const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️', graph:'📈', gauge:'🧭', dpad:'✛', xypad:'📍', battery:'🔋', timer:'⏱️', image:'🖼️' };
+const SIZES = { button:[100,100], slider:[90,180], toggle:[100,100], joystick:[140,140], led:[80,80], label:[200,50], graph:[300,150], gauge:[140,160], dpad:[140,140], xypad:[150,150], battery:[80,100], timer:[120,80], image:[100,100] };
+
+// Themes
+const THEMES = {
+  dark: { bg:'#1a1a2e', surface:'#16213e', card:'#1f3460', accent:'#00d4ff', text:'#ffffff' },
+  light: { bg:'#f0f4f8', surface:'#ffffff', card:'#e2e8f0', accent:'#3b82f6', text:'#1e293b' },
+  neon: { bg:'#0a0a0a', surface:'#1a1a1a', card:'#2a2a2a', accent:'#ff00ff', text:'#00ffff' },
+  nature: { bg:'#1a2f1a', surface:'#2d4a2d', card:'#3d5a3d', accent:'#4ade80', text:'#ecfdf5' },
+  sunset: { bg:'#2d1b2d', surface:'#4a2c4a', card:'#6b3a6b', accent:'#f97316', text:'#fef3c7' }
+};
 
 const templates = {
   gamepad: [
@@ -2004,7 +3217,19 @@ const state = {
   widgets: [], selected: null, nextId: 1, selectedType: null,
   ble: { device:null, server:null, service:null, notifyChar:null, writeChar:null, connected:false },
   config: null, values: {}, rxBuffer: '',
-  justDragged: false, _dragT: null
+  justDragged: false, _dragT: null,
+  // New features
+  multiSelect: [], clipboard: [], undoStack: [], maxUndo: 50, redoStack: [],
+  zoom: 1, gridSnap: true, gridSize: 20, showGuides: true,
+  // More features
+  theme: 'dark',
+  groups: {}, // groupId -> [widgetIds]
+  widgetTemplates: [], // saved widget groups
+  showLayers: false,
+  showRuler: false,
+  livePreview: true,
+  canvasBg: null, // background image
+  history: [] // visual history
 };
 state._allowLoadingOverlay = false;
 
@@ -2164,35 +3389,75 @@ function modelOptionsForType(t){
   }
 }
 
-// BLE send with verbose debug logging
-async function send(msg) {
-  console.log('[BLE] Attempting to send:', msg);
-  
-  if (!state.ble.writeChar) {
-    console.log('[BLE] ERROR: No writeChar available');
-    return;
-  }
-  
-  // Check if still connected
-  const gattConnected = state.ble.device?.gatt?.connected;
-  console.log('[BLE] GATT connected:', gattConnected);
-  
-  if (!gattConnected) {
-    console.log('[BLE] ERROR: GATT disconnected, triggering onDisconnect');
-    onDisconnect();
-    return;
+// Simple BLE throttle - only tracks last message per widget
+const bleSend = {
+  lastMsg: {},        // Last message per widget ID
+  lastSendTime: 0,    // Global last send timestamp
+  minInterval: 150,   // Minimum 150ms between ANY sends
+  timer: null,        // Pending send timer
+  pendingMsg: null    // Message waiting to be sent
+};
+
+// The actual low-level BLE write
+async function bleWrite(msg) {
+  if (!state.ble.writeChar || !state.ble.device?.gatt?.connected) {
+    console.log('[BLE] Not connected, skipping:', msg);
+    return false;
   }
   
   try {
-    console.log('[BLE] Writing value...');
-    await state.ble.writeChar.writeValue(encoder.encode(msg + '\n'));
-    console.log('[BLE] Write SUCCESS');
-  } catch (err) { 
-    console.error('[BLE] Write FAILED:', err.name, err.message);
-    // If write fails with certain errors, assume disconnected
-    if (err.message?.includes('GATT') || err.message?.includes('disconnected')) {
-      console.log('[BLE] Triggering disconnect due to GATT error');
+    const data = encoder.encode(msg + '\n');
+    
+    // Try writeValueWithoutResponse first (faster, no ACK wait)
+    if (state.ble.writeChar.writeValueWithoutResponse) {
+      await state.ble.writeChar.writeValueWithoutResponse(data);
+    } else {
+      await state.ble.writeChar.writeValue(data);
+    }
+    
+    console.log('[BLE] Sent:', msg);
+    return true;
+  } catch (err) {
+    console.error('[BLE] Write failed:', err.message);
+    // Don't immediately disconnect - might be transient
+    if (err.message?.includes('disconnected') || err.message?.includes('GATT Server')) {
       onDisconnect();
+    }
+    return false;
+  }
+}
+
+// Throttled send function
+function send(msg) {
+  if (!state.ble.connected) return;
+  
+  // Sanitize
+  msg = String(msg || '').replace(/[\r\n]+/g, '').trim();
+  if (!msg) return;
+  
+  const now = Date.now();
+  const timeSinceLastSend = now - bleSend.lastSendTime;
+  
+  // If enough time has passed, send immediately
+  if (timeSinceLastSend >= bleSend.minInterval) {
+    bleSend.lastSendTime = now;
+    bleWrite(msg);
+  } else {
+    // Otherwise, queue this message (replaces any pending)
+    bleSend.pendingMsg = msg;
+    
+    // Schedule send if not already scheduled
+    if (!bleSend.timer) {
+      const delay = bleSend.minInterval - timeSinceLastSend + 10;
+      bleSend.timer = setTimeout(() => {
+        bleSend.timer = null;
+        if (bleSend.pendingMsg) {
+          const toSend = bleSend.pendingMsg;
+          bleSend.pendingMsg = null;
+          bleSend.lastSendTime = Date.now();
+          bleWrite(toSend);
+        }
+      }, delay);
     }
   }
 }
@@ -2246,6 +3511,9 @@ function generateDemoCode(cfg) {
   const sliders = cfg.widgets.filter(w => w.t === 'slider');
   const toggles = cfg.widgets.filter(w => w.t === 'toggle');
   const joysticks = cfg.widgets.filter(w => w.t === 'joystick');
+  const dpads = cfg.widgets.filter(w => w.t === 'dpad');
+  const xypads = cfg.widgets.filter(w => w.t === 'xypad');
+  const timers = cfg.widgets.filter(w => w.t === 'timer');
   const leds = cfg.widgets.filter(w => w.t === 'led');
   const labels = cfg.widgets.filter(w => w.t === 'label');
   const gauges = cfg.widgets.filter(w => w.t === 'gauge');
@@ -2274,23 +3542,51 @@ function generateDemoCode(cfg) {
         }
     }`).join('\n');
   
-  let joystickCode = joysticks.map(w => `    // Joystick: ${w.label || w.id} (val = "angle distance")
+  let joystickCode = joysticks.map(w => `    // Joystick: ${w.label || w.id} (val = "angle distance", angle 0-360, distance 0-100)
     if (id == "${w.id}") {
         let parts = val.split(" ")
-        let angle = parseInt(parts[0])  // -180 to 180
-        let dist = parseInt(parts[1])   // 0 to ~50
+        let angle = parseInt(parts[0])  // 0-360 degrees (0=right, 90=down, 180=left, 270=up)
+        let dist = parseInt(parts[1])   // 0-100 (0=center, 100=edge)
         // Use for steering, movement, etc!
         if (dist > 10) {
-            basic.showArrow(angle > 0 ? ArrowNames.East : ArrowNames.West)
+            if (angle < 45 || angle >= 315) basic.showArrow(ArrowNames.East)
+            else if (angle < 135) basic.showArrow(ArrowNames.South)
+            else if (angle < 225) basic.showArrow(ArrowNames.West)
+            else basic.showArrow(ArrowNames.North)
         } else {
-            basic.showLeds(\`
-                . . . . .
-                . . # . .
-                . # # # .
-                . . # . .
-                . . . . .
-            \`)
+            basic.showIcon(IconNames.SmallDiamond)
         }
+    }`).join('\n');
+
+  let dpadCode = dpads.map(w => `    // D-Pad: ${w.label || w.id} (val = "direction state", direction: up/down/left/right, state: 1=pressed, 0=released)
+    if (id == "${w.id}") {
+        let parts = val.split(" ")
+        let dir = parts[0]
+        let pressed = parts[1] == "1"
+        if (pressed) {
+            if (dir == "up") basic.showArrow(ArrowNames.North)
+            else if (dir == "down") basic.showArrow(ArrowNames.South)
+            else if (dir == "left") basic.showArrow(ArrowNames.West)
+            else if (dir == "right") basic.showArrow(ArrowNames.East)
+        }
+    }`).join('\n');
+
+  let xypadCode = xypads.map(w => `    // XY Pad: ${w.label || w.id} (val = "x y", both 0-100)
+    if (id == "${w.id}") {
+        let parts = val.split(" ")
+        let x = parseInt(parts[0])  // 0-100 (0=left, 100=right)
+        let y = parseInt(parts[1])  // 0-100 (0=top, 100=bottom)
+        // Plot position on LED matrix
+        led.plot(Math.floor(x / 25), Math.floor(y / 25))
+        basic.pause(100)
+        basic.clearScreen()
+    }`).join('\n');
+
+  let timerCode = timers.map(w => `    // Timer: ${w.label || w.id} (val = seconds elapsed)
+    if (id == "${w.id}") {
+        let secs = parseInt(val)
+        // Do something with timer value
+        serial.writeLine("Timer: " + secs + "s")
     }`).join('\n');
 
   let ledList = leds.map(w => `//   sendValue("${w.id}", "1")  // Turn ON ${w.label || 'LED'}
@@ -2339,6 +3635,12 @@ ${sliderCode || '    // No sliders in this remote'}
 ${toggleCode || '    // No toggles in this remote'}
 
 ${joystickCode || '    // No joysticks in this remote'}
+
+${dpadCode || '    // No D-Pads in this remote'}
+
+${xypadCode || '    // No XY Pads in this remote'}
+
+${timerCode || '    // No timers in this remote'}
 }
 
 // Send values TO the app (for LEDs and Labels)
@@ -2375,6 +3677,13 @@ input.onButtonPressed(Button.B, function() {
 }
 
 function init() {
+  try{ ensureCanvasToolbar(); }catch(e){}
+
+  try{ placeToolbarWhereHintWas(); }catch(e){}
+try{ placeToolbarWhereHintWas(); }catch(e){}
+// keep controls at top-right
+  try{ moveBuildPlayNameTopRight(); }catch(e){}
+
   state._allowLoadingOverlay = false;
   if (typeof hideLoading === 'function') hideLoading();
   // Tabs
@@ -2393,24 +3702,127 @@ function init() {
     };
   });
   
-  // Canvas - tap to place
-  $('#canvas').onclick = e => {
-    if (e.target.closest('.widget')) return;
+  // Canvas - tap to place + selection box
+  const canvas = $('#canvas');
+  let isDrawingSelBox = false;
+  
+  canvas.onmousedown = e => {
+    if (e.target.closest('.widget') || e.target.closest('.canvas-tool-btn') || e.target.closest('.zoom-btn')) return;
+    if (e.shiftKey) {
+      isDrawingSelBox = true;
+      startSelectionBox(e);
+    }
+  };
+  
+  canvas.onmousemove = e => {
+    if (isDrawingSelBox) updateSelectionBox(e);
+  };
+  
+  canvas.onmouseup = e => {
+    if (isDrawingSelBox) {
+      endSelectionBox();
+      isDrawingSelBox = false;
+    }
+  };
+  
+  canvas.onclick = e => {
+    if (e.target.closest('.widget') || e.target.closest('.canvas-tool-btn') || e.target.closest('.zoom-btn') || e.target.closest('.minimap')) return;
     if (state.selectedType) {
-      const rect = $('#canvas').getBoundingClientRect();
+      saveUndoState();
+      const rect = canvas.getBoundingClientRect();
       const [w, h] = SIZES[state.selectedType];
-      const x = Math.max(0, Math.min(e.clientX - rect.left - w/2, rect.width - w));
-      const y = Math.max(0, Math.min(e.clientY - rect.top - h/2, rect.height - h));
+      let x = Math.max(0, Math.min(e.clientX - rect.left - w/2, rect.width - w));
+      let y = Math.max(0, Math.min(e.clientY - rect.top - h/2, rect.height - h));
+      if (state.gridSnap) { x = snapToGrid(x); y = snapToGrid(y); }
       const base = applyWidgetDefaults({ id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' });
       state.widgets.push(base);
       renderWidgets();
       toast(`✨ ${ICONS[state.selectedType]} added!`, 'success');
     } else {
       state.selected = null;
+      state.multiSelect = [];
       renderWidgets();
       renderPropsPanel();
     }
   };
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    const target = e.target;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+    
+    const ctrl = e.ctrlKey || e.metaKey;
+    const shift = e.shiftKey;
+    
+    // Undo: Ctrl+Z
+    if (ctrl && e.key === 'z' && !shift) { e.preventDefault(); undo(); return; }
+    // Redo: Ctrl+Shift+Z or Ctrl+Y
+    if ((ctrl && shift && e.key === 'z') || (ctrl && e.key === 'y')) { e.preventDefault(); redo(); return; }
+    // Copy: Ctrl+C
+    if (ctrl && e.key === 'c') { e.preventDefault(); copySelected(); return; }
+    // Paste: Ctrl+V
+    if (ctrl && e.key === 'v') { e.preventDefault(); pasteWidgets(); return; }
+    // Duplicate: Ctrl+D
+    if (ctrl && e.key === 'd') { e.preventDefault(); duplicateSelected(); return; }
+    // Group: Ctrl+G
+    if (ctrl && e.key === 'g') { e.preventDefault(); groupSelected(); return; }
+    // Save template: Ctrl+S
+    if (ctrl && e.key === 's') { e.preventDefault(); saveWidgetTemplate(); return; }
+    // Toggle grid: G
+    if (e.key === 'g' && !ctrl) { 
+      state.gridSnap = !state.gridSnap;
+      const btn = $('#gridToggle');
+      if (btn) btn.classList.toggle('active', state.gridSnap);
+      $('#canvas')?.classList.toggle('show-grid', state.gridSnap);
+      toast(state.gridSnap ? '⊞ Grid ON' : '⊞ Grid OFF', 'success');
+      return;
+    }
+    // Toggle layers: L
+    if (e.key === 'l' && !ctrl) { toggleLayers(); return; }
+    // Theme cycle: T
+    if (e.key === 't' && !ctrl) { cycleTheme(); return; }
+    // Delete: Delete or Backspace
+    if (e.key === 'Delete' || e.key === 'Backspace') { 
+      e.preventDefault(); 
+      if (state.multiSelect.length) {
+        saveUndoState();
+        state.widgets = state.widgets.filter(w => !state.multiSelect.includes(w.id));
+        state.multiSelect = [];
+        state.selected = null;
+        renderWidgets();
+        renderPropsPanel();
+        toast('🗑️ Deleted widgets', 'success');
+      } else {
+        deleteSelected(); 
+      }
+      return; 
+    }
+    // Select all: Ctrl+A
+    if (ctrl && e.key === 'a') { 
+      e.preventDefault(); 
+      state.multiSelect = state.widgets.map(w => w.id);
+      updateSelectionUI();
+      toast(`Selected all ${state.widgets.length} widgets`, 'success');
+      return; 
+    }
+    // Arrow keys: nudge
+    const nudgeAmount = shift ? 10 : 1;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); nudgeSelected(-nudgeAmount, 0); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); nudgeSelected(nudgeAmount, 0); return; }
+    if (e.key === 'ArrowUp') { e.preventDefault(); nudgeSelected(0, -nudgeAmount); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); nudgeSelected(0, nudgeAmount); return; }
+    // Escape: deselect
+    if (e.key === 'Escape') {
+      state.selected = null;
+      state.multiSelect = [];
+      state.selectedType = null;
+      $$('.palette-item').forEach(p => p.classList.remove('selected'));
+      updateSelectionUI();
+      renderPropsPanel();
+    }
+    // Help: ?
+    if (e.key === '?' || (shift && e.key === '/')) { showHelp(); return; }
+  });
   
   // Buttons
   $('#soundBtn').onclick = () => { state.soundOn = !state.soundOn; updateSoundUI(); if (state.soundOn) beepClick(); };
@@ -2454,6 +3866,21 @@ function init() {
   var _ov=$('#loadingOverlay');
   if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
   if (typeof hideLoadOverlay==='function') hideLoadOverlay();
+  
+  // Load saved theme
+  try {
+    const savedTheme = localStorage.getItem('widget_theme');
+    if (savedTheme && THEMES[savedTheme]) setTheme(savedTheme);
+  } catch(e) {}
+  
+  // Load high contrast preference
+  loadHighContrastPref();
+  
+  // Load widget templates from localStorage
+  loadWidgetTemplates();
+  
+  // Check for URL layout parameter
+  loadURLLayout();
 }
 
 function selectTemplate(name) {
@@ -2503,50 +3930,917 @@ function switchTab(tab) {
   if (tab === 'runtime') startDemoSim(); else stopDemoSim();
 }
 
+// Collision detection helpers
+function rectsOverlap(a, b, gap = 4) {
+  return !(a.x + a.w + gap <= b.x || b.x + b.w + gap <= a.x || 
+           a.y + a.h + gap <= b.y || b.y + b.h + gap <= a.y);
+}
+
+function resolveOverlaps(moved) {
+  const GAP = 6;
+  for (let iter = 0; iter < 20; iter++) {
+    let anyOverlap = false;
+    for (let i = 0; i < state.widgets.length; i++) {
+      for (let j = i + 1; j < state.widgets.length; j++) {
+        const a = state.widgets[i], b = state.widgets[j];
+        if (a.locked && b.locked) continue;
+        if (!rectsOverlap(a, b, GAP)) continue;
+        anyOverlap = true;
+        const pushed = (moved && a.id === moved.id) ? b : (moved && b.id === moved.id) ? a : (a.locked ? b : a);
+        const fixed = pushed === b ? a : b;
+        if (pushed.locked) continue;
+        const overlapX = (fixed.w/2 + pushed.w/2 + GAP) - Math.abs((fixed.x + fixed.w/2) - (pushed.x + pushed.w/2));
+        const overlapY = (fixed.h/2 + pushed.h/2 + GAP) - Math.abs((fixed.y + fixed.h/2) - (pushed.y + pushed.h/2));
+        if (overlapX < overlapY) {
+          pushed.x = (pushed.x > fixed.x) ? fixed.x + fixed.w + GAP : fixed.x - pushed.w - GAP;
+        } else {
+          pushed.y = (pushed.y > fixed.y) ? fixed.y + fixed.h + GAP : fixed.y - pushed.h - GAP;
+        }
+        pushed.x = Math.max(0, pushed.x);
+        pushed.y = Math.max(0, pushed.y);
+      }
+    }
+    if (!anyOverlap) break;
+  }
+  state.widgets.forEach(w => {
+    const el = $(`.widget[data-id="${w.id}"]`);
+    if (el) { el.style.left = w.x + 'px'; el.style.top = w.y + 'px'; }
+  });
+  updateCanvasSize();
+  updateMinimap();
+}
+
+// Undo/Redo system
+function saveUndoState() {
+  const snapshot = JSON.stringify(state.widgets);
+  if (state.undoStack.length && state.undoStack[state.undoStack.length-1] === snapshot) return;
+  state.undoStack.push(snapshot);
+  if (state.undoStack.length > state.maxUndo) state.undoStack.shift();
+  state.redoStack = [];
+}
+
+function undo() {
+  if (state.undoStack.length < 2) { toast('Nothing to undo', 'error'); return; }
+  state.redoStack.push(state.undoStack.pop());
+  state.widgets = JSON.parse(state.undoStack[state.undoStack.length-1]);
+  state.selected = null;
+  state.multiSelect = [];
+  renderWidgets();
+  renderPropsPanel();
+  toast('↩️ Undo', 'success');
+}
+
+function redo() {
+  if (!state.redoStack.length) { toast('Nothing to redo', 'error'); return; }
+  const snapshot = state.redoStack.pop();
+  state.undoStack.push(snapshot);
+  state.widgets = JSON.parse(snapshot);
+  state.selected = null;
+  state.multiSelect = [];
+  renderWidgets();
+  renderPropsPanel();
+  toast('↪️ Redo', 'success');
+}
+
+// Copy/Paste/Duplicate
+function copySelected() {
+  const ids = state.multiSelect.length ? state.multiSelect : (state.selected ? [state.selected] : []);
+  if (!ids.length) { toast('Select widgets first', 'error'); return; }
+  state.clipboard = state.widgets.filter(w => ids.includes(w.id)).map(w => ({...w}));
+  toast(`📋 Copied ${state.clipboard.length} widget(s)`, 'success');
+}
+
+function pasteWidgets() {
+  if (!state.clipboard.length) { toast('Nothing to paste', 'error'); return; }
+  saveUndoState();
+  const offset = 20;
+  state.clipboard.forEach(w => {
+    const newW = {...w, id: `${w.t}${state.nextId++}`, x: w.x + offset, y: w.y + offset};
+    state.widgets.push(newW);
+  });
+  resolveOverlaps(null);
+  renderWidgets();
+  toast(`📋 Pasted ${state.clipboard.length} widget(s)`, 'success');
+  saveUndoState();
+}
+
+function duplicateSelected() {
+  const ids = state.multiSelect.length ? state.multiSelect : (state.selected ? [state.selected] : []);
+  if (!ids.length) { toast('Select widgets first', 'error'); return; }
+  saveUndoState();
+  const toDupe = state.widgets.filter(w => ids.includes(w.id));
+  toDupe.forEach(w => {
+    const newW = {...w, id: `${w.t}${state.nextId++}`, x: w.x + 20, y: w.y + 20};
+    state.widgets.push(newW);
+  });
+  resolveOverlaps(null);
+  renderWidgets();
+  toast(`✨ Duplicated ${toDupe.length} widget(s)`, 'success');
+  saveUndoState();
+}
+
+// === SMART LAYOUT FUNCTIONS ===
+
+// Auto-arrange in grid
+function autoArrangeGrid() {
+  if (!state.widgets.length) return;
+  saveUndoState();
+  const cols = Math.ceil(Math.sqrt(state.widgets.length));
+  const gap = 10;
+  let maxW = 0, maxH = 0;
+  state.widgets.forEach(w => { maxW = Math.max(maxW, w.w); maxH = Math.max(maxH, w.h); });
+  state.widgets.forEach((w, i) => {
+    w.x = (i % cols) * (maxW + gap) + gap;
+    w.y = Math.floor(i / cols) * (maxH + gap) + gap;
+  });
+  renderWidgets();
+  toast('⊞ Arranged in grid', 'success');
+  saveUndoState();
+}
+
+// Auto-arrange in rows
+function autoArrangeRows() {
+  if (!state.widgets.length) return;
+  saveUndoState();
+  const gap = 10;
+  let y = gap;
+  state.widgets.forEach(w => {
+    w.x = gap;
+    w.y = y;
+    y += w.h + gap;
+  });
+  renderWidgets();
+  toast('≡ Arranged in rows', 'success');
+  saveUndoState();
+}
+
+// Auto-arrange in columns
+function autoArrangeCols() {
+  if (!state.widgets.length) return;
+  saveUndoState();
+  const gap = 10;
+  let x = gap;
+  state.widgets.forEach(w => {
+    w.x = x;
+    w.y = gap;
+    x += w.w + gap;
+  });
+  renderWidgets();
+  toast('⫾ Arranged in columns', 'success');
+  saveUndoState();
+}
+
+// Distribute horizontally
+function distributeH() {
+  const ids = state.multiSelect.length ? state.multiSelect : state.widgets.map(w => w.id);
+  const ws = state.widgets.filter(w => ids.includes(w.id)).sort((a,b) => a.x - b.x);
+  if (ws.length < 3) { toast('Need 3+ widgets', 'error'); return; }
+  saveUndoState();
+  const first = ws[0], last = ws[ws.length-1];
+  const totalSpace = last.x - first.x - first.w;
+  const gap = totalSpace / (ws.length - 1);
+  let x = first.x + first.w;
+  ws.slice(1, -1).forEach(w => { w.x = x + gap - w.w/2 + first.w/2; x += gap; });
+  renderWidgets();
+  toast('↔ Distributed horizontally', 'success');
+  saveUndoState();
+}
+
+// Distribute vertically
+function distributeV() {
+  const ids = state.multiSelect.length ? state.multiSelect : state.widgets.map(w => w.id);
+  const ws = state.widgets.filter(w => ids.includes(w.id)).sort((a,b) => a.y - b.y);
+  if (ws.length < 3) { toast('Need 3+ widgets', 'error'); return; }
+  saveUndoState();
+  const first = ws[0], last = ws[ws.length-1];
+  const totalSpace = last.y - first.y - first.h;
+  const gap = totalSpace / (ws.length - 1);
+  let y = first.y + first.h;
+  ws.slice(1, -1).forEach(w => { w.y = y + gap - w.h/2 + first.h/2; y += gap; });
+  renderWidgets();
+  toast('↕ Distributed vertically', 'success');
+  saveUndoState();
+}
+
+// Align functions
+function alignLeft() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const minX = Math.min(...ws.map(w => w.x));
+  ws.forEach(w => w.x = minX);
+  renderWidgets();
+  toast('⫷ Aligned left', 'success');
+}
+
+function alignRight() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const maxX = Math.max(...ws.map(w => w.x + w.w));
+  ws.forEach(w => w.x = maxX - w.w);
+  renderWidgets();
+  toast('⫸ Aligned right', 'success');
+}
+
+function alignTop() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const minY = Math.min(...ws.map(w => w.y));
+  ws.forEach(w => w.y = minY);
+  renderWidgets();
+  toast('⫠ Aligned top', 'success');
+}
+
+function alignBottom() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const maxY = Math.max(...ws.map(w => w.y + w.h));
+  ws.forEach(w => w.y = maxY - w.h);
+  renderWidgets();
+  toast('⫟ Aligned bottom', 'success');
+}
+
+function alignCenterH() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const avgX = ws.reduce((s, w) => s + w.x + w.w/2, 0) / ws.length;
+  ws.forEach(w => w.x = avgX - w.w/2);
+  renderWidgets();
+  toast('⫿ Aligned center H', 'success');
+}
+
+function alignCenterV() {
+  const ids = state.multiSelect.length ? state.multiSelect : [state.selected];
+  const ws = state.widgets.filter(w => ids.includes(w.id));
+  if (ws.length < 2) return;
+  saveUndoState();
+  const avgY = ws.reduce((s, w) => s + w.y + w.h/2, 0) / ws.length;
+  ws.forEach(w => w.y = avgY - w.h/2);
+  renderWidgets();
+  toast('⫿ Aligned center V', 'success');
+}
+
+// === THEME FUNCTIONS ===
+function setTheme(name) {
+  state.theme = name;
+  document.body.className = document.body.className.replace(/theme-\w+/g, '');
+  if (name !== 'dark') document.body.classList.add('theme-' + name);
+  toast(`🎨 Theme: ${name}`, 'success');
+  try { localStorage.setItem('widget_theme', name); } catch(e) {}
+}
+
+function cycleTheme() {
+  const themes = Object.keys(THEMES);
+  const idx = (themes.indexOf(state.theme) + 1) % themes.length;
+  setTheme(themes[idx]);
+}
+
+// === GROUPING ===
+function groupSelected() {
+  if (state.multiSelect.length < 2) { toast('Select 2+ widgets', 'error'); return; }
+  const groupId = 'g' + Date.now();
+  state.groups[groupId] = [...state.multiSelect];
+  state.widgets.filter(w => state.multiSelect.includes(w.id)).forEach(w => w.groupId = groupId);
+  renderWidgets();
+  toast(`⚭ Grouped ${state.multiSelect.length} widgets`, 'success');
+}
+
+function ungroupSelected() {
+  const w = getSelectedWidget();
+  if (!w || !w.groupId) { toast('Select a grouped widget', 'error'); return; }
+  const gid = w.groupId;
+  state.widgets.filter(x => x.groupId === gid).forEach(x => delete x.groupId);
+  delete state.groups[gid];
+  renderWidgets();
+  toast('⚯ Ungrouped', 'success');
+}
+
+// === LAYERS ===
+function toggleLayers() {
+  state.showLayers = !state.showLayers;
+  let panel = $('#layersPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'layersPanel';
+    panel.className = 'layers-panel';
+    document.body.appendChild(panel);
+  }
+  panel.classList.toggle('show', state.showLayers);
+  if (state.showLayers) renderLayersPanel();
+}
+
+function renderLayersPanel() {
+  const panel = $('#layersPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="layers-header">Layers <button onclick="toggleLayers()" style="background:none;border:none;color:white;cursor:pointer">✕</button></div>
+    <div class="layers-list">${state.widgets.map((w, i) => `
+      <div class="layer-item ${w.id === state.selected ? 'selected' : ''}" onclick="state.selected='${w.id}';updateSelectionUI();renderLayersPanel()">
+        <span class="layer-icon">${ICONS[w.t]}</span>
+        <span>${w.label || w.id}</span>
+        <span class="layer-vis visible" onclick="event.stopPropagation();toggleWidgetVis('${w.id}')">👁</span>
+      </div>
+    `).reverse().join('')}</div>
+  `;
+}
+
+function toggleWidgetVis(id) {
+  const w = state.widgets.find(x => x.id === id);
+  if (w) { w.hidden = !w.hidden; renderWidgets(); renderLayersPanel(); }
+}
+
+function moveLayerUp() {
+  if (!state.selected) return;
+  const idx = state.widgets.findIndex(w => w.id === state.selected);
+  if (idx < state.widgets.length - 1) {
+    [state.widgets[idx], state.widgets[idx+1]] = [state.widgets[idx+1], state.widgets[idx]];
+    renderWidgets();
+  }
+}
+
+function moveLayerDown() {
+  if (!state.selected) return;
+  const idx = state.widgets.findIndex(w => w.id === state.selected);
+  if (idx > 0) {
+    [state.widgets[idx], state.widgets[idx-1]] = [state.widgets[idx-1], state.widgets[idx]];
+    renderWidgets();
+  }
+}
+
+// === SHARE/EXPORT ===
+function shareURL() {
+  const data = { title: $('#titleInput')?.value || 'Remote', widgets: state.widgets };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url = location.origin + location.pathname + '?layout=' + encoded;
+  navigator.clipboard.writeText(url).then(() => toast('🔗 Link copied!', 'success'));
+}
+
+function generateQR() {
+  const data = { title: $('#titleInput')?.value || 'Remote', widgets: state.widgets };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url = location.origin + location.pathname + '?layout=' + encoded;
+  // Using QR code API
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  
+  let modal = $('#shareModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'shareModal';
+    modal.className = 'share-modal';
+    modal.innerHTML = `<div class="share-content">
+      <h3>📱 Scan to Share</h3>
+      <img class="share-qr" src="" alt="QR Code">
+      <input class="share-link" readonly>
+      <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);toast('Copied!','success')" style="padding:10px 20px;border:none;border-radius:8px;background:var(--accent);cursor:pointer">📋 Copy Link</button>
+      <button onclick="this.closest('.share-modal').classList.remove('show')" style="padding:10px 20px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);color:white;cursor:pointer;margin-left:8px">Close</button>
+    </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.querySelector('.share-qr').src = qrUrl;
+  modal.querySelector('.share-link').value = url;
+  modal.classList.add('show');
+}
+
+function exportScreenshot() {
+  const canvas = $('#canvas');
+  if (!canvas) return;
+  // Use html2canvas if available, otherwise simple approach
+  toast('📸 Preparing screenshot...', 'success');
+  import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.esm.min.js')
+    .then(mod => mod.default(canvas))
+    .then(c => {
+      const link = document.createElement('a');
+      link.download = 'remote-layout.png';
+      link.href = c.toDataURL();
+      link.click();
+      toast('📸 Screenshot saved!', 'success');
+    })
+    .catch(() => toast('Screenshot requires html2canvas', 'error'));
+}
+
+// === WIDGET TEMPLATES ===
+function saveWidgetTemplate() {
+  const ids = state.multiSelect.length ? state.multiSelect : (state.selected ? [state.selected] : []);
+  if (!ids.length) { toast('Select widgets first', 'error'); return; }
+  const name = prompt('Template name:');
+  if (!name) return;
+  const widgets = state.widgets.filter(w => ids.includes(w.id)).map(w => ({...w}));
+  // Normalize positions
+  const minX = Math.min(...widgets.map(w => w.x));
+  const minY = Math.min(...widgets.map(w => w.y));
+  widgets.forEach(w => { w.x -= minX; w.y -= minY; delete w.id; });
+  state.widgetTemplates.push({ name, widgets });
+  try { localStorage.setItem('widget_templates', JSON.stringify(state.widgetTemplates)); } catch(e) {}
+  toast(`💾 Template "${name}" saved`, 'success');
+}
+
+function loadWidgetTemplates() {
+  try {
+    state.widgetTemplates = JSON.parse(localStorage.getItem('widget_templates') || '[]');
+  } catch(e) { state.widgetTemplates = []; }
+}
+
+function showTemplateMenu() {
+  if (!state.widgetTemplates.length) { toast('No saved templates', 'error'); return; }
+  const name = prompt('Templates:\n' + state.widgetTemplates.map((t,i) => `${i+1}. ${t.name}`).join('\n') + '\n\nEnter number:');
+  const idx = parseInt(name) - 1;
+  if (isNaN(idx) || !state.widgetTemplates[idx]) return;
+  saveUndoState();
+  const tpl = state.widgetTemplates[idx];
+  tpl.widgets.forEach(w => {
+    state.widgets.push({ ...w, id: `${w.t}${state.nextId++}`, x: w.x + 20, y: w.y + 20 });
+  });
+  renderWidgets();
+  toast(`📂 Loaded "${tpl.name}"`, 'success');
+}
+
+// === RULER ===
+function toggleRuler() {
+  state.showRuler = !state.showRuler;
+  const canvas = $('#canvas');
+  let rulerH = canvas.querySelector('.ruler-h');
+  let rulerV = canvas.querySelector('.ruler-v');
+  
+  if (state.showRuler) {
+    if (!rulerH) {
+      rulerH = document.createElement('div');
+      rulerH.className = 'ruler ruler-h';
+      canvas.appendChild(rulerH);
+    }
+    if (!rulerV) {
+      rulerV = document.createElement('div');
+      rulerV.className = 'ruler ruler-v';
+      canvas.appendChild(rulerV);
+    }
+    // Add marks
+    for (let i = 0; i <= 1000; i += 50) {
+      const mh = document.createElement('span');
+      mh.className = 'ruler-mark';
+      mh.style.left = i + 'px';
+      mh.textContent = i;
+      rulerH.appendChild(mh);
+      const mv = document.createElement('span');
+      mv.className = 'ruler-mark';
+      mv.style.top = i + 'px';
+      mv.textContent = i;
+      rulerV.appendChild(mv);
+    }
+    toast('📏 Ruler ON', 'success');
+  } else {
+    if (rulerH) rulerH.remove();
+    if (rulerV) rulerV.remove();
+    toast('📏 Ruler OFF', 'success');
+  }
+}
+
+// === SENSOR SIMULATOR ===
+function toggleSensorSim() {
+  let sim = $('#sensorSim');
+  if (!sim) {
+    sim = document.createElement('div');
+    sim.id = 'sensorSim';
+    sim.className = 'sensor-sim';
+    sim.innerHTML = `
+      <div class="sensor-group">
+        <div class="sensor-label">Accel X</div>
+        <input type="range" class="sensor-slider" min="-1024" max="1024" value="0" oninput="simSensor('accelX', this.value)">
+        <div class="sensor-value" id="simAccelX">0</div>
+      </div>
+      <div class="sensor-group">
+        <div class="sensor-label">Accel Y</div>
+        <input type="range" class="sensor-slider" min="-1024" max="1024" value="0" oninput="simSensor('accelY', this.value)">
+        <div class="sensor-value" id="simAccelY">0</div>
+      </div>
+      <div class="sensor-group">
+        <div class="sensor-label">Light</div>
+        <input type="range" class="sensor-slider" min="0" max="255" value="128" oninput="simSensor('light', this.value)">
+        <div class="sensor-value" id="simLight">128</div>
+      </div>
+      <div class="sensor-group">
+        <div class="sensor-label">Temp</div>
+        <input type="range" class="sensor-slider" min="-10" max="50" value="25" oninput="simSensor('temp', this.value)">
+        <div class="sensor-value" id="simTemp">25°</div>
+      </div>
+      <button onclick="$('#sensorSim').classList.remove('show')" style="padding:8px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);color:white;cursor:pointer">✕</button>
+    `;
+    document.body.appendChild(sim);
+  }
+  sim.classList.toggle('show');
+}
+
+function simSensor(type, value) {
+  const el = $(`#sim${type.charAt(0).toUpperCase() + type.slice(1)}`);
+  if (el) el.textContent = value + (type === 'temp' ? '°' : '');
+  // Could send to widgets that listen to sensors
+}
+
+// === LOAD URL LAYOUT ===
+function loadURLLayout() {
+  const params = new URLSearchParams(location.search);
+  const layout = params.get('layout');
+  if (layout) {
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(layout))));
+      if (data.widgets) {
+        state.widgets = data.widgets.map(w => ({ ...w, id: w.id || `${w.t}${state.nextId++}` }));
+        if (data.title && $('#titleInput')) $('#titleInput').value = data.title;
+        renderWidgets();
+        toast('📂 Layout loaded from URL', 'success');
+      }
+    } catch(e) { console.error('Failed to load URL layout', e); }
+  }
+}
+
+// === CANVAS BACKGROUND ===
+function setCanvasBackground() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        state.canvasBg = ev.target.result;
+        const canvas = $('#canvas');
+        if (canvas) {
+          canvas.style.backgroundImage = `url(${state.canvasBg})`;
+          canvas.style.backgroundSize = 'cover';
+          canvas.style.backgroundPosition = 'center';
+        }
+        toast('🖼️ Background set', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+function clearCanvasBackground() {
+  state.canvasBg = null;
+  const canvas = $('#canvas');
+  if (canvas) {
+    canvas.style.backgroundImage = '';
+  }
+  toast('🖼️ Background cleared', 'success');
+}
+
+// === HIGH CONTRAST MODE ===
+function toggleHighContrast() {
+  document.body.classList.toggle('high-contrast');
+  const isHC = document.body.classList.contains('high-contrast');
+  toast(isHC ? '◐ High Contrast ON' : '◐ High Contrast OFF', 'success');
+  try { localStorage.setItem('high_contrast', isHC ? '1' : '0'); } catch(e) {}
+}
+
+// Load high contrast preference
+function loadHighContrastPref() {
+  try {
+    if (localStorage.getItem('high_contrast') === '1') {
+      document.body.classList.add('high-contrast');
+    }
+  } catch(e) {}
+}
+
+// === HELP/SHORTCUTS MODAL ===
+function showHelp() {
+  let modal = $('#helpModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'helpModal';
+    modal.className = 'share-modal';
+    modal.innerHTML = `<div class="share-content" style="max-width:500px;text-align:left;">
+      <h3>⌨️ Keyboard Shortcuts</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin:16px 0;">
+        <div><kbd>Ctrl+Z</kbd> Undo</div>
+        <div><kbd>Ctrl+Shift+Z</kbd> Redo</div>
+        <div><kbd>Ctrl+C</kbd> Copy</div>
+        <div><kbd>Ctrl+V</kbd> Paste</div>
+        <div><kbd>Ctrl+D</kbd> Duplicate</div>
+        <div><kbd>Ctrl+G</kbd> Group</div>
+        <div><kbd>Ctrl+S</kbd> Save Template</div>
+        <div><kbd>Ctrl+A</kbd> Select All</div>
+        <div><kbd>Delete</kbd> Delete</div>
+        <div><kbd>Escape</kbd> Deselect</div>
+        <div><kbd>G</kbd> Toggle Grid</div>
+        <div><kbd>L</kbd> Toggle Layers</div>
+        <div><kbd>T</kbd> Cycle Theme</div>
+        <div><kbd>Arrow Keys</kbd> Nudge 1px</div>
+        <div><kbd>Shift+Arrow</kbd> Nudge 10px</div>
+        <div><kbd>Shift+Click</kbd> Multi-select</div>
+      </div>
+      <h3>🖱️ Mouse Actions</h3>
+      <div style="font-size:13px;margin:16px 0;">
+        <div>• Shift+Drag on canvas: Selection box</div>
+        <div>• Drag widget corner: Resize</div>
+        <div>• Click canvas: Place selected widget type</div>
+      </div>
+      <button onclick="this.closest('.share-modal').classList.remove('show')" style="padding:10px 20px;border:none;border-radius:8px;background:var(--accent);cursor:pointer;width:100%">Got it!</button>
+    </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.classList.add('show');
+}
+
+// === PIN MAPPING HELPER ===
+function showPinMapping() {
+  let modal = $('#pinModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'pinModal';
+    modal.className = 'share-modal';
+    modal.innerHTML = `<div class="share-content" style="max-width:450px;text-align:left;">
+      <h3>📌 micro:bit Pin Reference</h3>
+      <div style="font-size:13px;margin:16px 0;line-height:1.6;">
+        <div><b>P0, P1, P2</b> - Large pins (touch, analog, digital)</div>
+        <div><b>P3-P10</b> - LED matrix (shared)</div>
+        <div><b>P11</b> - Button B (shared)</div>
+        <div><b>P12</b> - Reserved</div>
+        <div><b>P13-P15</b> - SPI (SCK, MISO, MOSI)</div>
+        <div><b>P16</b> - General purpose</div>
+        <div><b>P19, P20</b> - I2C (SCL, SDA)</div>
+      </div>
+      <h4>Common Uses:</h4>
+      <div style="font-size:12px;margin:8px 0;opacity:0.8;">
+        • Servo: P0, P1, P2 (PWM)<br>
+        • LED Strip: P0 (NeoPixels)<br>
+        • Sensor: P0-P2 (analog read)<br>
+        • Motor: P0+P8 or P1+P12 (H-bridge)
+      </div>
+      <button onclick="this.closest('.share-modal').classList.remove('show')" style="padding:10px 20px;border:none;border-radius:8px;background:var(--accent);cursor:pointer;width:100%">Close</button>
+    </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.classList.add('show');
+}
+
+// Grid snapping
+function snapToGrid(val) {
+  if (!state.gridSnap) return val;
+  return Math.round(val / state.gridSize) * state.gridSize;
+}
+
+// Alignment guides
+function showAlignGuides(w) {
+  removeAlignGuides();
+  if (!state.showGuides) return;
+  const canvas = $('#canvas');
+  const guides = [];
+  const SNAP_DIST = 5;
+  
+  state.widgets.forEach(other => {
+    if (other.id === w.id) return;
+    // Vertical guides (left, center, right alignment)
+    if (Math.abs(w.x - other.x) < SNAP_DIST) guides.push({type:'v', pos: other.x});
+    if (Math.abs(w.x + w.w - other.x - other.w) < SNAP_DIST) guides.push({type:'v', pos: other.x + other.w});
+    if (Math.abs(w.x + w.w/2 - other.x - other.w/2) < SNAP_DIST) guides.push({type:'v', pos: other.x + other.w/2});
+    // Horizontal guides
+    if (Math.abs(w.y - other.y) < SNAP_DIST) guides.push({type:'h', pos: other.y});
+    if (Math.abs(w.y + w.h - other.y - other.h) < SNAP_DIST) guides.push({type:'h', pos: other.y + other.h});
+    if (Math.abs(w.y + w.h/2 - other.y - other.h/2) < SNAP_DIST) guides.push({type:'h', pos: other.y + other.h/2});
+  });
+  
+  guides.forEach(g => {
+    const el = document.createElement('div');
+    el.className = 'align-guide ' + (g.type === 'h' ? 'horizontal' : 'vertical');
+    el.style[g.type === 'h' ? 'top' : 'left'] = g.pos + 'px';
+    canvas.appendChild(el);
+  });
+}
+
+function removeAlignGuides() {
+  $$('.align-guide').forEach(el => el.remove());
+}
+
+// Canvas auto-expand
+function updateCanvasSize() {
+  const canvas = $('#canvas');
+  if (!canvas) return;
+  let maxX = 400, maxY = 300;
+  state.widgets.forEach(w => {
+    maxX = Math.max(maxX, w.x + w.w + 40);
+    maxY = Math.max(maxY, w.y + w.h + 40);
+  });
+  canvas.style.minWidth = maxX + 'px';
+  canvas.style.minHeight = maxY + 'px';
+}
+
+// Minimap
+function updateMinimap() {
+  const minimap = $('#minimap');
+  if (!minimap) return;
+  const canvas = $('#canvas');
+  if (!canvas) return;
+  
+  const scale = 0.1;
+  minimap.innerHTML = '';
+  
+  state.widgets.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'minimap-widget';
+    el.style.cssText = `left:${w.x*scale}px;top:${w.y*scale}px;width:${Math.max(4,w.w*scale)}px;height:${Math.max(4,w.h*scale)}px;background:${w.color || 'var(--accent)'}`;
+    minimap.appendChild(el);
+  });
+}
+
+// Zoom
+function setZoom(z) {
+  state.zoom = Math.max(0.5, Math.min(2, z));
+  const layer = $('#widgetsLayer');
+  if (layer) layer.style.transform = `scale(${state.zoom})`;
+  const zoomEl = $('#zoomLevel');
+  if (zoomEl) zoomEl.textContent = Math.round(state.zoom * 100) + '%';
+}
+
+// Nudge with arrow keys
+function nudgeSelected(dx, dy) {
+  const ids = state.multiSelect.length ? state.multiSelect : (state.selected ? [state.selected] : []);
+  if (!ids.length) return;
+  saveUndoState();
+  state.widgets.filter(w => ids.includes(w.id) && !w.locked).forEach(w => {
+    w.x = Math.max(0, w.x + dx);
+    w.y = Math.max(0, w.y + dy);
+  });
+  resolveOverlaps(null);
+  renderWidgets();
+}
+
+// Setup canvas tools UI
+function setupCanvasTools() {
+  const canvas = $('#canvas');
+  if (!canvas) return;
+
+  // Our helper tools live in the draggable Helper Panel UI
+  try { ensureHelperUI(); } catch(e) {}
+}
+
+function startSelectionBox(e) {
+  const canvas = $('#canvas');
+  const rect = canvas.getBoundingClientRect();
+  selBoxStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  selectionBox = document.createElement('div');
+  selectionBox.className = 'selection-box';
+  canvas.appendChild(selectionBox);
+}
+
+function updateSelectionBox(e) {
+  if (!selectionBox || !selBoxStart) return;
+  const canvas = $('#canvas');
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const left = Math.min(x, selBoxStart.x);
+  const top = Math.min(y, selBoxStart.y);
+  const width = Math.abs(x - selBoxStart.x);
+  const height = Math.abs(y - selBoxStart.y);
+  selectionBox.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px`;
+}
+
+function endSelectionBox() {
+  if (!selectionBox || !selBoxStart) return;
+  const box = selectionBox.getBoundingClientRect();
+  const canvas = $('#canvas');
+  const cRect = canvas.getBoundingClientRect();
+  
+  const boxLeft = box.left - cRect.left;
+  const boxTop = box.top - cRect.top;
+  const boxRight = boxLeft + box.width;
+  const boxBottom = boxTop + box.height;
+  
+  state.multiSelect = state.widgets.filter(w => {
+    return w.x < boxRight && w.x + w.w > boxLeft && w.y < boxBottom && w.y + w.h > boxTop;
+  }).map(w => w.id);
+  
+  selectionBox.remove();
+  selectionBox = null;
+  selBoxStart = null;
+  updateSelectionUI();
+  if (state.multiSelect.length) toast(`Selected ${state.multiSelect.length} widgets`, 'success');
+}
+
 function renderWidgets() {
   const layer = $('#widgetsLayer');
   layer.innerHTML = '';
+  
+  setupCanvasTools();
+  
   state.widgets.forEach(w => {
     const el = document.createElement('div');
-    el.className = 'widget' + (state.selected === w.id ? ' selected' : '');
+    const isMulti = state.multiSelect.includes(w.id);
+    el.className = 'widget' + (state.selected === w.id ? ' selected' : '') + (isMulti ? ' multi-selected' : '') + (w.locked ? ' locked' : '') + (w.hidden ? ' hidden' : '') + (w.groupId ? ' grouped' : '');
     el.dataset.id = w.id;
-    el.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
-    el.innerHTML = `<div class="widget-icon">${ICONS[w.t]}</div><div class="widget-label">${esc(w.label) || w.t}</div><div class="resize-handle"></div>`;
+    
+    // Build style with all properties
+    let styles = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
+    if (w.borderStyle) styles += `;border-style:${w.borderStyle}`;
+    if (w.borderRadius !== undefined) styles += `;border-radius:${w.borderRadius}px`;
+    if (w.shadow === 'soft') styles += `;box-shadow:0 10px 30px rgba(0,0,0,0.3)`;
+    else if (w.shadow === 'glow') styles += `;box-shadow:0 0 30px ${w.color || 'var(--accent)'}`;
+    else if (w.shadow === 'neon') styles += `;box-shadow:0 0 20px ${w.color || '#ff00ff'}, 0 0 40px ${w.color || '#ff00ff'}`;
+    if (w.hidden) styles += `;display:none`;
+    el.style.cssText = styles;
+    
+    let colorDot = w.color ? `<div class="widget-color-dot" style="background:${w.color}"></div>` : '';
+    // Add orientation indicator for sliders
+    let orientIndicator = '';
+    if (w.t === 'slider') {
+      const isVertical = (w.h || 100) > (w.w || 100);
+      orientIndicator = `<div class="widget-orient-badge">${isVertical ? '↕' : '↔'}</div>`;
+    }
+    el.innerHTML = `${colorDot}<div class="widget-icon">${ICONS[w.t]}</div><div class="widget-label">${esc(w.label) || w.t}</div>${orientIndicator}<div class="resize-handle"></div>`;
     layer.appendChild(el);
     
-    interact(el).draggable({
-      inertia: true,
-      modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
-      listeners: {
-        start() { state.selected = w.id; updateSelectionUI(); },
-        move(e) {
-          state.justDragged = true;
-          clearTimeout(state._dragT);
-          state._dragT = setTimeout(() => state.justDragged = false, 50);
-          w.x += e.dx; w.y += e.dy;
-          e.target.style.left = w.x + 'px';
-          e.target.style.top = w.y + 'px';
+    if (!w.locked) {
+      interact(el).draggable({
+        inertia: false,
+        modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
+        listeners: {
+          start() { 
+            saveUndoState();
+            state.selected = w.id; 
+            updateSelectionUI(); 
+          },
+          move(e) {
+            state.justDragged = true;
+            clearTimeout(state._dragT);
+            state._dragT = setTimeout(() => state.justDragged = false, 50);
+            
+            let newX = w.x + e.dx;
+            let newY = w.y + e.dy;
+            
+            if (state.gridSnap) {
+              newX = snapToGrid(newX);
+              newY = snapToGrid(newY);
+            }
+            
+            w.x = Math.max(0, newX);
+            w.y = Math.max(0, newY);
+            e.target.style.left = w.x + 'px';
+            e.target.style.top = w.y + 'px';
+            
+            showAlignGuides(w);
+            resolveOverlaps(w);
+          },
+          end() {
+            removeAlignGuides();
+            saveUndoState();
+          }
         }
-      }
-    }).resizable({
-      edges: { right: true, bottom: true },
-      modifiers: [interact.modifiers.restrictSize({ min: { width: 60, height: 60 } })],
-      listeners: {
-        move(e) {
-          w.w = e.rect.width; w.h = e.rect.height;
-          e.target.style.width = w.w + 'px';
-          e.target.style.height = w.h + 'px';
+      }).resizable({
+        edges: { right: true, bottom: true },
+        modifiers: [interact.modifiers.restrictSize({ min: { width: 60, height: 60 } })],
+        listeners: {
+          start() { saveUndoState(); },
+          move(e) {
+            w.w = state.gridSnap ? snapToGrid(e.rect.width) : e.rect.width;
+            w.h = state.gridSnap ? snapToGrid(e.rect.height) : e.rect.height;
+            e.target.style.width = w.w + 'px';
+            e.target.style.height = w.h + 'px';
+            resolveOverlaps(w);
+          },
+          end() { saveUndoState(); }
         }
-      }
-    });
+      });
+    }
     
-    el.onclick = e => { e.stopPropagation(); state.selected = w.id; updateSelectionUI(); };
+    el.onclick = e => { 
+      e.stopPropagation(); 
+      if (e.shiftKey) {
+        // Multi-select with shift
+        if (state.multiSelect.includes(w.id)) {
+          state.multiSelect = state.multiSelect.filter(id => id !== w.id);
+        } else {
+          state.multiSelect.push(w.id);
+        }
+      } else {
+        state.multiSelect = [];
+        state.selected = w.id; 
+      }
+      updateSelectionUI(); 
+    };
   });
+  
+  resolveOverlaps(null);
+  updateMinimap();
+  saveUndoState();
 }
 
 
 function updateSelectionUI() {
-  $$('.widget').forEach(el => el.classList.toggle('selected', el.dataset.id === state.selected));
+  $$('.widget').forEach(el => {
+    const id = el.dataset.id;
+    el.classList.toggle('selected', id === state.selected);
+    el.classList.toggle('multi-selected', state.multiSelect.includes(id));
+  });
   renderPropsPanel();
 }
 
@@ -2578,6 +4872,56 @@ function renderPropsPanel(){
 
     <label>Label</label>
     <input id="prop_label" value="${esc(w.label || '')}" />
+
+    <label>Widget Color</label>
+    <input id="prop_color" type="color" value="${w.color || '#00d4ff'}" />
+
+    <label>Lock Position</label>
+    <select id="prop_locked">
+      <option value="0" ${!w.locked ? 'selected' : ''}>Unlocked</option>
+      <option value="1" ${w.locked ? 'selected' : ''}>Locked 🔒</option>
+    </select>
+
+    <label>Border Style</label>
+    <select id="prop_borderStyle">
+      <option value="solid" ${(w.borderStyle || 'solid') === 'solid' ? 'selected' : ''}>Solid</option>
+      <option value="dashed" ${w.borderStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+      <option value="dotted" ${w.borderStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+      <option value="none" ${w.borderStyle === 'none' ? 'selected' : ''}>None</option>
+    </select>
+
+    <label>Shadow/Glow</label>
+    <select id="prop_shadow">
+      <option value="none" ${!w.shadow ? 'selected' : ''}>None</option>
+      <option value="soft" ${w.shadow === 'soft' ? 'selected' : ''}>Soft Shadow</option>
+      <option value="glow" ${w.shadow === 'glow' ? 'selected' : ''}>Glow ✨</option>
+      <option value="neon" ${w.shadow === 'neon' ? 'selected' : ''}>Neon 🌈</option>
+    </select>
+
+    <label>Border Radius</label>
+    <input id="prop_radius" type="range" min="0" max="50" value="${w.borderRadius ?? 16}" />
+
+    <label>📐 Size & Orientation</label>
+    <div class="props-row" style="gap:8px; margin-top:6px;">
+      <div style="flex:1;">
+        <label style="font-size:0.7rem; margin:0;">Width</label>
+        <input id="prop_width" type="number" min="40" max="600" value="${w.w || 100}" style="width:100%;" />
+      </div>
+      <div style="flex:1;">
+        <label style="font-size:0.7rem; margin:0;">Height</label>
+        <input id="prop_height" type="number" min="40" max="600" value="${w.h || 100}" style="width:100%;" />
+      </div>
+    </div>
+    <div class="props-row" style="gap:8px; margin-top:8px;">
+      <button class="props-apply" id="prop_swapOrientation" style="flex:1; margin:0;">🔄 Swap W↔H</button>
+      <button class="props-apply" id="prop_resetSize" style="flex:1; margin:0;">↩️ Reset</button>
+    </div>
+    <div class="props-row" style="gap:4px; margin-top:8px; flex-wrap:wrap;">
+      <button class="props-apply prop-preset-size" data-w="80" data-h="80" style="flex:1; margin:0; min-width:60px; padding:8px 4px; font-size:0.75rem;">S</button>
+      <button class="props-apply prop-preset-size" data-w="120" data-h="120" style="flex:1; margin:0; min-width:60px; padding:8px 4px; font-size:0.75rem;">M</button>
+      <button class="props-apply prop-preset-size" data-w="180" data-h="180" style="flex:1; margin:0; min-width:60px; padding:8px 4px; font-size:0.75rem;">L</button>
+      <button class="props-apply prop-preset-size" data-w="250" data-h="250" style="flex:1; margin:0; min-width:60px; padding:8px 4px; font-size:0.75rem;">XL</button>
+    </div>
   `;
 
   // Model selector (3 presets per widget type)
@@ -2604,7 +4948,14 @@ function renderPropsPanel(){
   }
 
   if (w.t === 'slider'){
+    const isVertical = (w.h || 100) > (w.w || 100);
     html += `
+      <label>🔄 Orientation</label>
+      <select id="prop_sliderOrient">
+        <option value="horizontal" ${!isVertical ? 'selected' : ''}>↔ Horizontal</option>
+        <option value="vertical" ${isVertical ? 'selected' : ''}>↕ Vertical</option>
+      </select>
+
       <label>Min</label>
       <input id="prop_min" type="number" value="${w.min ?? 0}" />
 
@@ -2667,6 +5018,33 @@ function renderPropsPanel(){
     `;
   }
 
+  if (w.t === 'image'){
+    html += `
+      <label>Image URL</label>
+      <input id="prop_imageSrc" value="${esc(w.imageSrc || '')}" placeholder="https://..." />
+      <button class="props-apply" id="prop_uploadImg">📁 Upload Image</button>
+    `;
+  }
+
+  if (w.t === 'battery'){
+    html += `
+      <label>Initial Level (%)</label>
+      <input id="prop_batteryLevel" type="number" min="0" max="100" value="${w.level ?? 100}" />
+    `;
+  }
+
+  if (w.t === 'timer'){
+    html += `
+      <label>Count Direction</label>
+      <select id="prop_timerDir">
+        <option value="up" ${(w.timerDir || 'up') === 'up' ? 'selected' : ''}>Count Up ⏱️</option>
+        <option value="down" ${w.timerDir === 'down' ? 'selected' : ''}>Countdown ⏳</option>
+      </select>
+      <label>Initial Seconds (for countdown)</label>
+      <input id="prop_timerStart" type="number" min="0" value="${w.timerStart ?? 60}" />
+    `;
+  }
+
 form.innerHTML = html;
 
   // Wire events
@@ -2675,6 +5053,137 @@ form.innerHTML = html;
     const el = $(`.widget[data-id="${w.id}"] .widget-label`);
     if (el) el.textContent = w.label || w.t;
   };
+
+  $('#prop_color').oninput = e => {
+    w.color = e.target.value;
+    const dot = $(`.widget[data-id="${w.id}"] .widget-color-dot`);
+    if (dot) dot.style.background = w.color;
+    else renderWidgets();
+    updateMinimap();
+  };
+
+  $('#prop_locked').onchange = e => {
+    w.locked = e.target.value === '1';
+    renderWidgets();
+    toast(w.locked ? '🔒 Widget locked' : '🔓 Widget unlocked', 'success');
+  };
+
+  $('#prop_borderStyle').onchange = e => {
+    w.borderStyle = e.target.value;
+    const el = $(`.widget[data-id="${w.id}"]`);
+    if (el) el.style.borderStyle = w.borderStyle;
+  };
+
+  $('#prop_shadow').onchange = e => {
+    w.shadow = e.target.value;
+    const el = $(`.widget[data-id="${w.id}"]`);
+    if (el) {
+      if (w.shadow === 'soft') el.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+      else if (w.shadow === 'glow') el.style.boxShadow = `0 0 30px ${w.color || 'var(--accent)'}`;
+      else if (w.shadow === 'neon') el.style.boxShadow = `0 0 20px ${w.color || '#ff00ff'}, 0 0 40px ${w.color || '#ff00ff'}`;
+      else el.style.boxShadow = '';
+    }
+  };
+
+  $('#prop_radius').oninput = e => {
+    w.borderRadius = parseInt(e.target.value);
+    const el = $(`.widget[data-id="${w.id}"]`);
+    if (el) el.style.borderRadius = w.borderRadius + 'px';
+  };
+
+  // Size and orientation controls
+  const widthInput = $('#prop_width');
+  const heightInput = $('#prop_height');
+  
+  if (widthInput) {
+    widthInput.oninput = e => {
+      const newW = Math.max(40, Math.min(600, parseInt(e.target.value) || 100));
+      w.w = newW;
+      const el = $(`.widget[data-id="${w.id}"]`);
+      if (el) el.style.width = w.w + 'px';
+      resolveOverlaps(w);
+      updateMinimap();
+    };
+  }
+  
+  if (heightInput) {
+    heightInput.oninput = e => {
+      const newH = Math.max(40, Math.min(600, parseInt(e.target.value) || 100));
+      w.h = newH;
+      const el = $(`.widget[data-id="${w.id}"]`);
+      if (el) el.style.height = w.h + 'px';
+      resolveOverlaps(w);
+      updateMinimap();
+    };
+  }
+  
+  const swapBtn = $('#prop_swapOrientation');
+  if (swapBtn) {
+    swapBtn.onclick = () => {
+      saveUndoState();
+      const oldW = w.w;
+      const oldH = w.h;
+      w.w = oldH;
+      w.h = oldW;
+      // Update inputs
+      if (widthInput) widthInput.value = w.w;
+      if (heightInput) heightInput.value = w.h;
+      // Update widget visual
+      const el = $(`.widget[data-id="${w.id}"]`);
+      if (el) {
+        el.style.width = w.w + 'px';
+        el.style.height = w.h + 'px';
+      }
+      resolveOverlaps(w);
+      updateMinimap();
+      toast('🔄 Orientation swapped!', 'success');
+    };
+  }
+  
+  const resetBtn = $('#prop_resetSize');
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      saveUndoState();
+      const defaults = SIZES[w.t] || [100, 100];
+      w.w = defaults[0];
+      w.h = defaults[1];
+      // Update inputs
+      if (widthInput) widthInput.value = w.w;
+      if (heightInput) heightInput.value = w.h;
+      // Update widget visual
+      const el = $(`.widget[data-id="${w.id}"]`);
+      if (el) {
+        el.style.width = w.w + 'px';
+        el.style.height = w.h + 'px';
+      }
+      resolveOverlaps(w);
+      updateMinimap();
+      toast('↩️ Size reset to default!', 'success');
+    };
+  }
+  
+  // Preset size buttons
+  $$('.prop-preset-size').forEach(btn => {
+    btn.onclick = () => {
+      saveUndoState();
+      const presetW = parseInt(btn.dataset.w) || 100;
+      const presetH = parseInt(btn.dataset.h) || 100;
+      w.w = presetW;
+      w.h = presetH;
+      // Update inputs
+      if (widthInput) widthInput.value = w.w;
+      if (heightInput) heightInput.value = w.h;
+      // Update widget visual
+      const el = $(`.widget[data-id="${w.id}"]`);
+      if (el) {
+        el.style.width = w.w + 'px';
+        el.style.height = w.h + 'px';
+      }
+      resolveOverlaps(w);
+      updateMinimap();
+      toast(`📐 Size set to ${presetW}×${presetH}`, 'success');
+    };
+  });
 
   $('#prop_id').onchange = e => {
     const newId = e.target.value.trim();
@@ -2723,6 +5232,31 @@ form.innerHTML = html;
   }
 
   if (w.t === 'slider'){
+    const orientSel = $('#prop_sliderOrient');
+    if (orientSel) {
+      orientSel.onchange = e => {
+        saveUndoState();
+        const isVertical = e.target.value === 'vertical';
+        const currentW = w.w || 100;
+        const currentH = w.h || 100;
+        
+        // If orientation doesn't match current dimensions, swap them
+        const currentIsVertical = currentH > currentW;
+        if (isVertical !== currentIsVertical) {
+          w.w = currentH;
+          w.h = currentW;
+          // Update the width/height inputs
+          const widthInput = $('#prop_width');
+          const heightInput = $('#prop_height');
+          if (widthInput) widthInput.value = w.w;
+          if (heightInput) heightInput.value = w.h;
+        }
+        
+        renderWidgets();
+        updateMinimap();
+        toast(isVertical ? '↕ Slider set to vertical' : '↔ Slider set to horizontal', 'success');
+      };
+    }
     $('#prop_min').oninput = e => { w.min = parseFloat(e.target.value); };
     $('#prop_max').oninput = e => { w.max = parseFloat(e.target.value); };
     $('#prop_step').oninput = e => { w.step = parseFloat(e.target.value); };
@@ -2747,16 +5281,56 @@ form.innerHTML = html;
     $('#prop_ylabel').oninput = e => { w.yLabel = e.target.value; };
   }
 
+  if (w.t === 'image'){
+    $('#prop_imageSrc').oninput = e => { w.imageSrc = e.target.value; renderWidgets(); };
+    const uploadBtn = $('#prop_uploadImg');
+    if (uploadBtn) {
+      uploadBtn.onclick = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = e => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = ev => {
+              w.imageSrc = ev.target.result;
+              $('#prop_imageSrc').value = '[Uploaded Image]';
+              renderWidgets();
+              toast('🖼️ Image uploaded', 'success');
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      };
+    }
+  }
+
+  if (w.t === 'battery'){
+    const battInput = $('#prop_batteryLevel');
+    if (battInput) battInput.oninput = e => { w.level = parseInt(e.target.value); };
+  }
+
+  if (w.t === 'timer'){
+    const timerDir = $('#prop_timerDir');
+    if (timerDir) timerDir.onchange = e => { w.timerDir = e.target.value; };
+    const timerStart = $('#prop_timerStart');
+    if (timerStart) timerStart.oninput = e => { w.timerStart = parseInt(e.target.value); };
+  }
+
 }
 
 
 function deleteSelected() {
   if (!state.selected) { toast('👆 Select a widget first!', 'error'); return; }
+  saveUndoState();
   state.widgets = state.widgets.filter(w => w.id !== state.selected);
   state.selected = null;
   renderWidgets();
   renderPropsPanel();
   toast('🗑️ Deleted!', 'success');
+  saveUndoState();
 }
 
 function showCode() {
@@ -3017,7 +5591,9 @@ function createRuntimeWidget(w) {
   switch (w.t) {
     case 'button': {
       const m = model || 'neo';
-      return `<button class="rt-button model-${m}"><span class="icon">👆</span><span>${label}</span></button>`;
+      const icons = ['🎯', '⚡', '🚀', '💥', '✨', '🎮', '🔥', '💫'];
+      const icon = icons[Math.abs(w.id.charCodeAt(w.id.length-1) || 0) % icons.length];
+      return `<button class="rt-button model-${m}"><span class="icon">${icon}</span><span>${label}</span></button>`;
     }
 
     case 'slider': {
@@ -3026,16 +5602,18 @@ function createRuntimeWidget(w) {
       const max = (w.max ?? 100);
       const step = (w.step ?? 1);
       const clamped = Math.max(min, Math.min(max, parseFloat(rawVal) || min));
-      return `<div class="rt-slider-wrap">
+      const isVertical = (w.h || 100) > (w.w || 100);
+      const orientClass = isVertical ? ' vertical' : '';
+      return `<div class="rt-slider-wrap${orientClass}">
         <div class="rt-slider-info"><span>${label}</span><span class="rt-slider-val">${esc(String(clamped))}</span></div>
-        <input type="range" class="rt-slider model-${m}" min="${min}" max="${max}" step="${step}" value="${clamped}">
+        <input type="range" class="rt-slider model-${m}" min="${min}" max="${max}" step="${step}" value="${clamped}"${isVertical ? ' orient="vertical"' : ''}>
       </div>`;
     }
 
     case 'toggle': {
       const m = model || 'square';
       const on = rawVal === '1';
-      const glyph = m === 'icon' ? (on ? '⏻' : '⭘') : (on ? '✓' : '○');
+      const glyph = m === 'icon' ? (on ? '⏻' : '⭘') : (on ? '😃' : '😴');
       return `<div class="rt-toggle-wrap">
         <button class="rt-toggle model-${m}${on ? ' on' : ''}">${glyph}</button>
         <span>${label}</span>
@@ -3046,16 +5624,17 @@ function createRuntimeWidget(w) {
       const m = model || 'dot';
       const on = rawVal === '1';
       const onColor = w.colorOn || '#ff5252';
-      const offColor = w.colorOff || '#2a2a3a';
-      const style = (m === 'ring')
-        ? `border-color:${on ? onColor : 'rgba(255,255,255,0.18)'};`
-        : `background:${on ? onColor : offColor};`;
-      const shadow = (m === 'ring')
-        ? (on ? `box-shadow:0 0 40px ${onColor};` : 'box-shadow:none;')
-        : (on ? `box-shadow:0 0 40px ${onColor};` : 'box-shadow:none;');
+      const offColor = w.colorOff || '#333';
+      // Create dynamic styles for the bulb effect
+      const offStyle = `background: radial-gradient(circle at 30% 30%, #666, #333 40%, #222 70%, #111);`;
+      const onStyle = `background: radial-gradient(circle at 30% 30%, ${onColor}99, ${onColor} 30%, ${onColor}cc 60%, ${onColor}88); border-color: ${onColor}88;`;
+      const style = on ? onStyle : offStyle;
+      const shadow = on 
+        ? `box-shadow: inset 0 -8px 15px rgba(0,0,0,0.3), inset 0 8px 15px rgba(255,255,255,0.3), 0 0 30px ${onColor}, 0 0 60px ${onColor}88, 0 0 90px ${onColor}44;`
+        : `box-shadow: inset 0 -8px 15px rgba(0,0,0,0.6), inset 0 8px 15px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5);`;
 
       return `<div class="rt-led-wrap">
-        <div class="rt-led model-${m}${on ? ' on' : ''}" style="${style}${shadow}"></div>
+        <div class="rt-led model-${m}${on ? ' on' : ''}" style="${style}${shadow}" data-color="${onColor}"></div>
         <span>${label}</span>
       </div>`;
     }
@@ -3121,6 +5700,61 @@ function createRuntimeWidget(w) {
       </div>`;
     }
 
+    case 'dpad': {
+      return `<div class="rt-dpad">
+        <div></div>
+        <button class="dpad-btn" data-dir="up">▲</button>
+        <div></div>
+        <button class="dpad-btn" data-dir="left">◀</button>
+        <div class="dpad-btn dpad-center"></div>
+        <button class="dpad-btn" data-dir="right">▶</button>
+        <div></div>
+        <button class="dpad-btn" data-dir="down">▼</button>
+        <div></div>
+      </div>`;
+    }
+
+    case 'xypad': {
+      return `<div class="rt-xypad">
+        <div class="xypad-crosshair"></div>
+        <div class="xypad-dot" style="left:50%;top:50%"></div>
+        <div class="xypad-label">${label}</div>
+      </div>`;
+    }
+
+    case 'battery': {
+      const level = parseInt(rawVal) || 100;
+      const levelClass = level < 20 ? 'critical' : level < 40 ? 'low' : '';
+      const emoji = level < 20 ? '😱' : level < 40 ? '😰' : level < 60 ? '😊' : level < 80 ? '😄' : '🤩';
+      return `<div class="rt-battery">
+        <div class="battery-tip"></div>
+        <div class="battery-body">
+          <div class="battery-level ${levelClass}" style="height:${level}%"></div>
+        </div>
+        <div class="battery-text">${level}%</div>
+        <div class="battery-emoji">${emoji}</div>
+      </div>`;
+    }
+
+    case 'timer': {
+      return `<div class="rt-timer">
+        <div class="timer-label">⏱️ ${label || 'Timer'}</div>
+        <div class="timer-display" data-role="timerDisplay">00:00</div>
+        <div class="timer-controls">
+          <button class="timer-btn" data-action="start">▶️ Go!</button>
+          <button class="timer-btn" data-action="pause">⏸️</button>
+          <button class="timer-btn" data-action="reset">🔄</button>
+        </div>
+      </div>`;
+    }
+
+    case 'image': {
+      const src = w.imageSrc || '';
+      return `<div class="rt-image" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px;">
+        ${src ? `<img src="${esc(src)}" style="max-width:100%;max-height:100%;object-fit:contain;">` : `<span style="opacity:0.5">${label || '🖼️'}</span>`}
+      </div>`;
+    }
+
     default:
       return `<div>${w.t}</div>`;
   }
@@ -3131,37 +5765,44 @@ function bindRuntimeWidget(el, w) {
   switch (w.t) {
     case 'button':
       const btn = el.querySelector('.rt-button');
+      let btnPressed = false;
       const press = e => { 
-        e.preventDefault(); 
-        console.log('[BUTTON] Pressed:', w.id);
+        e.preventDefault();
+        if (btnPressed) return;
+        btnPressed = true;
         beepClick();
         send(`SET ${w.id} 1`); 
         btn.style.transform = 'scale(0.9)'; 
       };
-      const release = () => { 
-        console.log('[BUTTON] Released:', w.id);
-        send(`SET ${w.id} 0`); 
-        btn.style.transform = ''; 
+      const release = () => {
+        if (!btnPressed) return;
+        btn.style.transform = '';
+        // Delay release message slightly
+        setTimeout(() => {
+          btnPressed = false;
+          send(`SET ${w.id} 0`);
+        }, 100);
       };
       btn.onmousedown = btn.ontouchstart = press;
       btn.onmouseup = btn.onmouseleave = btn.ontouchend = release;
       break;
     case 'slider':
-      let sliderTimer = null;
-      el.querySelector('.rt-slider').oninput = e => {
-        el.querySelector('.rt-slider-val').textContent = e.target.value;
-        // Debounce: only send after 50ms of no changes
-        clearTimeout(sliderTimer);
-        sliderTimer = setTimeout(() => {
-          console.log('[SLIDER] Sending value:', e.target.value);
-          send(`SET ${w.id} ${e.target.value}`);
-        }, 50);
+      let sliderEl = el.querySelector('.rt-slider');
+      // Update display during drag (no BLE send)
+      sliderEl.oninput = e => {
+        el.querySelector('.rt-slider-val').textContent = Math.round(e.target.value);
+      };
+      // Only send on release (onChange fires when user stops dragging)
+      sliderEl.onchange = e => {
+        const val = Math.round(parseFloat(e.target.value) || 0);
+        console.log('[SLIDER] Sending final value:', val);
+        send(`SET ${w.id} ${val}`);
       };
       break;
     case 'toggle':
       el.querySelector('.rt-toggle').onclick = function() {
         const on = this.classList.toggle('on');
-        this.textContent = on ? '✓' : '○';
+        this.textContent = on ? '😃' : '😴';
         beepToggle(on);
         send(`SET ${w.id} ${on ? '1' : '0'}`);
       };
@@ -3170,8 +5811,8 @@ function bindRuntimeWidget(el, w) {
       const stick = el.querySelector('.rt-joystick-stick');
       const base = el.querySelector('.rt-joystick-base');
       let isDown = false;
-      let joyTimer = null;
-      let lastJoyMsg = '';
+      let currentAngle = 0;
+      let currentDist = 0;
       const handleMove = e => {
         if (!isDown) return;
         const rect = base.getBoundingClientRect();
@@ -3181,26 +5822,139 @@ function bindRuntimeWidget(el, w) {
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const dx = clientX - centerX;
         const dy = clientY - centerY;
-        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        const distance = Math.min(40, Math.hypot(dx, dy));
-        stick.style.transform = `translate(${Math.cos(angle * Math.PI / 180) * distance}px, ${Math.sin(angle * Math.PI / 180) * distance}px)`;
-        // Debounce joystick messages
-        const msg = `SET ${w.id} ${Math.round(angle)} ${Math.round(distance)}`;
-        if (msg !== lastJoyMsg) {
-          lastJoyMsg = msg;
-          clearTimeout(joyTimer);
-          joyTimer = setTimeout(() => {
-            console.log('[JOYSTICK] Sending:', msg);
-            send(msg);
-          }, 50);
-        }
+        const maxDist = Math.min(rect.width, rect.height) / 2 - 10;
+        const rawAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const distance = Math.min(maxDist, Math.hypot(dx, dy));
+        currentDist = Math.round((distance / maxDist) * 100);
+        currentAngle = Math.round(((rawAngle + 360) % 360));
+        stick.style.transform = `translate(${Math.cos(rawAngle * Math.PI / 180) * distance}px, ${Math.sin(rawAngle * Math.PI / 180) * distance}px)`;
+        // Don't send during drag - only on release
       };
-      base.onmousedown = () => { console.log('[JOYSTICK] Down'); isDown = true; };
-      base.ontouchstart = e => { e.preventDefault(); console.log('[JOYSTICK] Touch start'); isDown = true; };
+      const resetJoystick = () => {
+        if (!isDown) return;
+        isDown = false;
+        // Send final position before reset
+        if (currentDist > 5) {
+          send(`SET ${w.id} ${currentAngle} ${currentDist}`);
+        }
+        stick.style.transform = '';
+        currentAngle = 0;
+        currentDist = 0;
+        // Small delay then send center
+        setTimeout(() => send(`SET ${w.id} 0 0`), 100);
+      };
+      base.onmousedown = () => { isDown = true; };
+      base.ontouchstart = e => { e.preventDefault(); isDown = true; };
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('touchmove', handleMove, { passive: false });
-      document.addEventListener('mouseup', () => { console.log('[JOYSTICK] Up'); isDown = false; stick.style.transform = ''; clearTimeout(joyTimer); });
-      document.addEventListener('touchend', () => { console.log('[JOYSTICK] Touch end'); isDown = false; stick.style.transform = ''; clearTimeout(joyTimer); });
+      document.addEventListener('mouseup', resetJoystick);
+      document.addEventListener('touchend', resetJoystick);
+      break;
+    
+    case 'dpad':
+      el.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
+        const dir = btn.dataset.dir;
+        let dpadPressed = false;
+        let releaseTimer = null;
+        const press = e => { 
+          e.preventDefault();
+          if (dpadPressed) return;
+          dpadPressed = true;
+          clearTimeout(releaseTimer);
+          btn.classList.add('active');
+          beepClick();
+          send(`SET ${w.id} ${dir} 1`); 
+        };
+        const release = () => {
+          if (!dpadPressed) return;
+          btn.classList.remove('active');
+          // Debounce release to avoid rapid press/release
+          clearTimeout(releaseTimer);
+          releaseTimer = setTimeout(() => {
+            dpadPressed = false;
+            send(`SET ${w.id} ${dir} 0`);
+          }, 100);
+        };
+        btn.onmousedown = btn.ontouchstart = press;
+        btn.onmouseup = btn.onmouseleave = btn.ontouchend = release;
+      });
+      break;
+    
+    case 'xypad':
+      const xypad = el.querySelector('.rt-xypad');
+      const xydot = el.querySelector('.xypad-dot');
+      let xyDown = false;
+      let lastX = 50, lastY = 50;
+      const handleXY = e => {
+        if (!xyDown) return;
+        e.preventDefault();
+        const rect = xypad.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+        lastX = Math.round(x * 100);
+        lastY = Math.round(y * 100);
+        xydot.style.left = (x * 100) + '%';
+        xydot.style.top = (y * 100) + '%';
+        // Don't send during drag - only on release
+      };
+      const releaseXY = () => {
+        if (!xyDown) return;
+        xyDown = false;
+        // Send final position on release
+        console.log('[XYPAD] Sending final:', lastX, lastY);
+        send(`SET ${w.id} ${lastX} ${lastY}`);
+      };
+      xypad.onmousedown = xypad.ontouchstart = e => { 
+        xyDown = true; 
+        handleXY(e); 
+      };
+      document.addEventListener('mousemove', handleXY);
+      document.addEventListener('touchmove', handleXY, { passive: false });
+      document.addEventListener('mouseup', releaseXY);
+      document.addEventListener('touchend', releaseXY);
+      break;
+    
+    case 'timer':
+      let timerVal = 0;
+      let timerInterval = null;
+      let lastTimerSend = 0;
+      const display = el.querySelector('[data-role="timerDisplay"]');
+      const formatTime = s => {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+      };
+      el.querySelector('[data-action="start"]').onclick = () => {
+        if (timerInterval) return;
+        timerInterval = setInterval(() => {
+          timerVal++;
+          display.textContent = formatTime(timerVal);
+          // Only send every 5 seconds to avoid BLE spam
+          if (timerVal - lastTimerSend >= 5) {
+            lastTimerSend = timerVal;
+            send(`SET ${w.id} ${timerVal}`);
+          }
+        }, 1000);
+        beepClick();
+      };
+      el.querySelector('[data-action="pause"]').onclick = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        // Send current value on pause
+        send(`SET ${w.id} ${timerVal}`);
+        beepClick();
+      };
+      el.querySelector('[data-action="reset"]').onclick = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerVal = 0;
+        lastTimerSend = 0;
+        display.textContent = '00:00';
+        send(`SET ${w.id} 0`);
+        beepClick();
+      };
       break;
   }
 }
@@ -3510,7 +6264,7 @@ function updateRuntimeWidget(id, val) {
   console.log('[UI] Widget type:', w.t);
   switch (w.t) {
     case 'slider': el.querySelector('.rt-slider').value = val; el.querySelector('.rt-slider-val').textContent = val; break;
-    case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '○'; break;
+    case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '😃' : '😴'; break;
     case 'led': {
       const ledEl = el.querySelector('.rt-led');
       const wdef = state.config.widgets.find(x => x.id === id);
@@ -3548,9 +6302,1302 @@ function updateRuntimeWidget(id, val) {
   }
 }
 
+
+// --- Move Build/Play tabs + Name input to top-right (no redesign) ---
+function moveBuildPlayNameTopRight(){
+  const host = document.getElementById('topRightControls');
+  if (!host) return;
+
+  const tabs = document.querySelector('.tabs');
+  const title = document.getElementById('titleInput');
+
+  // Only move if elements exist and not already inside host
+  if (tabs && !host.contains(tabs)) host.appendChild(tabs);
+  if (title && !host.contains(title)) host.appendChild(title);
+}
+
+
+
+// --- Place Build/Play + Name centered above the canvas (no overlap) ---
+
+// --- Play mode UI: hide Build + Name, show a tiny Back control ---
+function updateToolbarForMode(activeTab){
+  const inner = document.getElementById('canvasToolbarInner') || document.querySelector('.canvas-toolbar-inner');
+  if (!inner) return;
+
+  const tabs = inner.querySelector('.tabs');
+  const buildBtn = tabs ? tabs.querySelector('[data-tab="builder"]') : null;
+  const playBtn  = tabs ? tabs.querySelector('[data-tab="runtime"]') : null;
+  const nameInput = inner.querySelector('#titleInput');
+
+  // Create back button once
+  let back = inner.querySelector('#playBackBtn');
+  if (!back){
+    back = document.createElement('button');
+    back.id = 'playBackBtn';
+    back.className = 'tab';
+    back.title = 'Back to edit';
+    back.textContent = '⬅';
+    back.style.display = 'none';
+    back.addEventListener('click', () => {
+      // switch to builder without using the Build label/button
+      if (tabs){
+        const b = tabs.querySelector('[data-tab="builder"]');
+        if (b) b.click();
+      }
+    });
+    // put it at the start
+    if (tabs) tabs.insertBefore(back, tabs.firstChild);
+    else inner.insertBefore(back, inner.firstChild);
+  }
+
+  if (activeTab === 'runtime'){
+    if (buildBtn) buildBtn.style.display = 'none';
+    if (nameInput) nameInput.style.display = 'none';
+    back.style.display = '';
+    // ensure play button looks active
+    if (playBtn) playBtn.classList.add('active');
+  }else{
+    if (buildBtn) buildBtn.style.display = '';
+    if (nameInput) nameInput.style.display = '';
+    back.style.display = 'none';
+  }
+}
+
+
+function ensureCanvasToolbar(){
+  // Prefer the resizable wrapper if present (builder screen)
+  const canvasWrap = document.querySelector('.resizable-wrap') ||
+                     document.querySelector('.canvas-dropzone, .dropzone, .board-drop, .canvas-wrap, .canvas-container, .canvas-frame, .builder-canvas, .board, .canvas');
+  if (!canvasWrap) return;
+
+  // Find or create toolbar
+  let toolbar = document.querySelector('.canvas-toolbar');
+  if (!toolbar){
+    toolbar = document.createElement('div');
+    toolbar.className = 'canvas-toolbar';
+    toolbar.innerHTML = '<div class="canvas-toolbar-inner" id="canvasToolbarInner"></div>';
+    canvasWrap.parentElement.insertBefore(toolbar, canvasWrap);
+  }
+  const inner = document.getElementById('canvasToolbarInner');
+  if (!inner) return;
+
+  const tabs = document.querySelector('.tabs');
+  const title = document.getElementById('titleInput');
+
+  if (tabs && !inner.contains(tabs)) inner.appendChild(tabs);
+  if (title && !inner.contains(title)) inner.appendChild(title);
+}
+
+
+
+// --- Replace "Tap a widget..." hint with the Build/Play/Name toolbar ---
+function placeToolbarWhereHintWas(){
+  const toolbar = document.querySelector('.canvas-toolbar');
+  if (!toolbar) return;
+
+  // Try to find the hint element by common classes
+  let hint = document.querySelector('.tap-hint, .canvas-hint, .builder-hint, .tap-instruction, .hint-text, .place-hint');
+
+  // Fallback: search for an element that contains the text "Tap a widget" (case-insensitive)
+  if (!hint){
+    const candidates = Array.from(document.querySelectorAll('div, p, span'))
+      .filter(el => (el.textContent || '').trim().toLowerCase().includes('tap a widget'));
+    hint = candidates[0] || null;
+  }
+
+  if (hint && hint.parentElement){
+    // Ensure toolbar is not already in the desired parent
+    if (toolbar.parentElement !== hint.parentElement){
+      hint.parentElement.replaceChild(toolbar, hint);
+    }else{
+      // Same parent: just place before hint and remove hint
+      hint.parentElement.insertBefore(toolbar, hint);
+      hint.remove();
+    }
+    return;
+  }
+
+  // If we still didn't find it, just ensure toolbar sits right above the canvas (existing behavior)
+  // (No-op)
+}
+
+
 document.addEventListener('DOMContentLoaded', init);
+
+document.addEventListener('click', (e)=>{
+  const btn = e.target && e.target.closest ? e.target.closest('[data-tab]') : null;
+  if (!btn) return;
+  const tab = btn.getAttribute('data-tab');
+  try{ updateToolbarForMode(tab); }catch(e){}
+});
+
 </script>
 
 <input type="file" id="jsonFileInput" accept="application/json" style="display:none" />
+
+
+
+<script>
+(function(){
+  // --- header height -> CSS var (avoid overlap with sticky header) ---
+  function updateHeaderH(){
+    const hdr = document.querySelector('.hero-header, header');
+    const h = hdr ? Math.ceil(hdr.getBoundingClientRect().height) : 90;
+    document.documentElement.style.setProperty('--headerH', h+'px');
+  }
+  window.addEventListener('resize', updateHeaderH);
+  window.addEventListener('load', updateHeaderH);
+
+  // --- helper UI creation ---
+  function ensureHelperUI(){
+    if (document.getElementById('helperPanel')) return;
+
+    const panel = document.createElement('div');
+    panel.id = 'helperPanel';
+    panel.className = 'helper-panel';
+    panel.style.display = 'none'; // default: avoid overlapping anything
+
+    panel.innerHTML = `
+      <div class="helper-titlebar" id="helperDrag">
+        <div class="helper-title">🧰 Helper Tools</div>
+        <div class="helper-actions">
+          <button class="helper-action" id="helperFold" title="Fold">–</button>
+          <button class="helper-action" id="helperClose" title="Hide">✕</button>
+        </div>
+      </div>
+      <div class="helper-body">
+        <details class="helper-details" open>
+          <summary>🛠 Edit <span>▾</span></summary>
+          <div class="helper-content" id="helperEdit"></div>
+        </details>
+        <details class="helper-details">
+          <summary>📐 Arrange <span>▾</span></summary>
+          <div class="helper-content" id="helperArrange"></div>
+        </details>
+        <details class="helper-details">
+          <summary>🔎 View <span>▾</span></summary>
+          <div class="helper-content" id="helperView"></div>
+        </details>
+        <details class="helper-details">
+          <summary>🗺️ Minimap <span>▾</span></summary>
+          <div class="helper-content" id="helperMini"></div>
+        </details>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    const fab = document.createElement('div');
+    fab.id = 'helperFab';
+    fab.className = 'helper-fab';
+    fab.textContent = '🧰';
+    document.body.appendChild(fab);
+
+    // restore panel position if saved
+    const saved = localStorage.getItem('helperPanelPos');
+    if (saved){
+      try{
+        const {x,y} = JSON.parse(saved);
+        if (Number.isFinite(x) && Number.isFinite(y)){
+          panel.style.left = x+'px';
+          panel.style.top = y+'px';
+          panel.style.right = 'auto';
+        }
+      }catch(e){}
+    }
+
+    function isBad(el){
+      if (!el) return true;
+      if (el === document.documentElement || el === document.body) return false;
+      if (el.closest && el.closest('.helper-panel')) return true;
+      if (el.closest && el.closest('.modal, .modal-bg, .template-modal')) return true;
+      // if it's a control, it's "not empty"
+      if (el.closest && el.closest('button, a, input, select, textarea, .palette, .props-panel, .hero-header, header')) return true;
+      return false;
+    }
+    function isGoodEmpty(el){
+      if (!el) return true;
+      if (el === document.documentElement || el === document.body) return true;
+      // canvas area counts as "empty enough" for placing the icon (won't block clicks much)
+      if (el.closest && (el.closest('#canvas') || el.closest('.canvas') || el.closest('main'))) return true;
+      return false;
+    }
+
+    function pickFabSide(){
+      const y = Math.max(80, window.innerHeight - 70);
+      // candidate LEFT: either after left sidebar (if any) or 18px
+      const leftBlock = document.querySelector('.left-panel, .sidebar-left, .side-left, .menu-left, .builder-sidebar, .palette');
+      const leftX = leftBlock ? Math.ceil(leftBlock.getBoundingClientRect().right) + 14 : 18;
+
+      // sample a few points in the icon area
+      const sample = (x) => {
+        const pts = [[x+18,y-18],[x+36,y-18],[x+18,y-36],[x+36,y-36]];
+        for (const [px,py] of pts){
+          const el = document.elementFromPoint(Math.min(window.innerWidth-1, px), Math.min(window.innerHeight-1, py));
+          if (isBad(el)) return false;
+        }
+        // allow placement if area is generally background/canvas/main
+        const el2 = document.elementFromPoint(Math.min(window.innerWidth-1, x+26), Math.min(window.innerHeight-1, y-26));
+        return isGoodEmpty(el2);
+      };
+
+      if (sample(leftX)) return {side:'left', x:leftX};
+      return {side:'right', x: null};
+    }
+
+    function placeFab(){
+      const pick = pickFabSide();
+      if (pick.side === 'left'){
+        fab.style.left = pick.x + 'px';
+        fab.style.right = 'auto';
+      } else {
+        fab.style.right = '18px';
+        fab.style.left = 'auto';
+      }
+    }
+
+    function showPanel(){
+      fab.style.display = 'none';
+      panel.style.display = 'block';
+      updateHeaderH();
+    }
+    function hidePanel(){
+      panel.style.display = 'none';
+      placeFab();
+      fab.style.display = 'flex';
+    }
+
+        // close hides; fold just collapses (does NOT hide)
+    panel.querySelector('#helperClose').onclick = hidePanel;
+
+    const foldBtn = panel.querySelector('#helperFold');
+    function setFolded(on){
+      panel.classList.toggle('folded', !!on);
+      // icon switch: – when open, + when folded
+      foldBtn.textContent = on ? '＋' : '–';
+      foldBtn.title = on ? 'Expand' : 'Fold';
+      try{ localStorage.setItem('helperPanelFolded', on ? '1' : '0'); }catch(e){}
+    }
+    // restore folded state
+    try{
+      const savedFold = localStorage.getItem('helperPanelFolded');
+      if (savedFold === '1') setFolded(true);
+    }catch(e){}
+    foldBtn.onclick = () => setFolded(!panel.classList.contains('folded'));
+
+    fab.onclick = showPanel;
+
+    // Place FAB initially (panel hidden by default)
+    placeFab();
+    window.addEventListener('resize', placeFab);
+
+    // Dragging (use interact.js if present, else pointer events)
+    function enableDrag(){
+      const handle = panel.querySelector('#helperDrag');
+      if (window.interact){
+        let x = panel.offsetLeft, y = panel.offsetTop;
+        // if positioned by right/top, offsetLeft might be 0; derive from rect
+        const r = panel.getBoundingClientRect();
+        x = r.left; y = r.top;
+
+        interact(panel).draggable({
+          allowFrom: '#helperDrag',
+          listeners: {
+            move (event) {
+              x += event.dx;
+              y += event.dy;
+              // clamp in viewport
+              const maxX = window.innerWidth - panel.offsetWidth - 6;
+              const maxY = window.innerHeight - panel.offsetHeight - 6;
+              x = Math.max(6, Math.min(maxX, x));
+              y = Math.max(6, Math.min(maxY, y));
+
+              panel.style.left = x + 'px';
+              panel.style.top = y + 'px';
+              panel.style.right = 'auto';
+              localStorage.setItem('helperPanelPos', JSON.stringify({x, y}));
+            }
+          }
+        });
+      } else {
+        let dragging=false, dx=0, dy=0;
+        handle.addEventListener('pointerdown', (e)=>{
+          dragging=true;
+          const r = panel.getBoundingClientRect();
+          dx = e.clientX - r.left;
+          dy = e.clientY - r.top;
+          handle.setPointerCapture(e.pointerId);
+        });
+        handle.addEventListener('pointermove', (e)=>{
+          if (!dragging) return;
+          let x = e.clientX - dx;
+          let y = e.clientY - dy;
+          const maxX = window.innerWidth - panel.offsetWidth - 6;
+          const maxY = window.innerHeight - panel.offsetHeight - 6;
+          x = Math.max(6, Math.min(maxX, x));
+          y = Math.max(6, Math.min(maxY, y));
+          panel.style.left = x+'px';
+          panel.style.top = y+'px';
+          panel.style.right = 'auto';
+          localStorage.setItem('helperPanelPos', JSON.stringify({x,y}));
+        });
+        handle.addEventListener('pointerup', ()=> dragging=false);
+      }
+    }
+    enableDrag();
+
+    // Move existing canvas tools into this panel when they appear
+    function moveToolsOnce(){
+      const canvas = document.getElementById('canvas') || document.querySelector('.canvas');
+      const smart = document.querySelector('.smart-toolbar');
+      const tools = document.querySelector('.canvas-tools');
+      const zoom = document.querySelector('.zoom-controls');
+      const mini = document.querySelector('.minimap');
+
+      if (!smart && !tools && !zoom && !mini) return false;
+
+      // If they are inside canvas, move them
+      if (smart) document.getElementById('helperView').appendChild(smart);
+      if (zoom) document.getElementById('helperView').appendChild(zoom);
+      if (tools) document.getElementById('helperEdit').appendChild(tools);
+      if (mini) document.getElementById('helperMini').appendChild(mini);
+
+      // Arrange buttons sometimes were inside smart-toolbar; keep as-is.
+      // If there is a second toolbar group for arrange, keep it under Arrange section if present:
+      const arrangeBar = document.querySelector('.smart-toolbar.arrange, .arrange-toolbar');
+      if (arrangeBar) document.getElementById('helperArrange').appendChild(arrangeBar);
+
+      // Remove any empty leftover wrappers in canvas
+      if (canvas){
+        canvas.querySelectorAll('.smart-toolbar, .canvas-tools, .zoom-controls, .minimap').forEach(()=>{});
+      }
+      return true;
+    }
+
+    // try a few times until app builds the tools
+    let tries = 0;
+    const timer = setInterval(()=>{
+      tries++;
+      if (moveToolsOnce() || tries > 40) clearInterval(timer);
+    }, 250);
+
+    // expose for debugging
+    window.__helperTools = {showPanel, hidePanel, placeFab};
+  }
+
+  // Start after DOM is ready
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ensureHelperUI);
+  } else {
+    ensureHelperUI();
+  }
+})();
+</script>
+
+
+
+<!-- SYNC PATCH START -->
+<script>
+/*
+  Single Source of Truth + Prop Sync + Warnings + Export Validation
+  Source of truth: state.config.widgets
+  - Builder DOM widgets mirror config widgets (props + x/y/w/h)
+  - Runtime builds ONLY from config widgets (existing behavior)
+  - Any UI parameter change must call setProp(id,key,val)
+*/
+(function(){
+  if (window.__SST_PATCH__) return;
+  window.__SST_PATCH__ = true;
+
+  // Expose state for debugging/tools if not already
+  try { if (window.state == null && typeof state !== "undefined") window.state = state; } catch(e){}
+
+  function deepClone(o){ try{return JSON.parse(JSON.stringify(o));}catch(e){ return o; } }
+
+  function cfgWidgets(){ return (window.state && state.config && Array.isArray(state.config.widgets)) ? state.config.widgets : null; }
+
+  function findCfg(id){
+    const arr = cfgWidgets(); if(!arr) return null;
+    return arr.find(w=>w && w.id === id) || null;
+  }
+
+  // Ensure every config widget has props object
+  function ensureProps(cfg){
+    if(!cfg) return;
+    if(!cfg.props || typeof cfg.props !== "object") cfg.props = {};
+  }
+
+  // Apply props to builder DOM widget (visual parity)
+  function applyPropsToBuilder(el, cfg){
+    if(!el || !cfg) return;
+    ensureProps(cfg);
+    const p = cfg.props;
+
+    // Store type for generic handling
+    if (cfg.type) el.dataset.type = cfg.type;
+
+    // Generic label
+    if (p.label != null){
+      const lab = el.querySelector('.widget-label');
+      if(lab) lab.textContent = p.label;
+      el.dataset.label = p.label;
+    }
+
+    // LED colors
+    if ((cfg.type === 'led') || el.classList.contains('led') || el.dataset.type === 'led'){
+      // Use onColor/offColor if present; else fallback to previous defaults
+      const onC  = p.onColor  || '#ff5252';
+      const offC = p.offColor || 'rgba(255,82,82,0.2)';
+      el.dataset.onColor = onC;
+      el.dataset.offColor = offC;
+      // In builder we show "off" by default unless p.isOn
+      const isOn = !!p.isOn;
+      el.style.background = isOn ? onC : offC;
+    }
+
+    // Button bg color (optional)
+    if (cfg.type === 'button' && p.color){
+      el.style.background = p.color;
+    }
+
+    // Switch/toggle colors (optional)
+    if ((cfg.type === 'toggle' || cfg.type === 'switch') && (p.onColor || p.offColor)){
+      const isOn = !!p.isOn;
+      if (isOn && p.onColor) el.style.background = p.onColor;
+      if (!isOn && p.offColor) el.style.background = p.offColor;
+    }
+  }
+
+  // Apply props to runtime element right after creation (visual parity)
+  function applyPropsToRuntime(rtEl, cfg){
+    if(!rtEl || !cfg) return;
+    ensureProps(cfg);
+    const p = cfg.props;
+
+    // LED runtime element uses .rt-led
+    if ((cfg.type === 'led') || rtEl.classList.contains('rt-led')){
+      const led = rtEl.querySelector('.rt-led') || rtEl;
+      const onC  = p.onColor  || '#ff5252';
+      const offC = p.offColor || 'rgba(255,82,82,0.2)';
+      const isOn = !!p.isOn;
+      led.style.background = isOn ? onC : offC;
+      if (led.classList.contains('rt-led')){
+        led.classList.toggle('on', isOn);
+      }
+    }
+
+    // Generic label
+    if (p.label != null){
+      const t = rtEl.querySelector('.rt-label-text');
+      if(t) t.textContent = p.label;
+    }
+
+    // Button
+    if (cfg.type === 'button' && p.color){
+      const b = rtEl.querySelector('button') || rtEl;
+      b.style.background = p.color;
+    }
+  }
+
+  // === Single Source of Truth API ===
+  window.setProp = function(id, key, val){
+    const cfg = findCfg(id);
+    if(!cfg) return false;
+    ensureProps(cfg);
+    cfg.props[key] = val;
+
+    // Mirror to builder element if present
+    const el = document.querySelector(`.widget[data-id="${CSS.escape(id)}"]`) || document.getElementById(id);
+    if(el) applyPropsToBuilder(el, cfg);
+
+    // If runtime is active, re-render (safe)
+    if (state && state.mode === 'runtime' && typeof window.renderRuntime === 'function'){
+      try { window.renderRuntime(); } catch(e){}
+    }
+    return true;
+  };
+
+  window.getProp = function(id, key){
+    const cfg = findCfg(id);
+    if(!cfg || !cfg.props) return undefined;
+    return cfg.props[key];
+  };
+
+  // === Hook: whenever a builder widget is created/loaded, copy its visual props into config if missing ===
+  function normalizeBuilderWidget(el){
+    if(!el) return;
+    const id = el.dataset.id || el.id;
+    if(!id) return;
+    const cfg = findCfg(id);
+    if(!cfg) return;
+    ensureProps(cfg);
+
+    // If LED has dataset or style but props missing -> fill
+    if ((cfg.type === 'led') || el.dataset.type === 'led'){
+      if(!cfg.props.onColor){
+        const c = el.dataset.onColor || el.style.backgroundColor || '#ff5252';
+        cfg.props.onColor = c;
+      }
+      if(!cfg.props.offColor){
+        cfg.props.offColor = el.dataset.offColor || 'rgba(255,82,82,0.2)';
+      }
+    }
+
+    // Label
+    const lab = el.querySelector('.widget-label');
+    if(lab && cfg.props.label == null) cfg.props.label = lab.textContent;
+
+    applyPropsToBuilder(el, cfg);
+  }
+
+  // Run once after load
+  window.addEventListener('load', ()=>{
+    document.querySelectorAll('.widget').forEach(normalizeBuilderWidget);
+  });
+
+  // Observe widgets layer to normalize new widgets
+  const layer = document.getElementById('widgetsLayer') || document.querySelector('#widgetsLayer');
+  if (layer && window.MutationObserver){
+    const mo = new MutationObserver(muts=>{
+      muts.forEach(m=>{
+        m.addedNodes && m.addedNodes.forEach(n=>{
+          if(n && n.classList && n.classList.contains('widget')) normalizeBuilderWidget(n);
+          if(n && n.querySelectorAll) n.querySelectorAll('.widget').forEach(normalizeBuilderWidget);
+        });
+      });
+    });
+    mo.observe(layer, {childList:true, subtree:true});
+  }
+
+  // === Hook color inputs in properties panel (generic) ===
+  // Many color pickers exist; we map by label text near it if possible, else fallback to LED onColor.
+  document.addEventListener('input', (e)=>{
+    const t = e.target;
+    if(!t || t.type !== 'color') return;
+    const sw = window.selectedWidget;
+    if(!sw) return;
+    const id = sw.dataset.id || sw.id;
+    if(!id) return;
+
+    // Try infer which color field it is
+    let key = 'color';
+    const lab = t.closest('label') || t.parentElement;
+    const txt = (lab && lab.textContent) ? lab.textContent.toLowerCase() : '';
+    if (txt.includes('on')) key = 'onColor';
+    else if (txt.includes('off')) key = 'offColor';
+    else if ((findCfg(id)||{}).type === 'led') key = 'onColor';
+
+    window.setProp(id, key, t.value);
+  }, true);
+
+  // === Runtime creation hook: after renderRuntime finishes, apply props to runtime nodes ===
+  const origRender = window.renderRuntime;
+  if (typeof origRender === 'function'){
+    window.renderRuntime = function(){
+      const r = origRender.apply(this, arguments);
+      try{
+        // Attempt to map runtime nodes by data-id or id
+        const arr = cfgWidgets() || [];
+        arr.forEach(cfg=>{
+          const rid = cfg.id;
+          let rt = document.querySelector(`#runtimeGrid [data-id="${CSS.escape(rid)}"]`)
+                || document.querySelector(`#runtimeGrid #${CSS.escape(rid)}`);
+          // If not found, try common class container
+          if(rt) applyPropsToRuntime(rt, cfg);
+        });
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // === Warnings panel: visual state but no props ===
+  const warn = document.createElement('div');
+  warn.id = 'warnPanel';
+  warn.style.cssText = `
+    position:fixed; top:calc(var(--headerH, 90px) + 8px); left:10px;
+    width:min(340px, 90vw); max-height:32vh; overflow:auto;
+    background:rgba(255,165,0,.12); border:2px solid rgba(255,165,0,.85);
+    border-radius:12px; padding:10px; z-index:160; color:#fff;
+    font:12px system-ui, sans-serif; display:none;
+  `;
+  warn.innerHTML = `<div style="font-weight:900;letter-spacing:.08em;text-transform:uppercase;">⚠ Props Warnings</div>
+  <div id="warnBody" style="margin-top:6px;opacity:.95"></div>`;
+  document.body.appendChild(warn);
+
+  function scanWarnings(){
+    const arr = cfgWidgets(); if(!arr) return;
+    const issues = [];
+    arr.forEach(w=>{
+      if(!w) return;
+      if(!w.props) issues.push({id:w.id, msg:'Missing props object'});
+      else if (w.type === 'led'){
+        if(!w.props.onColor) issues.push({id:w.id, msg:'LED missing onColor (runtime will default red)'});
+        if(!w.props.offColor) issues.push({id:w.id, msg:'LED missing offColor'});
+      }
+    });
+    const body = document.getElementById('warnBody');
+    if(!body) return;
+    if(issues.length===0){ warn.style.display='none'; return; }
+    warn.style.display='block';
+    body.innerHTML = issues.map(x=>`<div style="margin:6px 0;"><b>${x.id}</b>: ${x.msg}</div>`).join('');
+  }
+  setInterval(scanWarnings, 800);
+
+  // === Export-time validation ===
+  // If there is an export function, wrap it; else add a button in helper tools if found.
+  function validateConfig(){
+    const arr = cfgWidgets(); if(!arr) return {ok:true, issues:[]};
+    const issues = [];
+    arr.forEach(w=>{
+      if(!w) return;
+      if(!w.props) issues.push(`${w.id}: missing props`);
+      if(w.type==='led' && w.props){
+        if(!w.props.onColor) issues.push(`${w.id}: LED missing onColor`);
+      }
+    });
+    return {ok: issues.length===0, issues};
+  }
+
+  function alertIssues(res){
+    if(res.ok) return true;
+    alert("Export blocked: fix these first\\n\\n" + res.issues.join("\\n"));
+    return false;
+  }
+
+  // Try wrap exportProject if exists
+  if (typeof window.exportProject === 'function'){
+    const orig = window.exportProject;
+    window.exportProject = function(){
+      const res = validateConfig();
+      if(!alertIssues(res)) return;
+      return orig.apply(this, arguments);
+    };
+  }
+})();
+</script>
+<!-- SYNC PATCH END -->
+
+
+
+
+
+<!-- SELECTION PATCH START -->
+<script>
+(function(){
+  if(window.__SEL_PATCH__) return;
+  window.__SEL_PATCH__ = true;
+
+  function cfgArr(){ return (window.state && state.config && Array.isArray(state.config.widgets)) ? state.config.widgets : []; }
+  function findCfg(id){ return cfgArr().find(w=>w && w.id===id) || null; }
+  function linkProps(el){
+    if(!el) return;
+    const id = el.dataset.id || el.id;
+    if(!id) return;
+    const cfg = findCfg(id);
+    if(!cfg) return;
+    if(!cfg.props || typeof cfg.props!=="object") cfg.props = {};
+    // Single source of truth: builder widget points to cfg.props (same object)
+    el.props = cfg.props;
+    try{ el.dataset.type = cfg.type || el.dataset.type; }catch(e){}
+  }
+
+  // Capture clicks/taps to set selectedWidget reliably
+  document.addEventListener('pointerdown', (e)=>{
+    const w = e.target && e.target.closest ? e.target.closest('.widget') : null;
+    if(!w) return;
+    linkProps(w);
+    window.selectedWidget = w;
+  }, true);
+
+  // Also sync when original code sets selection via click
+  document.addEventListener('click', (e)=>{
+    const w = e.target && e.target.closest ? e.target.closest('.widget') : null;
+    if(!w) return;
+    linkProps(w);
+    window.selectedWidget = w;
+  }, true);
+
+  // Normalize existing widgets once
+  window.addEventListener('load', ()=>{
+    document.querySelectorAll('.widget').forEach(linkProps);
+  });
+})();
+</script>
+<!-- SELECTION PATCH END -->
+
+
+<script>
+/* === Helper Tools: ensure buttons actually exist (create if missing) === */
+(function(){
+  if (window.__HELPER_TOOLS_BUILDER__) return;
+  window.__HELPER_TOOLS_BUILDER__ = true;
+
+  function $(s){ return document.querySelector(s); }
+
+  function buildHelperTools(){
+    const panel = document.getElementById('helperPanel');
+    if(!panel) return false;
+
+    const edit = document.getElementById('helperEdit');
+    const arrange = document.getElementById('helperArrange');
+    const view = document.getElementById('helperView');
+    const miniWrap = document.getElementById('helperMini');
+
+    if(!edit || !arrange || !view || !miniWrap) return false;
+
+    // If already populated, do nothing
+    if (edit.children.length || arrange.children.length || view.children.length) return true;
+
+    // --- Create toolbars (same ids as the rest of your app expects) ---
+    const tools = document.createElement('div');
+    tools.className = 'canvas-tools';
+    tools.innerHTML = `
+      <button class="canvas-tool-btn" id="duplicateBtn" title="Duplicate (Ctrl+D)">⧉</button>
+      <button class="canvas-tool-btn" id="groupBtn" title="Group (Ctrl+G)">⚭</button>
+      <button class="canvas-tool-btn" id="layersBtn" title="Layers (L)">☰</button>
+      <button class="canvas-tool-btn" id="themeBtn" title="Theme (T)">🎨</button>
+      <button class="canvas-tool-btn" id="bgBtn" title="Canvas Background">🖼️</button>
+      <button class="canvas-tool-btn" id="shareBtn" title="Share QR">📱</button>
+      <button class="canvas-tool-btn" id="screenshotBtn" title="Screenshot">📸</button>
+      <button class="canvas-tool-btn" id="sensorBtn" title="Sensor Sim">🎮</button>
+      <button class="canvas-tool-btn" id="pinBtn" title="Pin Reference">📌</button>
+      <button class="canvas-tool-btn" id="contrastBtn" title="High Contrast">◐</button>
+      <button class="canvas-tool-btn" id="helpBtn" title="Help (?)">❓</button>
+    `;
+    edit.appendChild(tools);
+
+    const arrangeBar = document.createElement('div');
+    arrangeBar.className = 'smart-toolbar arrange-toolbar';
+    arrangeBar.innerHTML = `
+      <div class="toolbar-group">
+        <button class="canvas-tool-btn" id="arrangeGrid" title="Auto Grid">⊞</button>
+        <button class="canvas-tool-btn" id="arrangeRows" title="Rows">≡</button>
+        <button class="canvas-tool-btn" id="arrangeCols" title="Columns">⫾</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="canvas-tool-btn" id="alignL" title="Align Left">⫷</button>
+        <button class="canvas-tool-btn" id="alignR" title="Align Right">⫸</button>
+        <button class="canvas-tool-btn" id="alignT" title="Align Top">⊤</button>
+        <button class="canvas-tool-btn" id="alignB" title="Align Bottom">⊥</button>
+        <button class="canvas-tool-btn" id="distH" title="Distribute H">↔</button>
+        <button class="canvas-tool-btn" id="distV" title="Distribute V">↕</button>
+      </div>
+    `;
+    arrange.appendChild(arrangeBar);
+
+    const viewBar = document.createElement('div');
+    viewBar.className = 'smart-toolbar';
+    viewBar.innerHTML = `
+      <div class="toolbar-group">
+        <button class="canvas-tool-btn ${window.state?.gridSnap ? 'active' : ''}" id="gridToggle" title="Grid Snap (G)">⊞</button>
+        <button class="canvas-tool-btn ${window.state?.showGuides ? 'active' : ''}" id="guidesToggle" title="Guides">┼</button>
+        <button class="canvas-tool-btn" id="rulerToggle" title="Ruler">📏</button>
+      </div>
+    `;
+    view.appendChild(viewBar);
+
+    const zoom = document.createElement('div');
+    zoom.className = 'zoom-controls';
+    zoom.innerHTML = `
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <div class="zoom-level" id="zoomLevel">100%</div>
+      <button class="zoom-btn" id="zoomIn">+</button>
+    `;
+    view.appendChild(zoom);
+
+    // Minimap container exists in panel; make sure minimap element exists
+    let mini = miniWrap.querySelector('.minimap');
+    if(!mini){
+      mini = document.createElement('div');
+      mini.className = 'minimap';
+      miniWrap.appendChild(mini);
+    }
+
+    // --- Wire events (guard if functions exist) ---
+    const bind = (id, fnName) => {
+      const el = document.getElementById(id);
+      const fn = window[fnName];
+      if(el && typeof fn === 'function') el.onclick = fn;
+    };
+
+    bind('duplicateBtn','duplicateSelected');
+    bind('groupBtn','groupSelected');
+    bind('layersBtn','toggleLayers');
+    bind('themeBtn','cycleTheme');
+    bind('bgBtn','setCanvasBackground');
+    bind('shareBtn','generateQR');
+    bind('screenshotBtn','exportScreenshot');
+    bind('sensorBtn','toggleSensorSim');
+    bind('pinBtn','showPinMapping');
+    bind('contrastBtn','toggleHighContrast');
+    bind('helpBtn','showHelp');
+
+    bind('arrangeGrid','autoArrangeGrid');
+    bind('arrangeRows','autoArrangeRows');
+    bind('arrangeCols','autoArrangeCols');
+    bind('alignL','alignLeft');
+    bind('alignR','alignRight');
+    bind('alignT','alignTop');
+    bind('alignB','alignBottom');
+    bind('distH','distributeH');
+    bind('distV','distributeV');
+
+    const gridToggle = document.getElementById('gridToggle');
+    if(gridToggle){
+      gridToggle.onclick = () => {
+        if(!window.state) return;
+        state.gridSnap = !state.gridSnap;
+        gridToggle.classList.toggle('active', state.gridSnap);
+        const c = document.getElementById('canvas');
+        if(c) c.classList.toggle('show-grid', state.gridSnap);
+        if(typeof window.toast==='function') toast(state.gridSnap ? '⊞ Grid ON' : '⊞ Grid OFF', 'success');
+      };
+    }
+    const guidesToggle = document.getElementById('guidesToggle');
+    if(guidesToggle){
+      guidesToggle.onclick = () => {
+        if(!window.state) return;
+        state.showGuides = !state.showGuides;
+        guidesToggle.classList.toggle('active', state.showGuides);
+        if(typeof window.toast==='function') toast(state.showGuides ? '┼ Guides ON' : '┼ Guides OFF', 'success');
+      };
+    }
+    bind('rulerToggle','toggleRuler');
+
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    if(zoomIn && typeof window.setZoom==='function') zoomIn.onclick = () => setZoom((state.zoom||1) + 0.1);
+    if(zoomOut && typeof window.setZoom==='function') zoomOut.onclick = () => setZoom((state.zoom||1) - 0.1);
+
+    return true;
+  }
+
+  // Make sure the helper panel exists and is populated once the app is ready
+  const origEnsure = window.ensureHelperUI;
+  window.ensureHelperUI = function(){
+    const r = origEnsure ? origEnsure.apply(this, arguments) : undefined;
+    // try populate after creation
+    setTimeout(buildHelperTools, 0);
+    setTimeout(buildHelperTools, 250);
+    setTimeout(buildHelperTools, 800);
+    return r;
+  };
+
+  // If setupCanvasTools exists, ensure it creates panel + tools
+  const origSetup = window.setupCanvasTools;
+  window.setupCanvasTools = function(){
+    const r = origSetup ? origSetup.apply(this, arguments) : undefined;
+    try{ window.ensureHelperUI(); }catch(e){}
+    setTimeout(buildHelperTools, 0);
+    return r;
+  };
+
+  window.addEventListener('load', ()=>{
+    try{ window.ensureHelperUI(); }catch(e){}
+    buildHelperTools();
+  });
+})();
+</script>
+
+
+<script>
+/* === Default View Settings === */
+(function(){
+  try{
+    if(window.state){
+      state.gridSnap = false;
+      state.showGrid = false;
+      state.showGuides = false;
+      state.showRuler = true;
+    }
+  }catch(e){}
+})();
+</script>
+
+
+<script>
+/* === Default View Settings (final) === */
+(function(){
+  try{
+    if(window.state){
+      state.gridSnap = false;
+      state.showGrid = false;
+      state.showGuides = true;   // guides ON
+      state.showRuler = true;   // ruler ON
+    }
+  }catch(e){}
+})();
+</script>
+
+
+<!-- === AUTO-INJECTED: Unified Logs System (card+tab+fab, TX/RX colors, filters, JSON export, silent console) === -->
+<style>
+/* ---- Logs UI ---- */
+#logCard{
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 99990;
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(10,18,44,0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  max-height: 42vh;
+  pointer-events: auto;
+}
+#logCard.collapsed{ max-height: 44px !important; }
+
+#logHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+#logTitle{ font-weight: 900; letter-spacing:.12em; text-transform: uppercase; font-size: 12px; color: rgba(255,255,255,0.92); display:flex; gap:8px; align-items:center; }
+#logCount{ font-weight:900; font-size:12px; color: rgba(255,255,255,0.75); padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); }
+.log-btn, #logToggle{
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  font-weight: 850;
+  cursor: pointer;
+}
+.log-btn:hover, #logToggle:hover{ border-color: var(--accent); }
+#logToggle{ width: 34px; height: 30px; padding: 0; font-weight: 950; }
+
+#logActions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+#logFilters{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.12);
+}
+.log-chip{
+  display:flex; align-items:center; gap:6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  font-size: 12px;
+  font-weight: 850;
+  user-select:none;
+}
+.log-chip input{ accent-color: var(--accent); }
+
+#logBody{
+  flex: 1 1 auto;
+  min-height: 120px;
+  overflow: auto;
+  padding: 10px;
+  font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color: rgba(255,255,255,0.94);
+}
+#logCard.collapsed #logFilters,
+#logCard.collapsed #logBody{ display:none !important; }
+#logCard.collapsed #logToggle{ transform: rotate(-90deg); }
+
+/* colored rows */
+.log-line{ padding:2px 0; white-space: pre-wrap; word-break: break-word; }
+.log-line .ts{ color: rgba(255,255,255,0.55); margin-right:8px; }
+.log-line .tag{
+  display:inline-block; min-width:78px; text-align:center;
+  font-weight: 950; font-size: 11px;
+  padding: 2px 6px; border-radius: 999px;
+  margin-right: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+}
+.log-line.level-error{ color: rgba(255,120,120,0.98); }
+.log-line.level-warn{ color: rgba(255,240,120,0.98); }
+.log-line.level-ble{ color: rgba(255,255,255,0.94); }
+
+.log-line.dir-rx{ color: rgba(96,239,255,0.96); }
+.log-line.dir-tx{ color: rgba(255,145,0,0.96); }
+
+/* FAB bottom-right */
+#logFab{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 99999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  font-weight: 950;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  user-select:none;
+}
+
+/* Right edge tab (always reachable) */
+#logTab{
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 99998;
+  padding: 10px 8px;
+  border-radius: 14px 0 0 14px;
+  background: rgba(10,18,44,0.78);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+  font-weight: 950;
+  letter-spacing: .10em;
+  cursor: pointer;
+  user-select: none;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Give canvas room so it isn't covered by logs */
+.canvas-wrap{ padding-bottom: 160px; }
+</style>
+
+<div id="logFab" title="Logs (Ctrl+Shift+L)">🧾</div>
+<div id="logTab" title="Logs (Ctrl+Shift+L)">LOGS</div>
+
+<div id="logCard" class="collapsed" aria-live="polite">
+  <div id="logHead">
+    <button id="logToggle" aria-expanded="false" title="Collapse / Expand">▸</button>
+    <div id="logTitle">🧾 LOGS <span id="logCount">0</span></div>
+    <div id="logActions">
+      <button class="log-btn" id="logClear">Clear</button>
+      <button class="log-btn" id="logExportTxt">TXT</button>
+      <button class="log-btn" id="logExportJson">JSON</button>
+    </div>
+  </div>
+  <div id="logFilters"></div>
+  <div id="logBody"></div>
+</div>
+
+<script>
+(function(){
+  const DEFAULT_FILTERS = { ble:true, ok:true, warn:true, error:true, info:true, debug:false, log:true };
+  let filters = {...DEFAULT_FILTERS};
+  let collapsed = true;
+  const MAX_ITEMS = 1500;
+  const items = [];
+  const $ = (id)=>document.getElementById(id);
+
+  function pad(n,w=2){ return String(n).padStart(w,'0'); }
+  function stamp(){
+    const d=new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(),3)}`;
+  }
+  function safeJson(x){ try{ return JSON.stringify(x); }catch(e){ return String(x); } }
+  function fmt(args){
+    return args.map(x=>{
+      if (x instanceof Error) return (x.stack || x.message || String(x));
+      if (typeof x === 'object') return safeJson(x);
+      return String(x);
+    }).join(' ');
+  }
+
+  function detect(level,msg){
+    const s=String(msg);
+    let dir=null, out=s, lvl=level||'log';
+    const rx=/^\s*\[?BLE\s*RX\]?\s*[:\-]?\s*/i;
+    const tx=/^\s*\[?BLE\s*TX\]?\s*[:\-]?\s*/i;
+    if (rx.test(s)){ dir='RX'; out=s.replace(rx,''); lvl='ble'; }
+    else if (tx.test(s)){ dir='TX'; out=s.replace(tx,''); lvl='ble'; }
+    else if (/^\s*\[BLE\]\s*/i.test(s)){ lvl='ble'; out=s.replace(/^\s*\[BLE\]\s*/i,''); }
+    return {lvl,dir,out};
+  }
+
+  function push(level,msg,meta={}){
+    const d=detect(level,msg);
+    const it={ ts: stamp(), level: d.lvl, dir: d.dir || meta.dir || null, msg: d.out };
+    items.push(it);
+    while(items.length>MAX_ITEMS) items.shift();
+    updateCount();
+    renderSoon();
+  }
+
+  function updateCount(){
+    const c=$('logCount'); if(!c) return;
+    c.textContent = String(items.length);
+  }
+
+  function escapeHtml(s){
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
+  }
+
+  let raf=0;
+  function renderSoon(force=false){
+    if (collapsed && !force) return;
+    if (raf) return;
+    raf=requestAnimationFrame(()=>{ raf=0; render(); adjustLayout(); });
+  }
+
+  function render(){
+    const body=$('logBody'); if(!body) return;
+    const allow=(lvl)=>!!filters[lvl];
+    const html=[];
+    for(const it of items){
+      if(!allow(it.level)) continue;
+      const cls=['log-line', `level-${it.level}`, it.dir?`dir-${it.dir.toLowerCase()}`:''].filter(Boolean).join(' ');
+      const tag = it.dir ? `${it.level.toUpperCase()} ${it.dir}` : it.level.toUpperCase();
+      html.push(
+        `<div class="${cls}"><span class="ts">${escapeHtml(it.ts)}</span><span class="tag">${escapeHtml(tag)}</span><span class="msg">${escapeHtml(it.msg)}</span></div>`
+      );
+    }
+    body.innerHTML = html.join('');
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // Expose layout adjuster for other injections
+  window.__adjustLogsLayout = adjustLayout;
+  function adjustLayout(){
+    const card=$('logCard');
+    const canvasWrap=document.querySelector('.canvas-wrap');
+    const resizableWrap=document.getElementById('resizableWrap');
+    if(!card) return;
+    const h=card.getBoundingClientRect().height||0;
+    if(canvasWrap) canvasWrap.style.paddingBottom=(h+14)+'px';
+    if(resizableWrap){
+      const top=resizableWrap.getBoundingClientRect().top||0;
+      const maxH=Math.max(320, Math.floor(window.innerHeight - top - h - 24));
+      resizableWrap.style.maxHeight=maxH+'px';
+    }
+  }
+
+  // Filters UI
+  function buildFilters(){
+    const host=$('logFilters'); if(!host) return;
+    try{
+      const saved=JSON.parse(localStorage.getItem('logFilters')||'null');
+      if(saved && typeof saved==='object') filters={...filters, ...saved};
+    }catch(e){}
+    host.innerHTML = `
+      <label class="log-chip"><input type="checkbox" data-lvl="ble">BLE</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="ok">OK</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="warn">WARN</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="error">ERROR</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="info">INFO</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="debug">DEBUG</label>
+      <label class="log-chip"><input type="checkbox" data-lvl="log">LOG</label>
+    `;
+    host.querySelectorAll('input[data-lvl]').forEach(inp=>{
+      const lvl=inp.getAttribute('data-lvl');
+      inp.checked=!!filters[lvl];
+      inp.addEventListener('change', ()=>{
+        filters[lvl]=inp.checked;
+        localStorage.setItem('logFilters', JSON.stringify(filters));
+        renderSoon(true);
+      });
+    });
+  }
+
+  // Export
+  function exportTxt(){
+    const lines = items.map(it => `[${it.ts}] ${it.level.toUpperCase()}${it.dir?(' '+it.dir):''}  ${it.msg}`);
+    const blob = new Blob([lines.join('\\n')], {type:'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='logs.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function exportJson(){
+    const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='logs.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // Toggle open/close
+  function setCollapsed(next){
+    collapsed = next;
+    const card=$('logCard'), t=$('logToggle');
+    if(card) card.classList.toggle('collapsed', collapsed);
+    if(t){
+      t.textContent = collapsed ? '▸' : '▾';
+      t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+    try{ localStorage.setItem('logCardCollapsed', collapsed ? '1':'0'); }catch(e){}
+    renderSoon(true);
+    adjustLayout();
+  }
+  function toggle(){ setCollapsed(!collapsed); }
+
+  // APPLOG API (use this for important events)
+  window.APPLOG = {
+    log:(...a)=>push('log',fmt(a)),
+    info:(...a)=>push('info',fmt(a)),
+    debug:(...a)=>push('debug',fmt(a)),
+    ble:(...a)=>push('ble',fmt(a)),
+    rx:(...a)=>push('ble',fmt(a),{dir:'RX'}),
+    tx:(...a)=>push('ble',fmt(a),{dir:'TX'}),
+    ok:(...a)=>push('ok',fmt(a)),
+    warn:(...a)=>push('warn',fmt(a)),
+    err:(...a)=>push('error',fmt(a)),
+    clear:()=>{ items.length=0; updateCount(); renderSoon(true); },
+    exportTxt, exportJson, toggle, open:()=>setCollapsed(False)
+  };
+
+  // Silence DevTools console completely, but capture into logs:
+  console.log   = (...a)=>push('log',fmt(a));
+  console.info  = (...a)=>push('info',fmt(a));
+  console.debug = (...a)=>push('debug',fmt(a));
+  console.warn  = (...a)=>push('warn',fmt(a));
+  console.error = (...a)=>push('error',fmt(a));
+
+  // Capture uncaught errors (and prevent console spam)
+  window.addEventListener('error', (e)=>{ push('error', e.message || 'Uncaught error'); e.preventDefault && e.preventDefault(); }, true);
+  window.addEventListener('unhandledrejection', (e)=>{ push('error', String(e.reason)); e.preventDefault && e.preventDefault(); }, true);
+
+  // Wire UI
+  window.addEventListener('DOMContentLoaded', ()=>{
+    buildFilters();
+
+    // restore collapsed state
+    const saved = localStorage.getItem('logCardCollapsed') === '1';
+    setCollapsed(saved);
+
+    $('logToggle')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
+    $('logFab')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
+    $('logTab')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
+
+    $('logClear')?.addEventListener('click', ()=>window.APPLOG.clear());
+    $('logExportTxt')?.addEventListener('click', exportTxt);
+    $('logExportJson')?.addEventListener('click', exportJson);
+
+    // keyboard toggle
+    window.addEventListener('keydown', (e)=>{
+      if(e.ctrlKey && e.shiftKey && (e.key==='L' || e.key==='l')){ e.preventDefault(); toggle(); }
+    }, {passive:false});
+
+    // initial message
+    push('ok', 'Logs ready (Ctrl+Shift+L). TX=orange, RX=cyan.');
+    adjustLayout();
+  });
+
+  window.addEventListener('resize', ()=>adjustLayout());
+
+})();
+</script>
+<!-- === END Unified Logs System === -->
+
 </body>
 </html>
