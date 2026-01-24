@@ -177,7 +177,15 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   gap:8px; padding:10px;
   border-radius: 16px;
 }
-.rt-gauge-svg{ width: 100%; height: 100%; max-height: 120px; }
+.rt-gauge-svg{ width: 100%; height: 100%; max-height: 130px; }
+.rt-gauge-ticks line{ stroke: rgba(255,255,255,0.22); stroke-width: 2; stroke-linecap: round; }
+.rt-gauge-bg{ fill:none; stroke: rgba(255,255,255,0.14); stroke-width: 12; stroke-linecap: round; }
+.rt-gauge-fg{ fill:none; stroke: var(--green); stroke-width: 12; stroke-linecap: round;
+  stroke-dasharray: 157.1; /* approx half circumference with r=50 */
+  stroke-dashoffset: 157.1;
+  transition: stroke-dashoffset 0.25s ease, stroke 0.25s ease;
+}
+
 .rt-gauge-label{ font-weight:800; color: var(--text-dim); font-size:0.85rem; text-align:center; }
 .rt-gauge-value{ font-weight:900; font-size:1.1rem; color: var(--text); text-align:center; }
 .rt-gauge-wrap.model-classic{ background: rgba(0,0,0,0.10); border: 2px solid rgba(255,255,255,0.10); }
@@ -329,6 +337,66 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   border-color: var(--accent);
 }
 
+
+/* Loading Overlay (kid-friendly) */
+.loading-overlay{
+  position: fixed; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.65);
+  z-index: 3000;
+  padding: 18px;
+}
+.loading-overlay.show{ display:flex; }
+.loading-card{
+  width: min(520px, 95vw);
+  background: linear-gradient(135deg, rgba(0,212,255,0.14), rgba(255,107,157,0.10));
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  text-align: center;
+}
+.loading-title{ font-weight: 900; font-size: 1.1rem; }
+.loading-sub{ margin-top: 6px; color: var(--text-dim); font-weight: 800; }
+.loading-bar{
+  margin-top: 14px;
+  height: 14px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.12);
+}
+.loading-bar-fill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--pink), var(--yellow));
+  transition: width 0.18s ease;
+}
+.loading-pct{ margin-top: 10px; font-weight: 900; color: var(--accent); }
+
+/* Graph: clearer axes & legend */
+.rt-graph-head{ align-items: center; }
+.rt-graph-head span:first-child{ display:flex; gap:8px; align-items:center; }
+.rt-graph-head span:first-child::before{ content:"📈"; }
+.rt-graph-sub{ opacity: 0.92; }
+.rt-graph-sub .legend-item{ display:flex; align-items:center; gap:6px; margin-right:10px; }
+.rt-graph-dot{ box-shadow: 0 0 18px rgba(255,255,255,0.10); }
+
+/* Gauge: nicer RemoteXY-like arc + ticks */
+.rt-gauge-wrap{ position: relative; overflow: hidden; }
+.rt-gauge-wrap::before{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%);
+  pointer-events:none;
+}
+.rt-gauge-svg{ max-height: 130px; }
+.rt-gauge-center{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+.rt-gauge-value{ font-size: 1.2rem; }
+.rt-gauge-emoji{ font-size: 1.05rem; margin-bottom: -2px; }
+
 /* Toast */
 .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 16px 32px; background: var(--card); border: 3px solid var(--accent); border-radius: 30px; font-weight: 700; font-size: 1rem; transition: 0.3s; z-index: 1000; }
 .toast.show { bottom: 30px; }
@@ -431,6 +499,10 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
       <button class="tab active" data-tab="builder">✏️ Build</button>
       <button class="tab" data-tab="runtime">▶️ Play</button>
     </div>
+    <button id="soundBtn" class="ble-btn" style="border-color: var(--accent); color: var(--accent);" title="Sound">
+      <span class="ble-dot" style="background: currentColor;"></span>
+      <span>Sound</span>
+    </button>
     <button id="bleBtn" class="ble-btn">
       <span class="ble-dot"></span>
       <span>Connect</span>
@@ -496,6 +568,18 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 </div>
 
 <div id="toast" class="toast"></div>
+
+<div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+  <div class="loading-card">
+    <div class="loading-title">🧩 Loading your remote...</div>
+    <div class="loading-sub" id="loadingSub">Getting layout from micro:bit</div>
+    <div class="loading-bar">
+      <div class="loading-bar-fill" id="loadingBarFill"></div>
+    </div>
+    <div class="loading-pct" id="loadingPct">0%</div>
+  </div>
+</div>
+
 <div id="modalBg" class="modal-bg">
   <div class="modal">
     <div id="modalTitle" class="modal-title"></div>
@@ -510,6 +594,8 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 <input type="file" id="fileInput" accept=".json" hidden>
 
 <script>
+window.__ovl = window.__ovl || { t:null };
+
 const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -564,6 +650,67 @@ const state = {
   config: null, values: {}, rxBuffer: '',
   justDragged: false, _dragT: null
 };
+state._allowLoadingOverlay = false;
+
+
+// ---- Kid-friendly sound engine (WebAudio) ----
+state.soundOn = true;
+state._audio = { ctx: null, unlocked: false };
+state._gaugeLast = state._gaugeLast || {};
+
+function ensureAudio() {
+  if (!state.soundOn) return null;
+  if (state._audio.ctx) return state._audio.ctx;
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    state._audio.ctx = new Ctx();
+    return state._audio.ctx;
+  } catch (e) { return null; }
+}
+
+function unlockAudioOnce() {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
+  state._audio.unlocked = true;
+}
+
+document.addEventListener('pointerdown', () => unlockAudioOnce(), { once: true });
+
+function beep(freq=880, dur=0.06, vol=0.05, type='sine') {
+  if (!state.soundOn) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(ctx.destination);
+  const t = ctx.currentTime;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+// Sound patterns
+function beepClick(){ beep(880, 0.05, 0.05, 'sine'); }
+function beepToggle(on){ beep(on?1046:659, 0.06, 0.05, 'square'); }
+function beepWarn(){ beep(523, 0.09, 0.06, 'triangle'); setTimeout(()=>beep(659,0.09,0.05,'triangle'), 110); }
+function beepDanger(){ beep(330, 0.10, 0.07, 'sawtooth'); setTimeout(()=>beep(330,0.10,0.07,'sawtooth'), 130); }
+
+// Sound UI
+function updateSoundUI(){
+  const b = $('#soundBtn');
+  if (!b) return;
+  b.classList.toggle('connected', state.soundOn);
+  b.querySelector('span:last-child').textContent = state.soundOn ? 'Sound On' : 'Sound Off';
+  b.style.opacity = state.soundOn ? '1' : '0.7';
+}
+
+
 
 // Ensure older configs/templates still look good when new properties are added
 function applyWidgetDefaults(w){
@@ -872,6 +1019,8 @@ input.onButtonPressed(Button.B, function() {
 }
 
 function init() {
+  state._allowLoadingOverlay = false;
+  if (typeof hideLoading === 'function') hideLoading();
   // Tabs
   $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
   
@@ -908,10 +1057,15 @@ function init() {
   };
   
   // Buttons
+  $('#soundBtn').onclick = () => { state.soundOn = !state.soundOn; updateSoundUI(); if (state.soundOn) beepClick(); };
+  updateSoundUI();
   $('#bleBtn').onclick = connectBle;
   $('#connectBtn').onclick = connectBle;
   $('#demoBtn').onclick = showDemo;
   $('#templateBtn').onclick = () => $('#templateModal').classList.remove('hidden');
+  var _ov=$('#loadingOverlay');
+  if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
+  if (typeof hideLoadOverlay==='function') hideLoadOverlay();
   $('#codeBtn').onclick = showCode;
   $('#deleteBtn').onclick = deleteSelected;
   $('#modalClose').onclick = () => $('#modalBg').classList.remove('show');
@@ -920,18 +1074,49 @@ function init() {
   $('#downloadBtn').onclick = downloadCode;
   
   $('#templateModal').classList.remove('hidden');
+  var _ov=$('#loadingOverlay');
+  if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
+  if (typeof hideLoadOverlay==='function') hideLoadOverlay();
 }
 
 function selectTemplate(name) {
   const t = templates[name];
   if (!t) return;
-  state.widgets = t.map((w, i) => applyWidgetDefaults({ id: `${w.t}${state.nextId + i}`, ...w }));
-  state.nextId += t.length || 1;
-  state.selected = null;
-  $('#templateModal').classList.add('hidden');
-  renderWidgets();
-  renderPropsPanel();
-  if (name === 'blank') toast('✨ Canvas ready! Pick a widget below', 'success');
+
+  // Kids-friendly loading overlay while building a template
+  if (typeof showLoadOverlay === 'function') {
+    const titles = {
+      gamepad: '🎮 Building Game Pad...',
+      robot: '🤖 Building Robot Remote...',
+      mixer: '🎵 Building DJ Mixer...',
+      racing: '🏎️ Building Race Car...',
+      lights: '💡 Building Lights Panel...',
+      blank: '✨ Preparing Blank Canvas...'
+    };
+    showBuildOverlay(titles[name] || '✨ Building...');
+  }
+
+  // Small delay so the overlay is visible and feels animated
+  setTimeout(() => {
+    state.widgets = t.map((w, i) => ({ id: `${w.t}${state.nextId + i}`, ...w }));
+    state.nextId += t.length || 1;
+
+    // Apply defaults for new widget types / models
+    if (typeof applyWidgetDefaults === 'function') {
+      state.widgets.forEach(applyWidgetDefaults);
+    }
+
+    state.selected = null;
+    $('#templateModal').classList.add('hidden');
+    renderWidgets();
+    renderPropsPanel();
+
+    if (typeof showLoadOverlay === 'function') showBuildOverlay(titles[name] || '✨ Building...');
+    if (typeof hideLoadOverlay === 'function') hideLoadOverlay();
+
+    if (name === 'blank') toast('✨ Canvas ready! Pick a widget below', 'success');
+    else toast('✅ Template loaded!', 'success');
+  }, 250);
 }
 
 function switchTab(tab) {
@@ -1054,7 +1239,58 @@ function renderPropsPanel(){
     `;
   }
 
-  form.innerHTML = html;
+  
+  if (w.t === 'gauge'){
+    html += `
+      <label>Min</label>
+      <input id="prop_gmin" type="number" value="${w.min ?? 0}" />
+
+      <label>Max</label>
+      <input id="prop_gmax" type="number" value="${w.max ?? 100}" />
+
+      <label>Decimals</label>
+      <input id="prop_gdec" type="number" value="${w.decimals ?? 0}" />
+
+      <label>Units (optional)</label>
+      <input id="prop_gunits" value="${esc(w.units || '')}" />
+
+      <label>Warn (optional)</label>
+      <input id="prop_gwarn" type="number" value="${w.warn ?? ''}" />
+
+      <label>Danger (optional)</label>
+      <input id="prop_gdanger" type="number" value="${w.danger ?? ''}" />
+    `;
+  }
+
+  if (w.t === 'graph'){
+    html += `
+      <label>Series (1-10)</label>
+      <input id="prop_series" type="number" min="1" max="10" value="${w.series ?? 1}" />
+
+      <label>Window (seconds)</label>
+      <input id="prop_window" type="number" min="5" max="120" value="${w.windowSec ?? 30}" />
+
+      <label>Auto scale</label>
+      <select id="prop_autoscale">
+        <option value="1" ${w.autoScale !== false ? 'selected' : ''}>Yes</option>
+        <option value="0" ${w.autoScale === false ? 'selected' : ''}>No</option>
+      </select>
+
+      <label>Fixed Min (when auto off)</label>
+      <input id="prop_ymin" type="number" value="${w.yMin ?? 0}" />
+
+      <label>Fixed Max (when auto off)</label>
+      <input id="prop_ymax" type="number" value="${w.yMax ?? 100}" />
+
+      <label>Series Names (comma separated)</label>
+      <input id="prop_names" value="${esc((w.seriesNames || '').toString())}" placeholder="Temp,Level,Power" />
+
+      <label>Y Axis Label (optional)</label>
+      <input id="prop_ylabel" value="${esc(w.yLabel || '')}" placeholder="°C / % / rpm" />
+    `;
+  }
+
+form.innerHTML = html;
 
   // Wire events
   $('#prop_label').oninput = e => {
@@ -1114,6 +1350,26 @@ function renderPropsPanel(){
     $('#prop_max').oninput = e => { w.max = parseFloat(e.target.value); };
     $('#prop_step').oninput = e => { w.step = parseFloat(e.target.value); };
   }
+
+  if (w.t === 'gauge'){
+    $('#prop_gmin').oninput = e => { w.min = parseFloat(e.target.value); if (state.config) renderRuntime(); };
+    $('#prop_gmax').oninput = e => { w.max = parseFloat(e.target.value); if (state.config) renderRuntime(); };
+    $('#prop_gdec').oninput = e => { w.decimals = parseInt(e.target.value, 10); if (state.config) renderRuntime(); };
+    $('#prop_gunits').oninput = e => { w.units = e.target.value; if (state.config) renderRuntime(); };
+    $('#prop_gwarn').oninput = e => { w.warn = e.target.value === '' ? null : parseFloat(e.target.value); };
+    $('#prop_gdanger').oninput = e => { w.danger = e.target.value === '' ? null : parseFloat(e.target.value); };
+  }
+
+  if (w.t === 'graph'){
+    $('#prop_series').oninput = e => { w.series = Math.max(1, Math.min(10, parseInt(e.target.value, 10) || 1)); if (state.config) renderRuntime(); };
+    $('#prop_window').oninput = e => { w.windowSec = Math.max(5, parseInt(e.target.value, 10) || 30); };
+    $('#prop_autoscale').onchange = e => { w.autoScale = (e.target.value === '1'); };
+    $('#prop_ymin').oninput = e => { w.yMin = parseFloat(e.target.value); };
+    $('#prop_ymax').oninput = e => { w.yMax = parseFloat(e.target.value); };
+    $('#prop_names').oninput = e => { w.seriesNames = e.target.value; if (state.config) renderRuntime(); };
+    $('#prop_ylabel').oninput = e => { w.yLabel = e.target.value; };
+  }
+
 }
 
 
@@ -1150,9 +1406,64 @@ function toast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+
+
+function showBuildOverlay(sub='✨ Building...'){
+  const ov = $('#loadingOverlay');
+  if (!ov) return;
+  ov.classList.add('show');
+  ov.setAttribute('aria-hidden','false');
+  const subEl = $('#loadingSub'); if (subEl) subEl.textContent = sub;
+  const pctEl = $('#loadingPct'); if (pctEl) pctEl.textContent = '';
+  const bar = $('#loadingBarFill'); if (bar) bar.style.width = '100%';
+}
+
+// Loading overlay helpers
+let _loadingIndeterminate = null;
+function showLoading(title = '🧩 Loading your remote...', sub = 'Getting layout from micro:bit'){
+  if (!state._allowLoadingOverlay) return;
+  const ov = $('#loadingOverlay');
+  if (!ov) return;
+  ov.classList.add('show');
+  ov.setAttribute('aria-hidden','false');
+  const subEl = $('#loadingSub'); if (subEl) subEl.textContent = sub;
+  const pctEl = $('#loadingPct'); if (pctEl) pctEl.textContent = '0%';
+  const bar = $('#loadingBarFill'); if (bar) bar.style.width = '8%';
+
+  clearInterval(_loadingIndeterminate);
+  // fun, kid-friendly "wiggle" while chunks arrive
+  let p = 8; let dir = 1;
+  _loadingIndeterminate = setInterval(() => {
+    p += dir * 3;
+    if (p > 22) { p = 22; dir = -1; }
+    if (p < 8)  { p = 8;  dir = 1; }
+    if (bar) bar.style.width = p + '%';
+  }, 220);
+}
+
+function setLoadingProgress(pct, sub){
+  const bar = $('#loadingBarFill');
+  const pctEl = $('#loadingPct');
+  const subEl = $('#loadingSub');
+  if (subEl && sub) subEl.textContent = sub;
+  const clamped = Math.max(0, Math.min(100, pct));
+  if (bar) bar.style.width = clamped + '%';
+  if (pctEl) pctEl.textContent = Math.round(clamped) + '%';
+}
+
+function hideLoading(){
+  const ov = $('#loadingOverlay');
+  if (!ov) return;
+  clearInterval(_loadingIndeterminate);
+  _loadingIndeterminate = null;
+  ov.classList.remove('show');
+  ov.setAttribute('aria-hidden','true');
+}
+
 // BLE Connection
 async function connectBle() {
   console.log('[BLE] Starting connection...');
+  state._allowLoadingOverlay = true;
   try {
     console.log('[BLE] Requesting device...');
     const device = await navigator.bluetooth.requestDevice({
@@ -1193,6 +1504,7 @@ async function connectBle() {
     toast('Connected!', 'success');
     
     console.log('[BLE] Waiting 500ms then sending GETCFG...');
+    showLoading('🧩 Loading your remote...', 'Requesting layout (GETCFG)…');
     setTimeout(() => { 
       console.log('[BLE] Sending GETCFG now');
       state.rxBuffer = ''; 
@@ -1206,8 +1518,12 @@ async function connectBle() {
 
 function onDisconnect() {
   console.log('[BLE] Disconnected!');
+  state._allowLoadingOverlay = false;
+  if (typeof hideLoading==='function') hideLoading();
   state.ble = { device:null, server:null, service:null, notifyChar:null, writeChar:null, connected:false };
   updateBleUI();
+  hideLoading();
+  beepDanger();
   toast('Disconnected', 'error');
 }
 
@@ -1227,6 +1543,10 @@ function updateBleUI() {
 }
 
 let configBuffer = '';
+    configChunks = 0;
+    showLoading('🧩 Loading your remote...', 'Receiving layout…');
+    setLoadingProgress(12, 'Receiving layout…');
+var configChunks = 0;
 function onNotify(event) {
   const value = event.target.value;
   let str = '';
@@ -1252,19 +1572,27 @@ function processLine(line) {
   }
   else if (line.startsWith('CFG ')) {
     configBuffer += line.substring(4);
+    configChunks++;
+    setLoadingProgress(Math.min(90, 12 + configChunks * 4), `Receiving layout… (${configChunks} chunks)`);
     console.log('[BLE] Config chunk, total length:', configBuffer.length);
   }
   else if (line === 'CFGEND') {
     console.log('[BLE] Config end, decoding...');
+    setLoadingProgress(96, 'Decoding layout…');
     try { 
       // Unicode-safe base64 decoding (handles emojis!)
       state.config = JSON.parse(decodeURIComponent(escape(atob(configBuffer))));
       if (state.config?.widgets) state.config.widgets.forEach(applyWidgetDefaults); 
       console.log('[BLE] Config decoded:', state.config);
-      renderRuntime(); 
+      renderRuntime();
+      setLoadingProgress(100, 'Ready!');
+      setTimeout(hideLoading, 250);
+      state._allowLoadingOverlay = false;
+      hideLoading();
       toast('Remote loaded!', 'success'); 
     }
-    catch(e) { console.error('[BLE] Config parse error:', e); toast('Config error', 'error'); }
+    catch(e) { console.error('[BLE] Config parse error:', e); hideLoading();
+      toast('Config error', 'error'); }
   } else if (line.startsWith('UPD ')) {
     const parts = line.substring(4).split(' ');
     const id = parts[0];
@@ -1371,16 +1699,31 @@ function createRuntimeWidget(w) {
 
     case 'gauge': {
       const m = model || 'classic';
+      const units = esc(w.units || '');
+      const decimals = (w.decimals ?? 0);
+      // 11 tick marks across the arc
+      const ticks = Array.from({length: 11}, (_, i) => {
+        const a = (-180 + (180 * (i/10))) * Math.PI/180; // -180..0
+        const cx = 60, cy = 70;
+        const r1 = 42, r2 = 50;
+        const x1 = cx + Math.cos(a) * r1;
+        const y1 = cy + Math.sin(a) * r1;
+        const x2 = cx + Math.cos(a) * r2;
+        const y2 = cy + Math.sin(a) * r2;
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" />`;
+      }).join('');
       return `<div class="rt-gauge-wrap model-${m}">
         <div class="rt-gauge-svg">
           <svg viewBox="0 0 120 80" width="100%" height="100%">
+            <g class="rt-gauge-ticks">${ticks}</g>
             <path class="rt-gauge-bg" d="M10,70 A50,50 0 0 1 110,70" />
-            <path class="rt-gauge-fg" d="M10,70 A50,50 0 0 1 110,70" />
+            <path class="rt-gauge-fg" data-role="gaugeArc" d="M10,70 A50,50 0 0 1 110,70" />
           </svg>
         </div>
         <div class="rt-gauge-center">
-          <div class="rt-gauge-value" data-role="gaugeValue">0</div>
-          <div class="rt-gauge-label">${label}</div>
+          <div class="rt-gauge-emoji" data-role="gaugeEmoji">😃</div>
+          <div class="rt-gauge-value" data-role="gaugeValue">${esc((parseFloat(rawVal)||0).toFixed(decimals))}</div>
+          <div class="rt-gauge-label">${label}${units ? ' ' + units : ''}</div>
         </div>
       </div>`;
     }
@@ -1414,6 +1757,7 @@ function bindRuntimeWidget(el, w) {
       const press = e => { 
         e.preventDefault(); 
         console.log('[BUTTON] Pressed:', w.id);
+        beepClick();
         send(`SET ${w.id} 1`); 
         btn.style.transform = 'scale(0.9)'; 
       };
@@ -1441,6 +1785,7 @@ function bindRuntimeWidget(el, w) {
       el.querySelector('.rt-toggle').onclick = function() {
         const on = this.classList.toggle('on');
         this.textContent = on ? '✓' : '○';
+        beepToggle(on);
         send(`SET ${w.id} ${on ? '1' : '0'}`);
       };
       break;
@@ -1552,6 +1897,17 @@ function drawGraphWidget(w){
   const hs = ensureGraphState(w.id, seriesCount);
   const pts = hs.points || [];
 
+
+  // legend (kid-friendly)
+  const legend = root.querySelector('[data-role="graphLegend"]');
+  if (legend){
+    const names = (w.seriesNames || '').split(',').map(s => s.trim()).filter(Boolean);
+    legend.innerHTML = Array.from({length: seriesCount}).map((_,i) => {
+      const nm = esc(names[i] || `S${i+1}`);
+      return `<span class="legend-item"><span class="rt-graph-dot" data-s="${i}"></span>${nm}</span>`;
+    }).join('');
+  }
+
   // layout
   const mL = 36, mR = 10, mT = 10, mB = 22;
   const plotX = mL, plotY = mT;
@@ -1577,9 +1933,9 @@ function drawGraphWidget(w){
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
     ctx.fillText('waiting for UPD...', plotX + 8, plotY + 16);
     // legend colors
-    const legend = root.querySelector('[data-role="graphLegend"]');
-    if (legend){
-      legend.querySelectorAll('.rt-graph-dot').forEach(dot => {
+    const legend2 = root.querySelector('[data-role="graphLegend"]');
+    if (legend2){
+      legend2.querySelectorAll('.rt-graph-dot').forEach(dot => {
         const i = parseInt(dot.getAttribute('data-s') || '0', 10);
         dot.style.background = hs.colors[i] || 'var(--accent)';
       });
@@ -1597,8 +1953,8 @@ function drawGraphWidget(w){
     pts.forEach(p => p.v.forEach(v => { if (isFinite(v)) { yMin = Math.min(yMin, v); yMax = Math.max(yMax, v); } }));
     if (!isFinite(yMin) || !isFinite(yMax)){ yMin = 0; yMax = 1; }
   } else {
-    yMin = parseFloat(w.min ?? 0);
-    yMax = parseFloat(w.max ?? 100);
+    yMin = parseFloat(w.yMin ?? 0);
+    yMax = parseFloat(w.yMax ?? 100);
     if (!isFinite(yMin) || !isFinite(yMax)){ yMin = 0; yMax = 1; }
   }
   if (yMin === yMax){ yMin -= 1; yMax += 1; }
@@ -1616,6 +1972,18 @@ function drawGraphWidget(w){
     ctx.beginPath(); ctx.moveTo(plotX, y); ctx.lineTo(plotX+plotW, y); ctx.stroke();
     const v = (yMax - (yMax - yMin) * p);
     ctx.fillText(v.toFixed(1), 4, y + 3);
+  }
+
+  
+  // Y axis label
+  if ((w.yLabel || '').trim()){
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.font = '11px system-ui, Segoe UI, sans-serif';
+    ctx.translate(12, plotY + plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText(w.yLabel, 0, 0);
+    ctx.restore();
   }
 
   // X ticks (seconds)
@@ -1646,9 +2014,9 @@ function drawGraphWidget(w){
   });
 
   // update legend dots colors
-  const legend = root.querySelector('[data-role="graphLegend"]');
-  if (legend){
-    legend.querySelectorAll('.rt-graph-dot').forEach(dot => {
+  const legend2 = root.querySelector('[data-role="graphLegend"]');
+  if (legend2){
+    legend2.querySelectorAll('.rt-graph-dot').forEach(dot => {
       const i = parseInt(dot.getAttribute('data-s') || '0', 10);
       dot.style.background = hs.colors[i] || 'var(--accent)';
     });
@@ -1703,34 +2071,51 @@ function updateGaugeWidget(w, valStr){
   if (!root) return;
   const wrap = root.querySelector('.rt-gauge-wrap');
   if (!wrap) return;
-  const fg = wrap.querySelector('.rt-gauge-fg');
+
+  const arc = wrap.querySelector('[data-role="gaugeArc"]') || wrap.querySelector('.rt-gauge-fg');
   const txt = wrap.querySelector('[data-role="gaugeValue"]');
+  const emo = wrap.querySelector('[data-role="gaugeEmoji"]');
 
   const min = parseFloat(w.min ?? 0);
   const max = parseFloat(w.max ?? 100);
-  const dec = parseInt(w.decimals ?? 1, 10);
-  const units = (w.units || '').trim();
+  const dec = parseInt(w.decimals ?? 0, 10);
 
   let v = parseFloat(valStr);
   if (!isFinite(v)) v = min;
-  const t = Math.max(0, Math.min(1, (v - min) / (max - min || 1)));
 
-  // path length constant for our arc
-  const L = 126;
-  if (fg){
-    fg.style.strokeDasharray = String(L);
-    fg.style.strokeDashoffset = String(L * (1 - t));
-    // simple threshold coloring
-    const warn = w.warn != null ? parseFloat(w.warn) : null;
-    const danger = w.danger != null ? parseFloat(w.danger) : null;
-    if (danger != null && isFinite(danger) && v >= danger) fg.style.stroke = 'var(--red)';
-    else if (warn != null && isFinite(warn) && v >= warn) fg.style.stroke = 'var(--orange)';
-    else fg.style.stroke = 'var(--accent)';
+  const denom = (max - min) || 1;
+  const t = Math.max(0, Math.min(1, (v - min) / denom));
+
+  // Match CSS dasharray (half-ish arc). If changed in CSS, keep in sync.
+  const L = 157.1;
+
+  // Color zones (kid-friendly)
+  const warn = (w.warn != null) ? parseFloat(w.warn) : null;
+  const danger = (w.danger != null) ? parseFloat(w.danger) : null;
+
+  let color = 'var(--green)';
+  if (danger != null && isFinite(danger) && v >= danger) color = 'var(--red)';
+  else if (warn != null && isFinite(warn) && v >= warn) color = 'var(--orange)';
+  else color = 'var(--green)';
+
+  if (arc){
+    arc.style.strokeDasharray = String(L);
+    arc.style.strokeDashoffset = String(L * (1 - t));
+    arc.style.stroke = color;
   }
+
   if (txt){
-    txt.textContent = `${v.toFixed(isFinite(dec) ? dec : 1)}${units ? ' ' + units : ''}`;
+    const d = isFinite(dec) ? dec : 0;
+    txt.textContent = v.toFixed(d);
+  }
+
+  if (emo){
+    // Cute emoji based on percent
+    const pct = Math.round(t * 100);
+    emo.textContent = pct < 20 ? '😴' : pct < 40 ? '🙂' : pct < 60 ? '😃' : pct < 80 ? '🤩' : '🚀';
   }
 }
+
 
 
 function updateRuntimeWidget(id, val) {
