@@ -488,7 +488,49 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   }
 }
 
+
+/* RTL support (Arabic) */
+body.rtl { direction: rtl; }
+body.rtl header, body.rtl .builder-header, body.rtl .palette, body.rtl .props-panel, body.rtl .modal { direction: rtl; }
+body.rtl .tabs { direction: ltr; } /* keep tab order */
+body.rtl .modal-code { direction: ltr; } /* code stays LTR */
+
 </style>
+
+<style>
+.vertical-toolbar{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:rgba(20,40,80,0.85);
+  padding:12px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+.vertical-toolbar button{
+  width:100%;
+}
+</style>
+
+
+<style>
+/* Action buttons card (kids-friendly) */
+.builder-header{display:flex;align-items:flex-start;gap:14px;justify-content:flex-start;}
+.action-card{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:rgba(20,40,80,0.85);
+  padding:12px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+.action-card .header-btn{width:160px;justify-content:center;}
+@media (max-width: 900px){
+  .action-card .header-btn{width:140px;}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -499,7 +541,11 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
       <button class="tab active" data-tab="builder">✏️ Build</button>
       <button class="tab" data-tab="runtime">▶️ Play</button>
     </div>
-    <button id="soundBtn" class="ble-btn" style="border-color: var(--accent); color: var(--accent);" title="Sound">
+    <button id="langBtn" class="ble-btn" style="border-color: var(--purple); color: var(--purple);" title="Language">
+  <span class="ble-dot" style="background: currentColor;"></span>
+  <span>🌍</span>
+</button>
+<button id="soundBtn" class="ble-btn" style="border-color: var(--accent); color: var(--accent);" title="Sound">
       <span class="ble-dot" style="background: currentColor;"></span>
       <span>Sound</span>
     </button>
@@ -528,10 +574,14 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     <div class="view builder-view active">
       <div class="builder-header">
         <input type="text" id="titleInput" class="title-input" placeholder="🏷️ Name your remote..." maxlength="25">
-        <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
+        <div class="action-card">
+          <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
+<button class="header-btn btn-code" id="exportJsonBtn">📦 Export</button>
+<button class="header-btn btn-code" id="importJsonBtn">📂 Import</button>
         <button class="header-btn btn-template" id="templateBtn">🎨 Templates</button>
         <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
         <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
+        </div>
       </div>
       <div class="canvas-wrap">
         <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it!</div>
@@ -604,6 +654,190 @@ const encoder = new TextEncoder();
 const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
+
+// ===============================
+// Kid-friendly i18n + JSON templates
+// ===============================
+const I18N = {
+  en: {
+    build: "✏️ Build", play: "▶️ Play",
+    chooseTpl: "🎨 Choose a Template!",
+    pickTpl: "Pick one to start building your remote",
+    templates: { gamepad:"Game Pad", robot:"Robot", mixer:"DJ Mixer", racing:"Race Car", lights:"Lights", blank:"Start Fresh" },
+    buttons: { demo:"🎮 Try All Widgets!", export:"📦 Export", import:"📂 Import", code:"📄 Code" },
+    hint: "👆 Tap a widget below, then tap the board to place it!",
+    propsTitle: "🛠️ Widget Properties",
+    propsEmpty: "Select a widget to edit it.",
+    connect: "Connect", connected: "Connected",
+    runtimeConnectText: "Connect your micro:bit!",
+    runtimeConnectBtn: "🔗 Connect",
+    toastExport: "📦 Exported JSON!",
+    toastImport: "📂 Imported!",
+    toastImportFail: "❌ Import failed"
+  },
+  fr: {
+    build: "✏️ Construire", play: "▶️ Jouer",
+    chooseTpl: "🎨 Choisis un modèle !",
+    pickTpl: "Prends-en un pour commencer",
+    templates: { gamepad:"Manette", robot:"Robot", mixer:"DJ Mixer", racing:"Course", lights:"Lumières", blank:"Nouveau" },
+    buttons: { demo:"🎮 Démo widgets !", export:"📦 Export", import:"📂 Import", code:"📄 Code" },
+    hint: "👆 Choisis un widget, puis tape sur le tableau pour le placer !",
+    propsTitle: "🛠️ Propriétés",
+    propsEmpty: "Sélectionne un widget pour l’éditer.",
+    connect: "Connecter", connected: "Connecté",
+    runtimeConnectText: "Connecte ton micro:bit !",
+    runtimeConnectBtn: "🔗 Connecter",
+    toastExport: "📦 JSON exporté !",
+    toastImport: "📂 Importé !",
+    toastImportFail: "❌ Import impossible"
+  },
+  ar: {
+    build: "✏️ بناء", play: "▶️ تشغيل",
+    chooseTpl: "🎨 اختر قالبًا!",
+    pickTpl: "اختر واحدًا للبدء",
+    templates: { gamepad:"ذراع تحكم", robot:"روبوت", mixer:"موسيقى", racing:"سباق", lights:"أضواء", blank:"ابدأ" },
+    buttons: { demo:"🎮 عرض كل الأدوات!", export:"📦 تصدير", import:"📂 استيراد", code:"📄 الكود" },
+    hint: "👆 اختر أداة، ثم اضغط على اللوحة لوضعها!",
+    propsTitle: "🛠️ خصائص الأداة",
+    propsEmpty: "اختر أداة لتعديلها.",
+    connect: "اتصال", connected: "متصل",
+    runtimeConnectText: "اتصل بالـ micro:bit!",
+    runtimeConnectBtn: "🔗 اتصال",
+    toastExport: "📦 تم التصدير!",
+    toastImport: "📂 تم الاستيراد!",
+    toastImportFail: "❌ فشل الاستيراد"
+  }
+};
+
+const LANGS = ["en","fr","ar"];
+const LANG_ICON = { en:"🇬🇧", fr:"🇫🇷", ar:"🇩🇿" };
+const LANG_NAME = { en:"English", fr:"Français", ar:"العربية" };
+
+function saveLang() { try { localStorage.setItem("kid_lang", state.lang); } catch(e){} }
+function loadLang() { try { return localStorage.getItem("kid_lang"); } catch(e){ return null; } }
+function detectBrowserLang(){
+  const n = String(navigator.language || "en").toLowerCase();
+  if (n.startsWith("fr")) return "fr";
+  if (n.startsWith("ar")) return "ar";
+  return "en";
+}
+
+function setLang(lang){
+  state.lang = LANGS.includes(lang) ? lang : "en";
+  saveLang();
+  const t = I18N[state.lang] || I18N.en;
+
+  document.documentElement.lang = state.lang;
+  const rtl = (state.lang === "ar");
+  document.documentElement.dir = rtl ? "rtl" : "ltr";
+  document.body.classList.toggle("rtl", rtl);
+
+  // Tabs
+  const tabs = $$(".tab");
+  if (tabs[0]) tabs[0].textContent = t.build;
+  if (tabs[1]) tabs[1].textContent = t.play;
+
+  // Top buttons
+  const langBtn = $("#langBtn");
+  if (langBtn){
+    const s = langBtn.querySelector("span:last-child");
+    if (s) s.textContent = LANG_ICON[state.lang] || "🌍";
+    langBtn.title = "Language: " + (LANG_NAME[state.lang] || state.lang);
+  }
+
+  const bleBtn = $("#bleBtn");
+  if (bleBtn){
+    const s = bleBtn.querySelector("span:last-child");
+    if (s) s.textContent = (state.ble && state.ble.connected) ? t.connected : t.connect;
+  }
+
+  // Builder header buttons
+  const demoBtn = $("#demoBtn"); if (demoBtn) demoBtn.textContent = t.buttons.demo;
+  const exportBtn = $("#exportJsonBtn"); if (exportBtn) exportBtn.textContent = t.buttons.export;
+  const importBtn = $("#importJsonBtn"); if (importBtn) importBtn.textContent = t.buttons.import;
+  const codeBtn = $("#codeBtn"); if (codeBtn) codeBtn.textContent = t.buttons.code;
+
+  // Hint
+  const hint = document.querySelector(".canvas-hint");
+  if (hint) hint.textContent = t.hint;
+
+  // Props panel
+  const pt = document.querySelector(".props-title"); if (pt) pt.textContent = t.propsTitle;
+  const pe = $("#propsEmpty"); if (pe) pe.textContent = t.propsEmpty;
+
+  // Template modal
+  const tm = $("#templateModal");
+  if (tm){
+    const h2 = tm.querySelector("h2"); if (h2) h2.textContent = t.chooseTpl;
+    const p = tm.querySelector("p"); if (p) p.textContent = t.pickTpl;
+    tm.querySelectorAll(".template-card").forEach(card=>{
+      const key = card.dataset.tpl;
+      const nameEl = card.querySelector(".template-name");
+      if (nameEl && t.templates[key]) nameEl.textContent = t.templates[key];
+    });
+  }
+
+  // Runtime connect screen
+  const ct = document.querySelector(".connect-text"); if (ct) ct.textContent = t.runtimeConnectText;
+  const cb = $("#connectBtn"); if (cb) cb.textContent = t.runtimeConnectBtn;
+}
+
+function cycleLang(){
+  const i = LANGS.indexOf(state.lang || "en");
+  const next = LANGS[(i + 1) % LANGS.length];
+  setLang(next);
+  if (typeof toast === "function") toast((LANG_ICON[next]||"🌍") + " " + (LANG_NAME[next]||next), "success");
+}
+
+// ---- Export / Import JSON layout ----
+function exportLayoutJson(){
+  const t = I18N[state.lang] || I18N.en;
+  if (!state.widgets || state.widgets.length === 0){
+    if (typeof toast === "function") toast("👆 Add some widgets first!", "error");
+    return;
+  }
+  const title = ($("#titleInput") && $("#titleInput").value) ? $("#titleInput").value : "My Remote";
+  const cfg = { schemaVersion: 1, title: title, widgets: state.widgets };
+
+  const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const safe = String(title).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  a.download = (safe || "my-remote") + ".json";
+  a.click();
+
+  if (typeof toast === "function") toast(t.toastExport, "success");
+}
+
+function importLayoutJsonFile(file){
+  const t = I18N[state.lang] || I18N.en;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const cfg = JSON.parse(String(reader.result || "{}"));
+      if (!cfg || !Array.isArray(cfg.widgets)) throw new Error("Bad format");
+      state.widgets = cfg.widgets.map(w => ({...w}));
+      // Recompute nextId safely
+      let maxNum = 0;
+      state.widgets.forEach(w=>{
+        const m = String(w.id||"").match(/(\d+)$/);
+        if (m) maxNum = Math.max(maxNum, parseInt(m[1],10));
+      });
+      state.nextId = Math.max(10, maxNum + 1);
+      if ($("#titleInput")) $("#titleInput").value = cfg.title || "My Remote";
+      if (typeof applyWidgetDefaults === "function") state.widgets.forEach(applyWidgetDefaults);
+      state.selected = null;
+      if (typeof renderWidgets === "function") renderWidgets();
+      if (typeof renderPropsPanel === "function") renderPropsPanel();
+      if (typeof toast === "function") toast(t.toastImport, "success");
+    } catch(e){
+      console.error(e);
+      if (typeof toast === "function") toast(t.toastImportFail, "error");
+    }
+  };
+  reader.readAsText(file);
+}
+
 
 const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️', graph:'📈', gauge:'🧭' };
 const SIZES = { button:[90,90], slider:[90,160], toggle:[90,90], joystick:[120,120], led:[90,90], label:[120,60], graph:[240,140], gauge:[150,150] };
@@ -1062,17 +1296,38 @@ function init() {
   $('#bleBtn').onclick = connectBle;
   $('#connectBtn').onclick = connectBle;
   $('#demoBtn').onclick = showDemo;
+    // Templates
   $('#templateBtn').onclick = () => $('#templateModal').classList.remove('hidden');
+  // Language on first load
+  var savedLang = loadLang();
+  setLang(savedLang || state.lang || detectBrowserLang());
+  $('#templateModal').classList.remove('hidden');
   var _ov=$('#loadingOverlay');
   if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
   if (typeof hideLoadOverlay==='function') hideLoadOverlay();
   $('#codeBtn').onclick = showCode;
   $('#deleteBtn').onclick = deleteSelected;
+
+  // JSON Export / Import + Language
+  const jsonIn = $('#jsonFileInput');
+  if (jsonIn){
+    jsonIn.onchange = e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) importLayoutJsonFile(f);
+      e.target.value = '';
+    };
+  }
+  const exp = $('#exportJsonBtn'); if (exp) exp.addEventListener('click', exportLayoutJson);
+  const imp = $('#importJsonBtn'); if (imp) imp.addEventListener('click', () => $('#jsonFileInput').click());
+  const lb = $('#langBtn'); if (lb) lb.addEventListener('click', cycleLang);
   $('#modalClose').onclick = () => $('#modalBg').classList.remove('show');
   $('#modalBg').onclick = e => { if (e.target === $('#modalBg')) $('#modalBg').classList.remove('show'); };
   $('#copyBtn').onclick = () => { navigator.clipboard.writeText($('#modalCode').textContent); toast('📋 Copied!', 'success'); };
   $('#downloadBtn').onclick = downloadCode;
   
+    // Language on first load
+  var savedLang = loadLang();
+  setLang(savedLang || state.lang || detectBrowserLang());
   $('#templateModal').classList.remove('hidden');
   var _ov=$('#loadingOverlay');
   if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
@@ -1531,12 +1786,12 @@ function updateBleUI() {
   const btn = $('#bleBtn');
   if (state.ble.connected) {
     btn.classList.add('connected');
-    btn.querySelector('span:last-child').textContent = 'Connected';
+    btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connected;
     $('#connectPrompt').style.display = 'none';
     $('#runtimeContent').style.display = 'flex';
   } else {
     btn.classList.remove('connected');
-    btn.querySelector('span:last-child').textContent = 'Connect';
+    btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connect;
     $('#connectPrompt').style.display = 'block';
     $('#runtimeContent').style.display = 'none';
   }
@@ -2173,5 +2428,7 @@ function updateRuntimeWidget(id, val) {
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+
+<input type="file" id="jsonFileInput" accept="application/json" style="display:none" />
 </body>
 </html>
