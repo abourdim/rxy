@@ -218,6 +218,52 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .template-icon { font-size: 2.2rem; }
   .header-btn { padding: 10px 14px; font-size: 0.75rem; }
 }
+
+/* Properties Panel */
+.props-panel{
+  background: var(--surface);
+  border-left: 2px solid var(--card);
+  padding: 12px;
+  width: 260px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.props-title{ font-weight: 800; color: var(--accent); }
+.props-empty{ color: var(--text-dim); font-weight: 600; font-size: 0.9rem; }
+
+.props-form label{
+  display:block;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.props-form input, .props-form select{
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: var(--card);
+  color: var(--text);
+  font-weight: 700;
+}
+.props-form input:focus, .props-form select:focus{
+  outline: none;
+  border-color: var(--accent);
+}
+
+@media (max-width: 768px){
+  .props-panel{
+    width: 100%;
+    border-left: none;
+    border-top: 2px solid var(--card);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -262,6 +308,13 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it!</div>
         <div id="canvas" class="canvas"><div id="widgetsLayer"></div></div>
       </div>
+
+      <div id="propsPanel" class="props-panel">
+        <div class="props-title">🛠️ Widget Properties</div>
+        <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
+        <div id="propsForm" class="props-form" style="display:none;"></div>
+      </div>
+
       <div class="palette">
         <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
         <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
@@ -349,7 +402,8 @@ const templates = {
 const state = {
   widgets: [], selected: null, nextId: 1, selectedType: null,
   ble: { device:null, server:null, service:null, notifyChar:null, writeChar:null, connected:false },
-  config: null, values: {}, rxBuffer: ''
+  config: null, values: {}, rxBuffer: '',
+  justDragged: false, _dragT: null
 };
 
 // BLE send with verbose debug logging
@@ -404,6 +458,7 @@ function showDemo() {
   state.selected = null;
   $('#titleInput').value = 'Super Demo Remote';
   renderWidgets();
+  renderPropsPanel();
   
   // Show the code modal with demo code
   const cfg = { title: 'Super Demo Remote', widgets: state.widgets };
@@ -570,12 +625,16 @@ function init() {
       const [w, h] = SIZES[state.selectedType];
       const x = Math.max(0, Math.min(e.clientX - rect.left - w/2, rect.width - w));
       const y = Math.max(0, Math.min(e.clientY - rect.top - h/2, rect.height - h));
-      state.widgets.push({ id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' });
+      const base = { id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' };
+      if (base.t === 'led') { base.colorOn = '#ff5252'; base.colorOff = '#2a2a3a'; }
+      if (base.t === 'slider') { base.min = 0; base.max = 100; base.step = 1; }
+      state.widgets.push(base);
       renderWidgets();
       toast(`✨ ${ICONS[state.selectedType]} added!`, 'success');
     } else {
       state.selected = null;
       renderWidgets();
+      renderPropsPanel();
     }
   };
   
@@ -601,6 +660,7 @@ function selectTemplate(name) {
   state.selected = null;
   $('#templateModal').classList.add('hidden');
   renderWidgets();
+  renderPropsPanel();
   if (name === 'blank') toast('✨ Canvas ready! Pick a widget below', 'success');
 }
 
@@ -625,8 +685,11 @@ function renderWidgets() {
       inertia: true,
       modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
       listeners: {
-        start() { state.selected = w.id; renderWidgets(); },
+        start() { state.selected = w.id; updateSelectionUI(); },
         move(e) {
+          state.justDragged = true;
+          clearTimeout(state._dragT);
+          state._dragT = setTimeout(() => state.justDragged = false, 50);
           w.x += e.dx; w.y += e.dy;
           e.target.style.left = w.x + 'px';
           e.target.style.top = w.y + 'px';
@@ -644,15 +707,121 @@ function renderWidgets() {
       }
     });
     
-    el.onclick = e => { e.stopPropagation(); state.selected = w.id; renderWidgets(); };
+    el.onclick = e => { e.stopPropagation(); state.selected = w.id; updateSelectionUI(); };
   });
 }
+
+
+function updateSelectionUI() {
+  $$('.widget').forEach(el => el.classList.toggle('selected', el.dataset.id === state.selected));
+  renderPropsPanel();
+}
+
+function getSelectedWidget(){
+  return state.widgets.find(w => w.id === state.selected);
+}
+
+function renderPropsPanel(){
+  const form = $('#propsForm');
+  const empty = $('#propsEmpty');
+  const w = getSelectedWidget();
+
+  if (!form || !empty) return;
+
+  if (!w){
+    empty.style.display = 'block';
+    form.style.display = 'none';
+    form.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  form.style.display = 'block';
+
+  // Common fields
+  let html = `
+    <label>Widget ID</label>
+    <input id="prop_id" value="${esc(w.id)}" />
+
+    <label>Label</label>
+    <input id="prop_label" value="${esc(w.label || '')}" />
+  `;
+
+  // Type-specific fields
+  if (w.t === 'led'){
+    html += `
+      <label>LED On Color</label>
+      <input id="prop_colorOn" type="color" value="${w.colorOn || '#ff5252'}" />
+
+      <label>LED Off Color</label>
+      <input id="prop_colorOff" type="color" value="${w.colorOff || '#2a2a3a'}" />
+    `;
+  }
+
+  if (w.t === 'slider'){
+    html += `
+      <label>Min</label>
+      <input id="prop_min" type="number" value="${w.min ?? 0}" />
+
+      <label>Max</label>
+      <input id="prop_max" type="number" value="${w.max ?? 100}" />
+
+      <label>Step</label>
+      <input id="prop_step" type="number" value="${w.step ?? 1}" />
+    `;
+  }
+
+  form.innerHTML = html;
+
+  // Wire events
+  $('#prop_label').oninput = e => {
+    w.label = e.target.value;
+    const el = $(`.widget[data-id="${w.id}"] .widget-label`);
+    if (el) el.textContent = w.label || w.t;
+  };
+
+  $('#prop_id').onchange = e => {
+    const newId = e.target.value.trim();
+    if (!newId || state.widgets.some(x => x.id === newId && x !== w)){
+      toast('❌ ID must be unique', 'error');
+      e.target.value = w.id;
+      return;
+    }
+    const oldId = w.id;
+    w.id = newId;
+
+    const root = $(`.widget[data-id="${oldId}"]`);
+    if (root) root.dataset.id = newId;
+
+    if (state.values[oldId] != null){
+      state.values[newId] = state.values[oldId];
+      delete state.values[oldId];
+    }
+
+    state.selected = newId;
+    updateSelectionUI();
+    toast('✅ ID updated', 'success');
+  };
+
+  if (w.t === 'led'){
+    $('#prop_colorOn').oninput = e => { w.colorOn = e.target.value; };
+    $('#prop_colorOff').oninput = e => { w.colorOff = e.target.value; };
+  }
+
+  if (w.t === 'slider'){
+    $('#prop_min').oninput = e => { w.min = parseFloat(e.target.value); };
+    $('#prop_max').oninput = e => { w.max = parseFloat(e.target.value); };
+    $('#prop_step').oninput = e => { w.step = parseFloat(e.target.value); };
+  }
+}
+
 
 function deleteSelected() {
   if (!state.selected) { toast('👆 Select a widget first!', 'error'); return; }
   state.widgets = state.widgets.filter(w => w.id !== state.selected);
   state.selected = null;
   renderWidgets();
+  renderPropsPanel();
   toast('🗑️ Deleted!', 'success');
 }
 
@@ -931,11 +1100,17 @@ function updateRuntimeWidget(id, val) {
   switch (w.t) {
     case 'slider': el.querySelector('.rt-slider').value = val; el.querySelector('.rt-slider-val').textContent = val; break;
     case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '○'; break;
-    case 'led': 
+    case 'led': {
       const ledEl = el.querySelector('.rt-led');
-      ledEl.classList.toggle('on', val === '1'); 
-      console.log('[UI] LED', id, 'is now', val === '1' ? 'ON' : 'OFF');
+      const wdef = state.config.widgets.find(x => x.id === id);
+      const onColor = wdef?.colorOn || '#ff5252';
+      const offColor = wdef?.colorOff || '#2a2a3a';
+      const on = val === '1';
+      ledEl.style.background = on ? onColor : offColor;
+      ledEl.style.boxShadow = on ? `0 0 40px ${onColor}` : 'none';
+      console.log('[UI] LED', id, 'is now', on ? 'ON' : 'OFF');
       break;
+    }
     case 'label': el.querySelector('.rt-label-text').textContent = val; break;
   }
 }
