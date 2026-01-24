@@ -184,10 +184,6 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .rt-gauge-wrap.model-neon{ background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(255,107,157,0.10)); box-shadow: 0 0 30px rgba(0,212,255,0.12); }
 .rt-gauge-wrap.model-min{ background: transparent; border: 2px solid rgba(255,255,255,0.10); }
 
-.rt-gauge-bg{ stroke: rgba(255,255,255,0.18); stroke-width: 10; fill: none; }
-.rt-gauge-fg{ stroke: var(--accent); stroke-width: 10; fill: none; stroke-linecap: round; }
-
-
 .rt-widget { position: absolute; padding: 10px; display: flex; align-items: center; justify-content: center; }
 .rt-button {
   width: 100%; height: 100%; border: none; border-radius: 16px;
@@ -461,6 +457,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
       <div class="builder-header">
         <input type="text" id="titleInput" class="title-input" placeholder="🏷️ Name your remote..." maxlength="25">
         <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
+        <button class="header-btn btn-template" id="templateBtn">🎨 Templates</button>
         <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
         <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
       </div>
@@ -701,16 +698,20 @@ async function send(msg) {
 function showDemo() {
   // Create a demo with ALL widget types
   state.widgets = [
-    { id: 'btn_jump', t: 'button', x: 20, y: 20, w: 100, h: 100, label: 'Jump!' },
-    { id: 'btn_fire', t: 'button', x: 140, y: 20, w: 100, h: 100, label: 'Fire!' },
-    { id: 'slider_speed', t: 'slider', x: 260, y: 20, w: 90, h: 180, label: 'Speed' },
-    { id: 'slider_power', t: 'slider', x: 370, y: 20, w: 90, h: 180, label: 'Power' },
-    { id: 'toggle_turbo', t: 'toggle', x: 20, y: 140, w: 100, h: 100, label: 'Turbo' },
-    { id: 'toggle_shield', t: 'toggle', x: 140, y: 140, w: 100, h: 100, label: 'Shield' },
-    { id: 'joy_move', t: 'joystick', x: 20, y: 260, w: 140, h: 140, label: 'Move' },
-    { id: 'led_status', t: 'led', x: 180, y: 260, w: 100, h: 100, label: 'Status' },
-    { id: 'led_alert', t: 'led', x: 300, y: 260, w: 100, h: 100, label: 'Alert' },
-    { id: 'label_score', t: 'label', x: 180, y: 380, w: 150, h: 50, label: 'Score: 0' }
+    { id: 'btn_jump', t: 'button', x: 20, y: 20, w: 100, h: 100, label: 'Jump!', model:'neo' },
+    { id: 'btn_fire', t: 'button', x: 140, y: 20, w: 100, h: 100, label: 'Fire!', model:'glass' },
+    { id: 'slider_speed', t: 'slider', x: 260, y: 20, w: 90, h: 180, label: 'Speed', model:'track', min:0, max:100, step:1 },
+    { id: 'slider_power', t: 'slider', x: 370, y: 20, w: 90, h: 180, label: 'Power', model:'neon', min:0, max:100, step:1 },
+    { id: 'toggle_turbo', t: 'toggle', x: 20, y: 140, w: 100, h: 100, label: 'Turbo', model:'pill' },
+    { id: 'toggle_shield', t: 'toggle', x: 140, y: 140, w: 100, h: 100, label: 'Shield', model:'icon' },
+    { id: 'joy_move', t: 'joystick', x: 20, y: 260, w: 140, h: 140, label: 'Move', model:'ring' },
+    { id: 'led_status', t: 'led', x: 180, y: 260, w: 100, h: 100, label: 'Status', model:'dot', colorOn:'#00e676', colorOff:'#1b2a3a' },
+    { id: 'led_alert', t: 'led', x: 300, y: 260, w: 100, h: 100, label: 'Alert', model:'ring', colorOn:'#ff5252', colorOff:'#1b2a3a' },
+    { id: 'label_score', t: 'label', x: 180, y: 380, w: 220, h: 50, label: 'Score: 0', model:'chip' },
+
+    { id: 'gauge_temp', t: 'gauge', x: 20, y: 430, w: 150, h: 170, label: 'Temp', min: 0, max: 50, units: '°C', decimals: 1, model:'classic' },
+    { id: 'gauge_level', t: 'gauge', x: 190, y: 430, w: 150, h: 170, label: 'Level', min: 0, max: 100, units: '%', decimals: 0, model:'neon' },
+    { id: 'graph_env', t: 'graph', x: 20, y: 610, w: 370, h: 170, label: 'Online Graph', series: 2, windowSec: 30, autoScale: true, model:'grid' }
   ];
   state.widgets = state.widgets.map(applyWidgetDefaults);
   state.nextId = 20;
@@ -721,6 +722,11 @@ function showDemo() {
   
   // Show the code modal with demo code
   const cfg = { title: 'Super Demo Remote', widgets: state.widgets };
+  // Load demo into runtime immediately (no micro:bit required)
+  state.config = cfg;
+  state.values = state.values || {};
+  renderRuntime();
+  startDemoSim();
   $('#modalTitle').textContent = 'Demo Ready! Copy this code to MakeCode:';
   $('#modalCode').textContent = generateDemoCode(cfg);
   $('#modalBg').classList.add('show');
@@ -739,6 +745,8 @@ function generateDemoCode(cfg) {
   const joysticks = cfg.widgets.filter(w => w.t === 'joystick');
   const leds = cfg.widgets.filter(w => w.t === 'led');
   const labels = cfg.widgets.filter(w => w.t === 'label');
+  const gauges = cfg.widgets.filter(w => w.t === 'gauge');
+  const graphs = cfg.widgets.filter(w => w.t === 'graph');
   
   // Generate handler code for each widget
   let buttonCode = buttons.map(w => `    // Button: ${w.label || w.id}
@@ -844,8 +852,12 @@ basic.forever(function() {
         blinkState = !blinkState
         ${leds.length > 0 ? leds.map(l => `sendValue("${l.id}", blinkState ? "1" : "0")`).join('\n        ') : '// No LEDs to blink'}
         ${labels.length > 0 ? `sendValue("${labels[0].id}", blinkState ? "ON!" : "OFF")` : ''}
+        // Demo updates for Gauges (single value) and Graphs (comma-separated)
+        let t = input.runningTime()
+        ${gauges.length > 0 ? gauges.map((g,i)=>`sendValue("${g.id}", "" + (Math.round((Math.sin((t/1000)+${i}) + 1) * 25)))`).join("\n        ") : "// No gauges to update"}
+        ${graphs.length > 0 ? graphs.map((g,i)=>`sendValue("${g.id}", "" + (Math.round((Math.sin((t/900)+${i}) + 1) * 50)) + "," + (Math.round((Math.cos((t/1100)+${i}) + 1) * 50)))`).join("\n        ") : "// No graphs to update"}
     }
-    basic.pause(1000)
+    basic.pause(200)
 })
 
 // BONUS: Use micro:bit buttons too!
@@ -899,6 +911,7 @@ function init() {
   $('#bleBtn').onclick = connectBle;
   $('#connectBtn').onclick = connectBle;
   $('#demoBtn').onclick = showDemo;
+  $('#templateBtn').onclick = () => $('#templateModal').classList.remove('hidden');
   $('#codeBtn').onclick = showCode;
   $('#deleteBtn').onclick = deleteSelected;
   $('#modalClose').onclick = () => $('#modalBg').classList.remove('show');
@@ -925,6 +938,7 @@ function switchTab(tab) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   $$('.view').forEach(v => v.classList.remove('active'));
   $(`.${tab === 'builder' ? 'builder-view' : 'runtime-view'}`).classList.add('active');
+  if (tab === 'runtime') startDemoSim(); else stopDemoSim();
 }
 
 function renderWidgets() {
@@ -1355,48 +1369,39 @@ function createRuntimeWidget(w) {
       return `<div class="rt-label-text model-${m}">${val || label}</div>`;
     }
 
-    
     case 'gauge': {
       const m = model || 'classic';
-      const min = (w.min ?? 0);
-      const dec = (w.decimals ?? 1);
-      const units = esc((w.units || '').trim());
-      const current = state.values[w.id];
-      let v = parseFloat(current);
-      if (!isFinite(v)) v = parseFloat(min) || 0;
-
       return `<div class="rt-gauge-wrap model-${m}">
-        <svg class="rt-gauge-svg" viewBox="0 0 120 72" aria-label="gauge">
-          <path class="rt-gauge-bg" d="M12 60 A48 48 0 0 1 108 60"></path>
-          <path class="rt-gauge-fg" d="M12 60 A48 48 0 0 1 108 60"></path>
-        </svg>
-        <div class="rt-gauge-value" data-role="gaugeValue">${v.toFixed(dec)}${units ? ' ' + units : ''}</div>
-        <div class="rt-gauge-label">${label}</div>
-      </div>`;
-    }
-
-    case 'graph': {
-      const m = model || 'grid';
-      const series = Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10)));
-      const win = parseFloat(w.windowSec ?? 30);
-      const auto = (w.autoScale ?? true);
-      const min = (w.min ?? 0);
-      const max = (w.max ?? 100);
-
-      const dots = Array.from({length: series}).map((_,i)=>`<span><span class="rt-graph-dot" data-s="${i}"></span>S${i+1}</span>`).join('');
-
-      return `<div class="rt-graph-wrap model-${m}">
-        <div class="rt-graph-head"><span>${label}</span><span data-role="graphLast">—</span></div>
-        <div class="rt-graph-sub" data-role="graphLegend">${dots}</div>
-        <canvas class="rt-graph-canvas" data-role="graphCanvas"></canvas>
-        <div class="rt-graph-sub">
-          <span>Win: ${win}s</span>
-          <span>${auto ? 'Auto' : `Min ${min} Max ${max}`}</span>
+        <div class="rt-gauge-svg">
+          <svg viewBox="0 0 120 80" width="100%" height="100%">
+            <path class="rt-gauge-bg" d="M10,70 A50,50 0 0 1 110,70" />
+            <path class="rt-gauge-fg" d="M10,70 A50,50 0 0 1 110,70" />
+          </svg>
+        </div>
+        <div class="rt-gauge-center">
+          <div class="rt-gauge-value" data-role="gaugeValue">0</div>
+          <div class="rt-gauge-label">${label}</div>
         </div>
       </div>`;
     }
+    
+    case 'graph': {
+      const m = model || 'grid';
+      const win = parseInt(w.windowSec ?? 30, 10) || 30;
+      const auto = (w.autoScale !== false);
+      const series = Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10) || 1));
+      return `<div class="rt-graph-wrap model-${m}">
+        <div class="rt-graph-head">
+          <span>${label}</span>
+          <span data-role="graphLast"></span>
+        </div>
+        <div class="rt-graph-sub" data-role="graphLegend"></div>
+        <canvas class="rt-graph-canvas" data-role="graphCanvas"></canvas>
+        <div class="rt-graph-sub">Win:${win}s&nbsp;&nbsp;${auto ? 'Auto' : 'Fixed'}&nbsp;&nbsp;Series:${series}</div>
+      </div>`;
+    }
 
-default:
+    default:
       return `<div>${w.t}</div>`;
   }
 }
@@ -1528,91 +1533,102 @@ function drawGraphWidget(w){
   const canvas = root.querySelector('[data-role="graphCanvas"]');
   if (!canvas) return;
 
-  resizeCanvasToDisplaySize(canvas);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const cssW = Math.max(50, rect.width);
+  const cssH = Math.max(40, rect.height);
+  const W = Math.floor(cssW * dpr);
+  const H = Math.floor(cssH * dpr);
+  if (canvas.width !== W || canvas.height !== H){
+    canvas.width = W; canvas.height = H;
+  }
+
   const ctx = canvas.getContext('2d');
-  const hs = ensureGraphState(w.id, Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10))));
+  // draw in CSS pixels for predictable fonts/line widths
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const seriesCount = Math.max(1, Math.min(10, parseInt(w.series ?? 1, 10)));
+  const hs = ensureGraphState(w.id, seriesCount);
   const pts = hs.points || [];
-  const W = canvas.width, H = canvas.height;
 
-  ctx.clearRect(0,0,W,H);
-
-  // Plot area paddings for axes
-  const padL = 36, padR = 10, padT = 10, padB = 24;
-  const PW = Math.max(10, W - padL - padR);
-  const PH = Math.max(10, H - padT - padB);
+  // layout
+  const mL = 36, mR = 10, mT = 10, mB = 22;
+  const plotX = mL, plotY = mT;
+  const plotW = Math.max(10, cssW - mL - mR);
+  const plotH = Math.max(10, cssH - mT - mB);
 
   // background
-  ctx.fillStyle = 'rgba(0,0,0,0.10)';
-  ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(0,0,0,0)';
+  ctx.fillRect(0,0,cssW,cssH);
 
-  // frame helper
-  const frame = () => {
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.rect(padL, padT, PW, PH);
-    ctx.stroke();
-  };
+  // axes + grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
 
+  // y grid + labels
+  ctx.font = '10px system-ui, Segoe UI, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+
+  // if no data, draw frame + hint
+  ctx.strokeRect(plotX, plotY, plotW, plotH);
   if (pts.length < 2){
-    frame();
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillText('waiting for UPD...', plotX + 8, plotY + 16);
+    // legend colors
+    const legend = root.querySelector('[data-role="graphLegend"]');
+    if (legend){
+      legend.querySelectorAll('.rt-graph-dot').forEach(dot => {
+        const i = parseInt(dot.getAttribute('data-s') || '0', 10);
+        dot.style.background = hs.colors[i] || 'var(--accent)';
+      });
+    }
     return;
   }
 
   const t0 = pts[0].t;
   const t1 = pts[pts.length-1].t;
-  const span = Math.max(1, t1 - t0);
+  const span = Math.max(0.001, t1 - t0);
 
   // y scale
   let yMin = Infinity, yMax = -Infinity;
   if (w.autoScale ?? true){
     pts.forEach(p => p.v.forEach(v => { if (isFinite(v)) { yMin = Math.min(yMin, v); yMax = Math.max(yMax, v); } }));
-    if (!isFinite(yMin) || !isFinite(yMax) || yMin === yMax){ yMin = 0; yMax = 1; }
+    if (!isFinite(yMin) || !isFinite(yMax)){ yMin = 0; yMax = 1; }
   } else {
     yMin = parseFloat(w.min ?? 0);
     yMax = parseFloat(w.max ?? 100);
-    if (!isFinite(yMin) || !isFinite(yMax) || yMin === yMax){ yMin = 0; yMax = 1; }
+    if (!isFinite(yMin) || !isFinite(yMax)){ yMin = 0; yMax = 1; }
   }
-
+  if (yMin === yMax){ yMin -= 1; yMax += 1; }
   const pad = (yMax - yMin) * 0.08;
   yMin -= pad; yMax += pad;
 
-  const xForT = t => padL + ((t - t0) / span) * PW;
-  const yForV = v => padT + (PH - ((v - yMin) / (yMax - yMin)) * PH);
+  const xForT = t => plotX + ((t - t0) / span) * plotW;
+  const yForV = v => plotY + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
 
-  // axes/grid
-  ctx.font = '12px Segoe UI, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.20)';
-  ctx.lineWidth = 1;
-
-  // Y ticks (5 lines)
+  // Y ticks
   const yTicks = 4;
   for (let i=0;i<=yTicks;i++){
-    const yy = padT + (PH * i/yTicks);
-    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL+PW, yy); ctx.stroke();
-    const v = yMax - (yMax - yMin) * (i/yTicks);
-    const lab = (Math.round(v*100)/100).toString();
-    ctx.fillText(lab, 4, yy + 4);
+    const p = i / yTicks;
+    const y = plotY + p * plotH;
+    ctx.beginPath(); ctx.moveTo(plotX, y); ctx.lineTo(plotX+plotW, y); ctx.stroke();
+    const v = (yMax - (yMax - yMin) * p);
+    ctx.fillText(v.toFixed(1), 4, y + 3);
   }
 
-  // X ticks (0, mid, end) seconds
-  const xFracs = [0, 0.5, 1];
-  xFracs.forEach(frac => {
-    const xx = padL + PW*frac;
-    ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT+PH); ctx.stroke();
-    const sec = (span/1000)*frac;
-    const sLab = (Math.round(sec*10)/10) + 's';
-    ctx.fillText(sLab, xx - 12, padT + PH + 18);
-  });
+  // X ticks (seconds)
+  const xTicks = 4;
+  for (let i=0;i<=xTicks;i++){
+    const p = i / xTicks;
+    const x = plotX + p * plotW;
+    ctx.beginPath(); ctx.moveTo(x, plotY); ctx.lineTo(x, plotY+plotH); ctx.stroke();
+    const sec = ((t0 + span * p) - t1) / 1000; // negative to 0
+    ctx.fillText(sec.toFixed(0) + 's', x - 10, plotY + plotH + 16);
+  }
 
-  // border
-  ctx.strokeStyle = 'rgba(255,255,255,0.30)';
-  ctx.beginPath();
-  ctx.rect(padL, padT, PW, PH);
-  ctx.stroke();
-
-  // series lines
+  // draw each series
   hs.colors.forEach((c, si) => {
     ctx.strokeStyle = c;
     ctx.lineWidth = 2;
@@ -1624,12 +1640,12 @@ function drawGraphWidget(w){
       const x = xForT(pts[i].t);
       const y = yForV(v);
       if (!started){ ctx.moveTo(x,y); started = true; }
-      else ctx.lineTo(x,y);
+      else { ctx.lineTo(x,y); }
     }
     if (started) ctx.stroke();
   });
 
-  // legend dots colors
+  // update legend dots colors
   const legend = root.querySelector('[data-role="graphLegend"]');
   if (legend){
     legend.querySelectorAll('.rt-graph-dot').forEach(dot => {
@@ -1638,6 +1654,49 @@ function drawGraphWidget(w){
     });
   }
 }
+
+function stopDemoSim(){
+  if (state._demoTimer){
+    clearInterval(state._demoTimer);
+    state._demoTimer = null;
+  }
+}
+
+function startDemoSim(){
+  stopDemoSim();
+  const hasGraph = !!document.querySelector('.rt-widget[data-id="graph_env"] [data-role="graphCanvas"]');
+  const hasGauge = !!document.querySelector('.rt-widget[data-id="gauge_temp"] .rt-gauge-wrap');
+  if (!hasGraph && !hasGauge) return;
+
+  let t0 = Date.now();
+  state._demoTimer = setInterval(() => {
+    const t = (Date.now() - t0) / 1000;
+
+    const temp = 25 + 10 * Math.sin(t / 2);
+    const level = 50 + 40 * Math.sin(t / 3);
+
+    state.values['gauge_temp'] = temp.toFixed(1);
+    state.values['gauge_level'] = level.toFixed(0);
+
+    updateRuntimeWidget('gauge_temp', state.values['gauge_temp']);
+    updateRuntimeWidget('gauge_level', state.values['gauge_level']);
+
+    const s1 = 50 + 25 * Math.sin(t);
+    const s2 = 30 + 15 * Math.cos(t * 1.2);
+    const csv = `${s1.toFixed(1)},${s2.toFixed(1)}`;
+    state.values['graph_env'] = csv;
+    updateRuntimeWidget('graph_env', csv);
+
+    const scoreEl = state.config?.widgets?.find(x => x.id === 'label_score');
+    if (scoreEl){
+      const sc = Math.floor((t * 3) % 999);
+      const txt = `Score: ${sc}`;
+      state.values['label_score'] = txt;
+      updateRuntimeWidget('label_score', txt);
+    }
+  }, 250);
+}
+
 
 function updateGaugeWidget(w, valStr){
   const root = document.querySelector(`.rt-widget[data-id="${w.id}"]`);
