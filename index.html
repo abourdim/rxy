@@ -4,1058 +4,297 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>micro:bit Remote</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js"></script>
 <style>
 :root {
-  --bg-color: #020617;
-  --panel-bg: #020617;
-  --accent: #22c55e;
-  --accent-soft: rgba(34, 197, 94, 0.15);
-  --accent-strong: rgba(34, 197, 94, 0.7);
-  --danger: #f97373;
-  --warning: #f59e0b;
-  --muted: #9ca3af;
-  --border: #1f2937;
-  --text: #f9fafb;
-  --text-dim: #9ca3af;
-  --button: #3b82f6;
-  --slider: #8b5cf6;
-  --toggle: #22c55e;
-  --led: #ef4444;
-  --label: #f59e0b;
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --card: #1f3460;
+  --accent: #00d4ff;
+  --pink: #ff6b9d;
+  --green: #00e676;
+  --orange: #ff9100;
+  --purple: #b388ff;
+  --red: #ff5252;
+  --yellow: #ffea00;
+  --text: #ffffff;
+  --text-dim: #8892b0;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; touch-action: manipulation; font-family: 'Segoe UI', system-ui, sans-serif; }
+body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: var(--text); }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  touch-action: manipulation;
-}
+.app { display: flex; flex-direction: column; height: 100dvh; }
 
-body {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), transparent 50%),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.2), transparent 55%),
-    #020617;
-  background-attachment: fixed;
-  color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-}
-
-.app {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
-  height: 100vh;
-  height: 100dvh;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
+/* Header */
 header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 55%),
-    rgba(2, 6, 23, 0.95);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  flex-shrink: 0;
-  gap: 12px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: rgba(22,33,62,0.95);
+  border-bottom: 2px solid var(--card);
 }
+.logo { font-size: 1.3rem; font-weight: 800; }
+.logo span { background: linear-gradient(90deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.spacer { flex: 1; }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-icon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-  overflow: hidden;
-}
-
-.logo-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.logo-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #35e0b7;
-  text-shadow: 0 0 6px rgba(53,224,183,.45);
-}
-
-.logo-subtitle {
-  font-size: 0.7rem;
-  color: #f3c623;
-  letter-spacing: 0.1em;
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 999px;
-  padding: 4px;
-}
-
+.tabs { display: flex; background: var(--card); border-radius: 30px; padding: 4px; }
 .tab {
-  padding: 8px 20px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s;
+  padding: 10px 20px; border: none; background: none;
+  color: var(--text-dim); font-weight: 700; font-size: 0.9rem;
+  border-radius: 30px; cursor: pointer; transition: 0.2s;
 }
+.tab.active { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #000; }
 
-.tab:hover { color: var(--text); }
-
-.tab.active {
-  background: linear-gradient(135deg, var(--accent), #4ade80);
-  color: #052e16;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+.ble-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 30px;
+  background: var(--card); border: 2px solid var(--red);
+  color: var(--red); font-weight: 700; cursor: pointer;
 }
+.ble-btn.connected { border-color: var(--green); color: var(--green); }
+.ble-dot { width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  color: var(--text);
-  background: rgba(15, 23, 42, 0.9);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.status-pill:hover {
-  border-color: var(--accent);
-}
-
-.status-pill.connected {
-  border-color: rgba(34, 197, 94, 0.9);
-  background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.3), rgba(15, 23, 42, 0.9));
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--danger);
-  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.5), 0 0 10px rgba(248, 113, 113, 0.7);
-}
-
-.status-pill.connected .status-dot {
-  background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5), 0 0 14px rgba(22, 163, 74, 0.9);
-}
-
-@media (min-width: 768px) {
-  .app {
-    grid-template-columns: 1fr 240px;
-  }
-}
-
-main {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.sidebar {
-  width: 240px;
-  background: rgba(15, 23, 42, 0.8);
-  border-left: 1px solid var(--border);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  grid-column: 2;
-  grid-row: 2;
-}
-
-@media (min-width: 768px) {
-  .sidebar {
-    display: flex;
-  }
-}
-
-.view {
-  display: none;
-  width: 100%;
-  height: 100%;
-}
-
+/* Main Content */
+main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.view { display: none; flex-direction: column; height: 100%; }
 .view.active { display: flex; }
 
-.builder {
-  flex-direction: column;
-}
-
-@media (min-width: 768px) {
-  .builder { flex-direction: row; }
-}
-
-.palette {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(15, 23, 42, 0.6);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-  flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-  .palette {
-    flex-direction: column;
-    width: 110px;
-    border-bottom: none;
-    border-right: 1px solid var(--border);
-    overflow-x: visible;
-    overflow-y: auto;
-  }
-}
-
-.palette-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 10px;
-  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), var(--panel-bg));
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 12px;
-  cursor: grab;
-  transition: all 0.2s;
-  min-width: 80px;
-}
-
-.palette-item:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.palette-item:active { cursor: grabbing; }
-
-.palette-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.palette-icon.button { background: linear-gradient(135deg, var(--button), #60a5fa); }
-.palette-icon.slider { background: linear-gradient(135deg, var(--slider), #a78bfa); }
-.palette-icon.toggle { background: linear-gradient(135deg, var(--toggle), #4ade80); }
-.palette-icon.led { background: linear-gradient(135deg, var(--led), #f87171); }
-.palette-icon.label { background: linear-gradient(135deg, var(--label), #fbbf24); }
-.palette-icon.spinner { background: linear-gradient(135deg, #f59e0b, #f97316); }
-.palette-icon.emoji { background: linear-gradient(135deg, #ec4899, #f43f5e); }
-.palette-icon.dial { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-.palette-icon.joystick { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-.palette-icon.graph { background: linear-gradient(135deg, #10b981, #34d399); }
-
-.palette-name {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.canvas-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow: auto;
-}
-
-.canvas-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+/* Builder View */
+.builder-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; background: var(--surface);
   flex-wrap: wrap;
 }
-
-.canvas-toolbar label {
-  font-size: 0.78rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  font-weight: 600;
+.title-input {
+  flex: 1; min-width: 120px; padding: 12px 16px;
+  background: var(--card); border: 2px solid transparent;
+  border-radius: 16px; color: var(--text); font-size: 1rem; font-weight: 600;
 }
-
-.canvas-toolbar input {
-  width: 50px;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
-  background: rgba(31, 41, 55, 0.8);
-  color: var(--text);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  text-align: center;
+.title-input:focus { outline: none; border-color: var(--accent); }
+.header-btn {
+  padding: 12px 20px; border: none; border-radius: 16px;
+  font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+  display: flex; align-items: center; gap: 6px;
 }
+.header-btn:hover { transform: scale(1.05); }
+.btn-demo { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #000; }
+.btn-code { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #000; }
+.btn-delete { background: var(--red); color: #fff; }
 
-.canvas-toolbar input:focus {
-  outline: none;
-  border-color: var(--accent);
+/* Palette - Bottom on mobile */
+.palette {
+  display: flex; gap: 8px; padding: 10px;
+  background: var(--surface); border-top: 2px solid var(--card);
+  overflow-x: auto; order: 2;
 }
+.palette-item {
+  flex-shrink: 0; display: flex; flex-direction: column;
+  align-items: center; gap: 6px; padding: 12px 16px;
+  background: var(--card); border: 3px solid transparent;
+  border-radius: 16px; cursor: pointer; transition: 0.2s;
+  min-width: 72px;
+}
+.palette-item:hover, .palette-item.selected { border-color: var(--accent); transform: scale(1.05); }
+.palette-item.selected { background: linear-gradient(135deg, var(--accent), var(--purple)); }
+.palette-item.selected .palette-name { color: #000; }
+.palette-icon { font-size: 28px; }
+.palette-name { font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
 
-.canvas-toolbar button {
-  padding: 6px 12px;
-  background: linear-gradient(135deg, var(--accent), #4ade80);
-  color: #052e16;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
+/* Canvas */
+.canvas-wrap { flex: 1; padding: 10px; overflow: hidden; order: 1; display: flex; flex-direction: column; }
+.canvas-hint { text-align: center; padding: 8px; color: var(--text-dim); font-size: 0.85rem; }
+.canvas-hint span { color: var(--accent); font-weight: 700; }
+.canvas {
+  flex: 1; position: relative; background: var(--card);
+  border: 3px dashed var(--text-dim); border-radius: 20px;
+  overflow: auto; min-height: 250px;
 }
-
-.canvas-toolbar button:hover {
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-}
-
-#canvas {
-  position: relative;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-#gridOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  pointer-events: none;
-  gap: 4px;
-  padding: 4px;
-}
-
-.grid-cell {
-  border: 1px dashed rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-}
-
-#widgetsLayer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+#widgetsLayer { position: absolute; inset: 0; }
 
 .widget {
-  position: absolute;
-  padding: 8px;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 12px;
-  cursor: move;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  position: absolute; background: var(--surface);
+  border: 3px solid var(--text-dim); border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: move; touch-action: none; user-select: none; gap: 4px; padding: 8px;
+}
+.widget.selected { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
+.widget-icon { font-size: 2rem; pointer-events: none; }
+.widget-label { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); pointer-events: none; }
+.widget .resize-handle {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 24px; height: 24px; cursor: se-resize;
+  background: var(--accent); border-radius: 0 0 14px 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
 
-.widget.selected {
-  border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+/* Runtime View */
+.runtime-view { align-items: center; justify-content: center; padding: 20px; }
+.connect-box { text-align: center; }
+.connect-icon { font-size: 6rem; margin-bottom: 20px; animation: bounce 1s infinite; }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.connect-text { font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; }
+.connect-btn {
+  padding: 18px 40px; border: none; border-radius: 30px;
+  background: linear-gradient(135deg, var(--green), var(--accent));
+  color: #000; font-size: 1.2rem; font-weight: 800; cursor: pointer;
 }
+#runtimeContent { display: none; flex-direction: column; align-items: center; width: 100%; }
+#runtimeTitle { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+#runtimeGrid { position: relative; background: var(--card); border: 3px solid var(--surface); border-radius: 20px; }
 
-.widget-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: var(--button);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.6rem;
-  font-weight: 700;
-}
-
-.widget-label {
-  font-weight: 600;
-  color: var(--text);
-  text-align: center;
-  word-break: break-word;
-  font-size: 0.85rem;
-}
-
-.resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  background: linear-gradient(135deg, transparent 50%, var(--accent) 50%);
-  cursor: nwse-resize;
-  border-radius: 0 0 10px 0;
-}
-
-.sidebar-header {
-  padding: 12px 16px;
-  background: linear-gradient(135deg, var(--accent), #4ade80);
-  color: #052e16;
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sidebar-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-}
-
-.prop-group {
-  margin-bottom: 12px;
-}
-
-.prop-label {
-  font-weight: 600;
-  font-size: 0.7rem;
-  color: var(--accent);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.prop-input {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
-  background: rgba(2, 6, 23, 0.8);
-  color: var(--text);
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-family: inherit;
-}
-
-.prop-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
-}
-
-.prop-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.no-selection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 150px;
-  color: var(--muted);
-  text-align: center;
-}
-
-.no-selection-icon {
-  font-size: 2.5rem;
-  margin-bottom: 8px;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.btn-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.btn {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), #4ade80);
-  color: #052e16;
-}
-
-.btn-primary:hover {
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-}
-
-.btn-danger {
-  background: var(--danger);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #f55555;
-}
-
-.sidebar-buttons {
-  padding: 12px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sidebar-buttons .btn {
-  width: 100%;
-  padding: 10px;
-}
-
-.toast {
-  position: fixed;
-  bottom: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  background: rgba(2, 6, 23, 0.95);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: bottom 0.3s;
-  z-index: 1000;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.toast.show {
-  bottom: 20px;
-}
-
-.toast.success {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.toast.error {
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-.modal-bg {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-bg.show {
-  display: flex;
-}
-
-.modal {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--accent);
-}
-
-.modal-code {
-  background: rgba(2, 6, 23, 0.8);
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  overflow-x: auto;
-  max-height: 300px;
-  overflow-y: auto;
-  margin-bottom: 12px;
-  color: #4ade80;
-}
-
-.modal-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.runtime-view {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.runtime-content {
-  flex: 1;
-  overflow: auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-#runtimeTitle {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
-}
-
-#runtimeGrid {
-  position: relative;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-.rt-widget {
-  position: absolute;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* Runtime Widgets */
+.rt-widget { position: absolute; padding: 10px; display: flex; align-items: center; justify-content: center; }
 .rt-button {
-  width: 100%;
-  height: 100%;
-  padding: 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  width: 100%; height: 100%; border: none; border-radius: 16px;
+  background: linear-gradient(135deg, #6366f1, var(--purple));
+  color: #fff; font-weight: 700; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  font-size: 1rem; transition: 0.1s;
 }
+.rt-button:active { transform: scale(0.9); }
+.rt-button .icon { font-size: 2rem; }
 
-.rt-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+.rt-slider-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.rt-slider-info { display: flex; justify-content: space-between; font-weight: 700; }
+.rt-slider { width: 100%; height: 12px; border-radius: 6px; background: var(--surface); -webkit-appearance: none; }
+.rt-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--pink)); cursor: pointer; }
+
+.rt-toggle-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.rt-toggle { width: 70px; height: 70px; border: none; border-radius: 16px; background: var(--red); color: #fff; font-size: 2rem; cursor: pointer; transition: 0.2s; }
+.rt-toggle.on { background: var(--green); }
+
+.rt-led-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.rt-led { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,82,82,0.2); transition: 0.2s; }
+.rt-led.on { background: var(--red); box-shadow: 0 0 40px var(--red); }
+
+.rt-joystick-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rt-joystick-base { width: 100px; height: 100px; border-radius: 50%; background: var(--surface); border: 4px solid var(--accent); display: flex; align-items: center; justify-content: center; touch-action: none; }
+.rt-joystick-stick { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); pointer-events: none; }
+
+.rt-label-text { font-weight: 700; font-size: 1.2rem; text-align: center; }
+
+/* Toast */
+.toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 16px 32px; background: var(--card); border: 3px solid var(--accent); border-radius: 30px; font-weight: 700; font-size: 1rem; transition: 0.3s; z-index: 1000; }
+.toast.show { bottom: 30px; }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+
+/* Modal */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.modal-bg.show { display: flex; }
+.modal { background: var(--surface); border: 3px solid var(--accent); border-radius: 24px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+.modal-title { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-bottom: 16px; }
+.modal-code { background: var(--card); padding: 16px; border-radius: 16px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.8rem; max-height: 400px; overflow: auto; color: var(--green); white-space: pre-wrap; word-break: break-all; margin-bottom: 16px; line-height: 1.5; }
+.modal-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.modal-btn { flex: 1; padding: 14px 20px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; }
+.modal-btn.primary { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #000; }
+.modal-btn.secondary { background: var(--card); color: var(--text); }
+
+/* Template Modal */
+.template-modal { position: fixed; inset: 0; background: rgba(26,26,46,0.98); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.template-modal.hidden { display: none; }
+.template-content { text-align: center; max-width: 500px; width: 100%; }
+.template-content h2 { font-size: 1.8rem; margin-bottom: 10px; background: linear-gradient(90deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.template-content p { color: var(--text-dim); margin-bottom: 24px; font-size: 1rem; }
+.templates-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.template-card { background: var(--card); border: 3px solid transparent; border-radius: 20px; padding: 20px 10px; cursor: pointer; transition: 0.2s; }
+.template-card:hover { border-color: var(--accent); transform: scale(1.05); }
+.template-card:active { transform: scale(0.95); }
+.template-icon { font-size: 3rem; margin-bottom: 10px; }
+.template-name { font-weight: 700; font-size: 0.9rem; }
+
+/* Responsive */
+@media (min-width: 768px) {
+  .builder-view { flex-direction: row; }
+  .palette { flex-direction: column; width: 100px; border-top: none; border-right: 2px solid var(--card); order: 0; overflow-y: auto; overflow-x: visible; }
+  .canvas-wrap { order: 0; }
+  .palette-item { width: 100%; min-width: unset; }
 }
-
-.rt-button:active {
-  transform: scale(0.92);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.rt-joystick-base {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1));
-  border: 3px solid rgba(139, 92, 246, 0.5);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.rt-joystick-base:active {
-  cursor: grabbing;
-}
-
-.rt-joystick-stick {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.6);
-  transition: transform 0.1s;
-}
-
-.rt-slider-wrap {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.rt-slider-info {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--text);
-}
-
-.rt-slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(139, 92, 246, 0.3);
-  -webkit-appearance: none;
-}
-
-.rt-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--slider), #a78bfa);
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.rt-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--slider), #a78bfa);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.rt-toggle-wrap {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.rt-toggle {
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 8px;
-  background: var(--danger);
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  font-weight: 700;
-  color: white;
-}
-
-.rt-toggle.on {
-  background: var(--toggle);
-}
-
-.rt-led-wrap {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.rt-led {
-  width: 70%;
-  height: 70%;
-  border-radius: 8px;
-  background: rgba(239, 68, 68, 0.2);
-  transition: all 0.2s;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.rt-led.on {
-  background: var(--led);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.rt-label-text {
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--text);
-  text-align: center;
-  word-break: break-word;
-}
-
-.rt-spinner {
-  width: 60px;
-  height: 60px;
-  border: 3px solid rgba(245, 158, 11, 0.2);
-  border-top-color: var(--warning);
-  border-radius: 50%;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.rt-emoji {
-  font-size: 2.5rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-  user-select: none;
-}
-
-.rt-emoji:active {
-  transform: scale(1.2) rotate(-5deg);
-}
-
-.connect-prompt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex: 1;
-}
-
-.connect-prompt-icon {
-  font-size: 3rem;
-}
-
-.connect-prompt-text {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-@media (max-width: 768px) {
-  .app {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr;
-  }
-  
-  header {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .sidebar {
-    width: 100%;
-    max-height: 25%;
-    border-left: none;
-    border-top: 1px solid var(--border);
-    display: flex;
-    grid-column: 1;
-    grid-row: 3;
-  }
-  
-  main {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  }
-  
-  .tabs {
-    flex-wrap: wrap;
-  }
+@media (max-width: 500px) {
+  .logo { font-size: 1rem; }
+  .tab { padding: 8px 14px; font-size: 0.8rem; }
+  .ble-btn span:last-child { display: none; }
+  .templates-grid { grid-template-columns: repeat(2, 1fr); }
+  .template-icon { font-size: 2.2rem; }
+  .header-btn { padding: 10px 14px; font-size: 0.75rem; }
 }
 </style>
 </head>
 <body>
-
 <div class="app">
   <header>
-    <div class="logo">
-      <div class="logo-icon"><img src="logo.svg" alt="Logo"></div>
-      <div class="logo-text">
-        <div class="logo-title">micro:bit Remote</div>
-        <div class="logo-subtitle">Builder</div>
-      </div>
-    </div>
-    <div style="flex:1"></div>
+    <div class="logo">🎮 <span>micro:bit</span></div>
+    <div class="spacer"></div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('builder')">Builder</button>
-      <button class="tab" onclick="switchTab('runtime')">Runtime</button>
+      <button class="tab active" data-tab="builder">✏️ Build</button>
+      <button class="tab" data-tab="runtime">▶️ Play</button>
     </div>
-    <button id="bleBtn" class="status-pill">
-      <span class="status-dot"></span>
-      <span id="bleText">Disconnected</span>
+    <button id="bleBtn" class="ble-btn">
+      <span class="ble-dot"></span>
+      <span>Connect</span>
     </button>
   </header>
 
-  <main>
-    <div class="view builder active">
-      <div class="palette">
-        <div class="palette-item" draggable="true" data-type="button">
-          <div class="palette-icon button">👆</div>
-          <div class="palette-name">Button</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="slider">
-          <div class="palette-icon slider">🎚️</div>
-          <div class="palette-name">Slider</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="toggle">
-          <div class="palette-icon toggle">🔘</div>
-          <div class="palette-name">Toggle</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="led">
-          <div class="palette-icon led">💡</div>
-          <div class="palette-name">LED</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="label">
-          <div class="palette-icon label">📝</div>
-          <div class="palette-name">Label</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="spinner">
-          <div class="palette-icon spinner">⏳</div>
-          <div class="palette-name">Spinner</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="emoji">
-          <div class="palette-icon emoji">😂</div>
-          <div class="palette-name">Emoji</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="dial">
-          <div class="palette-icon dial">🎛️</div>
-          <div class="palette-name">Dial</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="joystick">
-          <div class="palette-icon joystick">🕹️</div>
-          <div class="palette-name">Joystick</div>
-        </div>
-        <div class="palette-item" draggable="true" data-type="graph">
-          <div class="palette-icon graph">📈</div>
-          <div class="palette-name">Graph</div>
-        </div>
+  <div id="templateModal" class="template-modal">
+    <div class="template-content">
+      <h2>🎨 Choose a Template!</h2>
+      <p>Pick one to start building your remote</p>
+      <div class="templates-grid">
+        <div class="template-card" data-tpl="gamepad"><div class="template-icon">🎮</div><div class="template-name">Game Pad</div></div>
+        <div class="template-card" data-tpl="robot"><div class="template-icon">🤖</div><div class="template-name">Robot</div></div>
+        <div class="template-card" data-tpl="mixer"><div class="template-icon">🎵</div><div class="template-name">DJ Mixer</div></div>
+        <div class="template-card" data-tpl="racing"><div class="template-icon">🏎️</div><div class="template-name">Race Car</div></div>
+        <div class="template-card" data-tpl="lights"><div class="template-icon">💡</div><div class="template-name">Lights</div></div>
+        <div class="template-card" data-tpl="blank"><div class="template-icon">✨</div><div class="template-name">Start Fresh</div></div>
       </div>
+    </div>
+  </div>
 
+  <main>
+    <div class="view builder-view active">
+      <div class="builder-header">
+        <input type="text" id="titleInput" class="title-input" placeholder="🏷️ Name your remote..." maxlength="25">
+        <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
+        <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
+        <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
+      </div>
       <div class="canvas-wrap">
-        <div class="canvas-toolbar">
-          <label>Grid:</label>
-          <input type="number" id="gridW" value="6" min="3" max="12" title="Width" oninput="updateGridSize()">
-          <span style="color:var(--muted)">×</span>
-          <input type="number" id="gridH" value="5" min="3" max="10" title="Height" oninput="updateGridSize()">
-          <span style="color:var(--muted); margin-left:6px">Title:</span>
-          <input type="text" id="titleInput" placeholder="My Remote" maxlength="50" style="flex:1; min-width:120px">
-        </div>
-        <div id="canvas">
-          <div id="gridOverlay"></div>
-          <div id="widgetsLayer"></div>
-        </div>
+        <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it!</div>
+        <div id="canvas" class="canvas"><div id="widgetsLayer"></div></div>
+      </div>
+      <div class="palette">
+        <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
+        <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
+        <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
+        <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
+        <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
+        <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
       </div>
     </div>
 
     <div class="view runtime-view">
-      <div class="runtime-content">
-        <div id="connectPrompt" class="connect-prompt">
-          <div class="connect-prompt-icon">📡</div>
-          <div class="connect-prompt-text">Connect to micro:bit to start</div>
-          <button id="connectBtn" class="btn btn-primary" style="margin-top:12px">Connect</button>
-        </div>
-        <div id="runtimeContent" style="display:none; width:100%">
-          <div id="runtimeTitle"></div>
-          <div id="runtimeGrid"></div>
-        </div>
+      <div id="connectPrompt" class="connect-box">
+        <div class="connect-icon">📡</div>
+        <div class="connect-text">Connect your micro:bit!</div>
+        <button id="connectBtn" class="connect-btn">🔗 Connect</button>
       </div>
+      <div id="runtimeContent"><div id="runtimeTitle"></div><div id="runtimeGrid"></div></div>
     </div>
   </main>
-
-  <div class="sidebar">
-    <div class="sidebar-header">⚙️ Properties</div>
-    <div id="propsContent" class="sidebar-content">
-      <div class="no-selection">
-        <div class="no-selection-icon">👈</div>
-        <p>Select widget</p>
-      </div>
-    </div>
-    <div class="sidebar-buttons">
-      <button class="btn btn-primary" onclick="showCode()">📋 Code</button>
-      <button class="btn btn-primary" onclick="downloadConfig()">💾 Export</button>
-      <button class="btn btn-primary" onclick="loadConfigFile()">📂 Import</button>
-      <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete</button>
-    </div>
-  </div>
 </div>
 
 <div id="toast" class="toast"></div>
 <div id="modalBg" class="modal-bg">
   <div class="modal">
     <div id="modalTitle" class="modal-title"></div>
-    <div id="modalCode" class="modal-code"></div>
+    <pre id="modalCode" class="modal-code"></pre>
     <div class="modal-buttons">
-      <button class="btn btn-primary" id="copyBtn">Copy</button>
-      <button class="btn btn-primary" id="downloadBtn">Download</button>
-      <button class="btn" id="modalClose" style="background:var(--border);color:var(--text)">Close</button>
+      <button class="modal-btn primary" id="copyBtn">📋 Copy</button>
+      <button class="modal-btn primary" id="downloadBtn">💾 Save</button>
+      <button class="modal-btn secondary" id="modalClose">✖️ Close</button>
     </div>
   </div>
 </div>
-
 <input type="file" id="fileInput" accept=".json" hidden>
 
 <script>
@@ -1063,58 +302,312 @@ const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
-const CELL = 50;
-const GAP = 4;
-
 const encoder = new TextEncoder();
-const escape = str => {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-};
-
-const state = {
-  grid: { w: 6, h: 5 },
-  widgets: [],
-  selected: null,
-  nextId: 1,
-  ble: { device: null, server: null, service: null, notifyChar: null, writeChar: null, connected: false },
-  config: null,
-  values: {},
-  rxBuffer: ''
-};
-
+const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
-function init() {
-  renderGrid();
-  bindEvents();
-}
+const ICONS = { button:'👆', slider:'🎚️', toggle:'🔘', joystick:'🕹️', led:'💡', label:'🏷️' };
+const SIZES = { button:[90,90], slider:[90,160], toggle:[90,90], joystick:[120,120], led:[90,90], label:[120,60] };
 
-function renderGrid() {
-  const canvas = $('#canvas');
-  const overlay = $('#gridOverlay');
-  state.grid.w = Math.max(3, Math.min(parseInt($('#gridW').value) || 6, 12));
-  state.grid.h = Math.max(3, Math.min(parseInt($('#gridH').value) || 5, 10));
-  $('#gridW').value = state.grid.w;
-  $('#gridH').value = state.grid.h;
+const templates = {
+  gamepad: [
+    { t:'joystick', x:20, y:30, w:120, h:120, label:'Move' },
+    { t:'button', x:180, y:40, w:90, h:90, label:'Jump' },
+    { t:'button', x:290, y:40, w:90, h:90, label:'Fire' },
+    { t:'toggle', x:180, y:160, w:90, h:90, label:'Turbo' }
+  ],
+  robot: [
+    { t:'slider', x:20, y:20, w:90, h:180, label:'Arm 1' },
+    { t:'slider', x:130, y:20, w:90, h:180, label:'Arm 2' },
+    { t:'slider', x:240, y:20, w:90, h:180, label:'Arm 3' },
+    { t:'toggle', x:350, y:80, w:90, h:90, label:'Grip' }
+  ],
+  mixer: [
+    { t:'slider', x:20, y:20, w:80, h:200, label:'Bass' },
+    { t:'slider', x:120, y:20, w:80, h:200, label:'Mid' },
+    { t:'slider', x:220, y:20, w:80, h:200, label:'High' },
+    { t:'toggle', x:320, y:80, w:90, h:90, label:'FX' },
+    { t:'led', x:320, y:20, w:90, h:50, label:'Beat' }
+  ],
+  racing: [
+    { t:'joystick', x:150, y:20, w:130, h:130, label:'Steer' },
+    { t:'slider', x:20, y:170, w:80, h:140, label:'Gas' },
+    { t:'slider', x:330, y:170, w:80, h:140, label:'Brake' },
+    { t:'button', x:150, y:180, w:130, h:80, label:'Nitro!' }
+  ],
+  lights: [
+    { t:'toggle', x:30, y:30, w:100, h:100, label:'Red' },
+    { t:'toggle', x:160, y:30, w:100, h:100, label:'Green' },
+    { t:'toggle', x:290, y:30, w:100, h:100, label:'Blue' },
+    { t:'led', x:90, y:160, w:100, h:100, label:'Status' },
+    { t:'led', x:230, y:160, w:100, h:100, label:'Alert' }
+  ],
+  blank: []
+};
+
+const state = {
+  widgets: [], selected: null, nextId: 1, selectedType: null,
+  ble: { device:null, server:null, service:null, notifyChar:null, writeChar:null, connected:false },
+  config: null, values: {}, rxBuffer: ''
+};
+
+// BLE send with verbose debug logging
+async function send(msg) {
+  console.log('[BLE] Attempting to send:', msg);
   
-  const w = state.grid.w * CELL + (state.grid.w + 1) * GAP;
-  const h = state.grid.h * CELL + (state.grid.h + 1) * GAP;
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${h}px`;
-  overlay.style.gridTemplateColumns = `repeat(${state.grid.w}, ${CELL}px)`;
-  overlay.style.gridTemplateRows = `repeat(${state.grid.h}, ${CELL}px)`;
-  overlay.style.gap = `${GAP}px`;
-  overlay.innerHTML = Array(state.grid.w * state.grid.h).fill('<div class="grid-cell"></div>').join('');
-  renderWidgets();
+  if (!state.ble.writeChar) {
+    console.log('[BLE] ERROR: No writeChar available');
+    return;
+  }
+  
+  // Check if still connected
+  const gattConnected = state.ble.device?.gatt?.connected;
+  console.log('[BLE] GATT connected:', gattConnected);
+  
+  if (!gattConnected) {
+    console.log('[BLE] ERROR: GATT disconnected, triggering onDisconnect');
+    onDisconnect();
+    return;
+  }
+  
+  try {
+    console.log('[BLE] Writing value...');
+    await state.ble.writeChar.writeValue(encoder.encode(msg + '\n'));
+    console.log('[BLE] Write SUCCESS');
+  } catch (err) { 
+    console.error('[BLE] Write FAILED:', err.name, err.message);
+    // If write fails with certain errors, assume disconnected
+    if (err.message?.includes('GATT') || err.message?.includes('disconnected')) {
+      console.log('[BLE] Triggering disconnect due to GATT error');
+      onDisconnect();
+    }
+  }
 }
 
-function updateGridSize() {
-  state.widgets = state.widgets.filter(w => w.x + w.w <= state.grid.w && w.y + w.h <= state.grid.h);
-  renderGrid();
-  renderProps();
+// One-click Demo - creates full showcase with all widgets
+function showDemo() {
+  // Create a demo with ALL widget types
+  state.widgets = [
+    { id: 'btn_jump', t: 'button', x: 20, y: 20, w: 100, h: 100, label: 'Jump!' },
+    { id: 'btn_fire', t: 'button', x: 140, y: 20, w: 100, h: 100, label: 'Fire!' },
+    { id: 'slider_speed', t: 'slider', x: 260, y: 20, w: 90, h: 180, label: 'Speed' },
+    { id: 'slider_power', t: 'slider', x: 370, y: 20, w: 90, h: 180, label: 'Power' },
+    { id: 'toggle_turbo', t: 'toggle', x: 20, y: 140, w: 100, h: 100, label: 'Turbo' },
+    { id: 'toggle_shield', t: 'toggle', x: 140, y: 140, w: 100, h: 100, label: 'Shield' },
+    { id: 'joy_move', t: 'joystick', x: 20, y: 260, w: 140, h: 140, label: 'Move' },
+    { id: 'led_status', t: 'led', x: 180, y: 260, w: 100, h: 100, label: 'Status' },
+    { id: 'led_alert', t: 'led', x: 300, y: 260, w: 100, h: 100, label: 'Alert' },
+    { id: 'label_score', t: 'label', x: 180, y: 380, w: 150, h: 50, label: 'Score: 0' }
+  ];
+  state.nextId = 20;
+  state.selected = null;
+  $('#titleInput').value = 'Super Demo Remote';
+  renderWidgets();
+  
+  // Show the code modal with demo code
+  const cfg = { title: 'Super Demo Remote', widgets: state.widgets };
+  $('#modalTitle').textContent = 'Demo Ready! Copy this code to MakeCode:';
+  $('#modalCode').textContent = generateDemoCode(cfg);
+  $('#modalBg').classList.add('show');
+  
+  toast('Demo loaded with ALL widgets!', 'success');
+}
+
+function generateDemoCode(cfg) {
+  // Unicode-safe base64 encoding (handles emojis!)
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
+  
+  // Group widgets by type
+  const buttons = cfg.widgets.filter(w => w.t === 'button');
+  const sliders = cfg.widgets.filter(w => w.t === 'slider');
+  const toggles = cfg.widgets.filter(w => w.t === 'toggle');
+  const joysticks = cfg.widgets.filter(w => w.t === 'joystick');
+  const leds = cfg.widgets.filter(w => w.t === 'led');
+  const labels = cfg.widgets.filter(w => w.t === 'label');
+  
+  // Generate handler code for each widget
+  let buttonCode = buttons.map(w => `    // Button: ${w.label || w.id}
+    if (id == "${w.id}" && val == "1") {
+        basic.showIcon(IconNames.Heart)
+        // Add your code here!
+    }`).join('\n');
+  
+  let sliderCode = sliders.map(w => `    // Slider: ${w.label || w.id} (val = 0-100)
+    if (id == "${w.id}") {
+        let value = parseInt(val)
+        led.plotBarGraph(value, 100)
+        // Use value for motors, sounds, etc!
+    }`).join('\n');
+  
+  let toggleCode = toggles.map(w => `    // Toggle: ${w.label || w.id} (val = "1" or "0")
+    if (id == "${w.id}") {
+        if (val == "1") {
+            basic.showIcon(IconNames.Yes)
+        } else {
+            basic.showIcon(IconNames.No)
+        }
+    }`).join('\n');
+  
+  let joystickCode = joysticks.map(w => `    // Joystick: ${w.label || w.id} (val = "angle distance")
+    if (id == "${w.id}") {
+        let parts = val.split(" ")
+        let angle = parseInt(parts[0])  // -180 to 180
+        let dist = parseInt(parts[1])   // 0 to ~50
+        // Use for steering, movement, etc!
+        if (dist > 10) {
+            basic.showArrow(angle > 0 ? ArrowNames.East : ArrowNames.West)
+        } else {
+            basic.showLeds(\`
+                . . . . .
+                . . # . .
+                . # # # .
+                . . # . .
+                . . . . .
+            \`)
+        }
+    }`).join('\n');
+
+  let ledList = leds.map(w => `//   sendValue("${w.id}", "1")  // Turn ON ${w.label || 'LED'}
+//   sendValue("${w.id}", "0")  // Turn OFF`).join('\n');
+
+  let labelList = labels.map(w => `//   sendValue("${w.id}", "Hello!")  // Update ${w.label || 'label'}`).join('\n');
+
+  return `// ${cfg.title} - micro:bit Remote
+// Copy this to MakeCode: https://makecode.microbit.org
+// Then flash it to your micro:bit!
+
+bluetooth.startUartService()
+let cfgSent = false
+let blinkState = false
+const CFG = "${b64}"
+
+// This sends the remote layout to the app
+bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function() {
+    let cmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+    
+    if (cmd == "GETCFG") {
+        bluetooth.uartWriteLine("CFGBEGIN")
+        for (let i = 0; i < CFG.length; i += 18) {
+            bluetooth.uartWriteLine("CFG " + CFG.substr(i, 18))
+        }
+        bluetooth.uartWriteLine("CFGEND")
+        cfgSent = true
+        basic.showIcon(IconNames.Yes)
+    } 
+    else if (cmd.indexOf("SET ") == 0) {
+        let parts = cmd.substr(4).split(" ")
+        let id = parts[0]
+        let val = parts.slice(1).join(" ")
+        handleWidget(id, val)
+    }
+})
+
+// HANDLE YOUR WIDGETS HERE!
+function handleWidget(id: string, val: string) {
+    serial.writeLine(id + " = " + val)
+    
+${buttonCode || '    // No buttons in this remote'}
+
+${sliderCode || '    // No sliders in this remote'}
+
+${toggleCode || '    // No toggles in this remote'}
+
+${joystickCode || '    // No joysticks in this remote'}
+}
+
+// Send values TO the app (for LEDs and Labels)
+function sendValue(id: string, val: string) {
+    if (cfgSent) bluetooth.uartWriteLine("UPD " + id + " " + val)
+}
+
+// Show we are ready!
+basic.showIcon(IconNames.Heart)
+
+// BLINK THE APP LEDs! This runs forever in background
+basic.forever(function() {
+    if (cfgSent) {
+        blinkState = !blinkState
+        ${leds.length > 0 ? leds.map(l => `sendValue("${l.id}", blinkState ? "1" : "0")`).join('\n        ') : '// No LEDs to blink'}
+        ${labels.length > 0 ? `sendValue("${labels[0].id}", blinkState ? "ON!" : "OFF")` : ''}
+    }
+    basic.pause(1000)
+})
+
+// BONUS: Use micro:bit buttons too!
+input.onButtonPressed(Button.A, function() {
+    basic.showString("A")
+    ${leds.length > 0 ? `sendValue("${leds[0].id}", "1")` : '// Add an LED to control it here!'}
+})
+input.onButtonPressed(Button.B, function() {
+    basic.showString("B")
+    ${leds.length > 0 ? `sendValue("${leds[0].id}", "0")` : '// Add an LED to control it here!'}
+})`;
+}
+
+function init() {
+  // Tabs
+  $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
+  
+  // Templates
+  $$('.template-card').forEach(c => c.onclick = () => selectTemplate(c.dataset.tpl));
+  
+  // Palette - tap to select
+  $$('.palette-item').forEach(p => {
+    p.onclick = () => {
+      $$('.palette-item').forEach(x => x.classList.remove('selected'));
+      p.classList.add('selected');
+      state.selectedType = p.dataset.type;
+      toast(`✅ ${ICONS[state.selectedType]} selected! Tap canvas to place`, 'success');
+    };
+  });
+  
+  // Canvas - tap to place
+  $('#canvas').onclick = e => {
+    if (e.target.closest('.widget')) return;
+    if (state.selectedType) {
+      const rect = $('#canvas').getBoundingClientRect();
+      const [w, h] = SIZES[state.selectedType];
+      const x = Math.max(0, Math.min(e.clientX - rect.left - w/2, rect.width - w));
+      const y = Math.max(0, Math.min(e.clientY - rect.top - h/2, rect.height - h));
+      state.widgets.push({ id: `${state.selectedType}${state.nextId++}`, t: state.selectedType, x, y, w, h, label: '' });
+      renderWidgets();
+      toast(`✨ ${ICONS[state.selectedType]} added!`, 'success');
+    } else {
+      state.selected = null;
+      renderWidgets();
+    }
+  };
+  
+  // Buttons
+  $('#bleBtn').onclick = connectBle;
+  $('#connectBtn').onclick = connectBle;
+  $('#demoBtn').onclick = showDemo;
+  $('#codeBtn').onclick = showCode;
+  $('#deleteBtn').onclick = deleteSelected;
+  $('#modalClose').onclick = () => $('#modalBg').classList.remove('show');
+  $('#modalBg').onclick = e => { if (e.target === $('#modalBg')) $('#modalBg').classList.remove('show'); };
+  $('#copyBtn').onclick = () => { navigator.clipboard.writeText($('#modalCode').textContent); toast('📋 Copied!', 'success'); };
+  $('#downloadBtn').onclick = downloadCode;
+  
+  $('#templateModal').classList.remove('hidden');
+}
+
+function selectTemplate(name) {
+  const t = templates[name];
+  if (!t) return;
+  state.widgets = t.map((w, i) => ({ id: `${w.t}${state.nextId + i}`, ...w }));
+  state.nextId += t.length || 1;
+  state.selected = null;
+  $('#templateModal').classList.add('hidden');
+  renderWidgets();
+  if (name === 'blank') toast('✨ Canvas ready! Pick a widget below', 'success');
+}
+
+function switchTab(tab) {
+  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $(`.${tab === 'builder' ? 'builder-view' : 'runtime-view'}`).classList.add('active');
 }
 
 function renderWidgets() {
@@ -1122,324 +615,148 @@ function renderWidgets() {
   layer.innerHTML = '';
   state.widgets.forEach(w => {
     const el = document.createElement('div');
-    el.className = `widget${w.id === state.selected ? ' selected' : ''}`;
+    el.className = 'widget' + (state.selected === w.id ? ' selected' : '');
     el.dataset.id = w.id;
-    el.dataset.type = w.t;
-    el.style.left = `${w.x * (CELL + GAP) + GAP}px`;
-    el.style.top = `${w.y * (CELL + GAP) + GAP}px`;
-    el.style.width = `${w.w * CELL + (w.w - 1) * GAP}px`;
-    el.style.height = `${w.h * CELL + (w.h - 1) * GAP}px`;
-    el.innerHTML = `
-      <span class="widget-badge">${escape(w.t)}</span>
-      <span class="widget-label">${escape(w.label || '')}</span>
-      <div class="resize-handle"></div>
-    `;
+    el.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
+    el.innerHTML = `<div class="widget-icon">${ICONS[w.t]}</div><div class="widget-label">${esc(w.label) || w.t}</div><div class="resize-handle"></div>`;
     layer.appendChild(el);
+    
+    interact(el).draggable({
+      inertia: true,
+      modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
+      listeners: {
+        start() { state.selected = w.id; renderWidgets(); },
+        move(e) {
+          w.x += e.dx; w.y += e.dy;
+          e.target.style.left = w.x + 'px';
+          e.target.style.top = w.y + 'px';
+        }
+      }
+    }).resizable({
+      edges: { right: true, bottom: true },
+      modifiers: [interact.modifiers.restrictSize({ min: { width: 60, height: 60 } })],
+      listeners: {
+        move(e) {
+          w.w = e.rect.width; w.h = e.rect.height;
+          e.target.style.width = w.w + 'px';
+          e.target.style.height = w.h + 'px';
+        }
+      }
+    });
+    
+    el.onclick = e => { e.stopPropagation(); state.selected = w.id; renderWidgets(); };
   });
-}
-
-function renderProps() {
-  const container = $('#propsContent');
-  const w = state.widgets.find(x => x.id === state.selected);
-  if (!w) {
-    container.innerHTML = '<div class="no-selection"><div class="no-selection-icon">👈</div><p>Select widget</p></div>';
-    return;
-  }
-  container.innerHTML = `
-    <div class="prop-group">
-      <div class="prop-label">ID</div>
-      <input class="prop-input" type="text" value="${escape(w.id)}" disabled>
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Label</div>
-      <input class="prop-input" type="text" id="propLabel" value="${escape(w.label || '')}" placeholder="Widget label" maxlength="30">
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Position</div>
-      <div class="prop-row">
-        <div><span style="font-size:0.65rem;color:var(--muted)">X</span><input class="prop-input" type="number" id="propX" value="${w.x}" min="0" max="${state.grid.w-1}"></div>
-        <div><span style="font-size:0.65rem;color:var(--muted)">Y</span><input class="prop-input" type="number" id="propY" value="${w.y}" min="0" max="${state.grid.h-1}"></div>
-      </div>
-    </div>
-    <div class="prop-group">
-      <div class="prop-label">Size</div>
-      <div class="prop-row">
-        <div><span style="font-size:0.65rem;color:var(--muted)">W</span><input class="prop-input" type="number" id="propW" value="${w.w}" min="1"></div>
-        <div><span style="font-size:0.65rem;color:var(--muted)">H</span><input class="prop-input" type="number" id="propH" value="${w.h}" min="1"></div>
-      </div>
-    </div>
-  `;
-  ['propLabel', 'propX', 'propY', 'propW', 'propH'].forEach(id => {
-    const el = $(`#${id}`);
-    if (el) el.onchange = () => updateProps(w.id);
-  });
-}
-
-function updateProps(id) {
-  const w = state.widgets.find(x => x.id === id);
-  if (!w) return;
-  w.label = $('#propLabel').value;
-  w.x = Math.max(0, Math.min(parseInt($('#propX').value) || w.x, state.grid.w - 1));
-  w.y = Math.max(0, Math.min(parseInt($('#propY').value) || w.y, state.grid.h - 1));
-  w.w = Math.max(1, parseInt($('#propW').value) || 1);
-  w.h = Math.max(1, parseInt($('#propH').value) || 1);
-  renderWidgets();
-  renderProps();
-}
-
-function select(id) {
-  state.selected = id;
-  renderWidgets();
-  renderProps();
 }
 
 function deleteSelected() {
-  if (!state.selected) return;
+  if (!state.selected) { toast('👆 Select a widget first!', 'error'); return; }
   state.widgets = state.widgets.filter(w => w.id !== state.selected);
   state.selected = null;
   renderWidgets();
-  renderProps();
-  toast('Deleted', 'success');
-}
-
-function getCell(e) {
-  const rect = $('#canvas').getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left - GAP) / (CELL + GAP));
-  const y = Math.floor((e.clientY - rect.top - GAP) / (CELL + GAP));
-  return { x: Math.max(0, Math.min(x, state.grid.w - 1)), y: Math.max(0, Math.min(y, state.grid.h - 1)) };
-}
-
-function canPlace(x, y, w, h, excludeId) {
-  for (let widget of state.widgets) {
-    if (widget.id === excludeId) continue;
-    if (x < widget.x + widget.w && x + w > widget.x && y < widget.y + widget.h && y + h > widget.y) return false;
-  }
-  return x + w <= state.grid.w && y + h <= state.grid.h;
-}
-
-function bindEvents() {
-  let draggedType = null;
-  const canvas = $('#canvas');
-
-  $$('.palette-item').forEach(item => {
-    item.ondragstart = e => {
-      draggedType = item.dataset.type;
-      e.dataTransfer.effectAllowed = 'copy';
-    };
-  });
-
-  canvas.ondrop = e => {
-    e.preventDefault();
-    if (!draggedType) return;
-    const { x, y } = getCell(e);
-    if (canPlace(x, y, 1, 1)) {
-      const id = `${draggedType}${state.nextId++}`;
-      const labels = { button: 'Press', slider: 'Value', toggle: 'Switch', led: 'LED', label: 'Text', spinner: 'Load', emoji: 'Fun', dial: 'Ctrl', joystick: 'Move', graph: 'Data' };
-      state.widgets.push({ id, t: draggedType, x, y, w: 1, h: 1, label: labels[draggedType] || draggedType });
-      select(id);
-    } else {
-      toast('No space', 'error');
-    }
-  };
-
-  canvas.ondragover = e => e.preventDefault();
-
-  let drag = null, resize = null;
-  canvas.onmousedown = e => {
-    const wEl = e.target.closest('.widget');
-    if (!wEl) { select(null); return; }
-    const id = wEl.dataset.id;
-    select(id);
-    const w = state.widgets.find(x => x.id === id);
-    if (e.target.classList.contains('resize-handle')) resize = w;
-    else drag = w;
-  };
-
-  document.onmousemove = e => {
-    if (drag) {
-      const { x, y } = getCell(e);
-      if (canPlace(x, y, drag.w, drag.h, drag.id)) { drag.x = x; drag.y = y; renderWidgets(); }
-    } else if (resize) {
-      const { x: sx, y: sy } = getCell(e);
-      const w = Math.max(1, sx - resize.x + 1);
-      const h = Math.max(1, sy - resize.y + 1);
-      if (canPlace(resize.x, resize.y, w, h, resize.id)) { resize.w = w; resize.h = h; renderWidgets(); }
-    }
-  };
-
-  document.onmouseup = () => { drag = null; resize = null; };
-
-  $('#bleBtn').onclick = connectBle;
-  $('#connectBtn').onclick = connectBle;
-}
-
-function switchTab(tab) {
-  $$('.view').forEach(v => v.classList.remove('active'));
-  $$('.tab').forEach(t => t.classList.remove('active'));
-  $(`.view.${tab === 'builder' ? 'builder' : 'runtime-view'}`).classList.add('active');
-  $$(`.tab`)[tab === 'builder' ? 0 : 1].classList.add('active');
+  toast('🗑️ Deleted!', 'success');
 }
 
 function showCode() {
-  const code = generateMakeCode();
-  showModal('MakeCode Firmware', code);
-}
-
-function downloadConfig() {
-  const cfg = getConfig();
-  const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'remote-config.json';
-  a.click();
-  toast('Exported', 'success');
-}
-
-function loadConfigFile() {
-  $('#fileInput').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        loadConfig(JSON.parse(ev.target.result));
-        toast('Imported', 'success');
-      } catch { toast('Invalid file', 'error'); }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-  $('#fileInput').click();
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function getConfig() {
-  return {
-    v: 1,
-    title: $('#titleInput').value || 'Remote',
-    grid: { w: state.grid.w, h: state.grid.h },
-    widgets: state.widgets.map(w => ({ id: w.id, t: w.t, x: w.x, y: w.y, w: w.w, h: w.h, label: w.label || '' }))
-  };
-}
-
-function loadConfig(cfg) {
-  if (cfg.grid) { state.grid.w = Math.max(3, cfg.grid.w || 6); state.grid.h = Math.max(3, cfg.grid.h || 5); }
-  if (cfg.title) $('#titleInput').value = cfg.title;
-  state.widgets = (cfg.widgets || []).map(w => ({ ...w }));
-  state.nextId = Math.max(...state.widgets.map(w => { const m = w.id.match(/\d+$/); return m ? parseInt(m[0]) + 1 : 1; }), 1);
-  state.selected = null;
-  renderGrid();
-  renderProps();
-}
-
-function generateMakeCode() {
-  const cfg = getConfig();
-  const b64 = btoa(JSON.stringify(cfg));
-  return `// Funny Remote - MakeCode
-const CFG = "${b64}"
-let cfgSent = false
-
-bluetooth.startUartService()
-
-bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), () => {
-    let cmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
-    if (cmd == "GETCFG") {
-        bluetooth.uartWriteLine("CFGBEGIN " + CFG.length)
-        for (let i = 0; i < CFG.length; i += 18) {
-            bluetooth.uartWriteLine("CFG " + CFG.substring(i, i + 18))
-        }
-        bluetooth.uartWriteLine("CFGEND")
-        cfgSent = true
-    } else if (cmd.indexOf("SET ") == 0) {
-        let parts = cmd.substring(4).split(" ")
-        let id = parts[0]
-        let val = parts.slice(1).join(" ")
-        handleInput(id, val)
-    }
-})
-
-function handleInput(id: string, val: string) {
-    serial.writeLine(id + " = " + val)
-}
-
-function sendValue(id: string, val: string) {
-    if (cfgSent) bluetooth.uartWriteLine("UPD " + id + " " + val)
-}
-
-basic.showIcon(IconNames.Yes)`;
-}
-
-function showModal(title, code) {
-  $('#modalTitle').textContent = title;
-  $('#modalCode').textContent = code;
+  if (state.widgets.length === 0) {
+    toast('👆 Add some widgets first!', 'error');
+    return;
+  }
+  const cfg = { title: $('#titleInput').value || 'My Remote', widgets: state.widgets };
+  $('#modalTitle').textContent = '📄 Your micro:bit Code';
+  $('#modalCode').textContent = generateDemoCode(cfg);
   $('#modalBg').classList.add('show');
 }
 
-function hideModal() { $('#modalBg').classList.remove('show'); }
+function downloadCode() {
+  const blob = new Blob([$('#modalCode').textContent], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'microbit-remote.ts'; a.click();
+  toast('💾 Downloaded!', 'success');
+}
 
 function toast(msg, type = '') {
-  const t = $('#toast');
-  t.textContent = msg;
+  const t = $('#toast'); t.textContent = msg;
   t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// BLE Connection
 async function connectBle() {
+  console.log('[BLE] Starting connection...');
   try {
+    console.log('[BLE] Requesting device...');
     const device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: 'BBC micro:bit' }],
       optionalServices: [UART_SERVICE]
     });
-    device.addEventListener('gattserverdisconnected', onDisconnect);
+    console.log('[BLE] Device selected:', device.name);
+    
+    device.addEventListener('gattserverdisconnected', () => {
+      console.log('[BLE] GATT server disconnected event');
+      onDisconnect();
+    });
+    
+    console.log('[BLE] Connecting to GATT server...');
     const server = await device.gatt.connect();
+    console.log('[BLE] GATT connected');
+    
+    console.log('[BLE] Getting UART service...');
     const service = await server.getPrimaryService(UART_SERVICE);
+    console.log('[BLE] UART service found');
+    
+    console.log('[BLE] Getting TX characteristic...');
     const notifyChar = await service.getCharacteristic(UART_TX_CHAR);
+    console.log('[BLE] TX characteristic found');
+    
+    console.log('[BLE] Getting RX characteristic...');
     const writeChar = await service.getCharacteristic(UART_RX_CHAR);
+    console.log('[BLE] RX characteristic found');
+    
+    console.log('[BLE] Starting notifications...');
     await notifyChar.startNotifications();
     notifyChar.addEventListener('characteristicvaluechanged', onNotify);
+    console.log('[BLE] Notifications started');
+    
     state.ble = { device, server, service, notifyChar, writeChar, connected: true };
     state.rxBuffer = '';
     updateBleUI();
     toast('Connected!', 'success');
-    setTimeout(() => requestConfig(), 500);
+    
+    console.log('[BLE] Waiting 500ms then sending GETCFG...');
+    setTimeout(() => { 
+      console.log('[BLE] Sending GETCFG now');
+      state.rxBuffer = ''; 
+      send('GETCFG'); 
+    }, 500);
   } catch (err) {
-    console.error('BLE Error:', err);
+    console.error('[BLE] Connection error:', err);
     toast('Connection failed', 'error');
   }
 }
 
 function onDisconnect() {
-  state.ble = { device: null, server: null, service: null, notifyChar: null, writeChar: null, connected: false };
+  console.log('[BLE] Disconnected!');
+  state.ble = { device:null, server:null, service:null, notifyChar:null, writeChar:null, connected:false };
   updateBleUI();
   toast('Disconnected', 'error');
 }
 
 function updateBleUI() {
   const btn = $('#bleBtn');
-  const text = $('#bleText');
   if (state.ble.connected) {
     btn.classList.add('connected');
-    text.textContent = 'Connected';
+    btn.querySelector('span:last-child').textContent = 'Connected';
     $('#connectPrompt').style.display = 'none';
     $('#runtimeContent').style.display = 'flex';
   } else {
     btn.classList.remove('connected');
-    text.textContent = 'Disconnected';
-    $('#connectPrompt').style.display = 'flex';
+    btn.querySelector('span:last-child').textContent = 'Connect';
+    $('#connectPrompt').style.display = 'block';
     $('#runtimeContent').style.display = 'none';
   }
 }
 
-async function send(msg) {
-  if (!state.ble.writeChar) return;
-  try {
-    await state.ble.writeChar.writeValue(encoder.encode(msg + '\n'));
-  } catch (err) { console.error('Write error:', err); }
-}
-
-function requestConfig() { state.rxBuffer = ''; send('GETCFG'); }
-
+let configBuffer = '';
 function onNotify(event) {
   const value = event.target.value;
   let str = '';
@@ -1447,6 +764,7 @@ function onNotify(event) {
     const byte = value.getUint8(i);
     if (byte !== 13) str += String.fromCharCode(byte);
   }
+  console.log('[BLE RX] Received:', str.replace(/\n/g, '\\n'));
   state.rxBuffer += str;
   let nl;
   while ((nl = state.rxBuffer.indexOf('\n')) !== -1) {
@@ -1456,21 +774,31 @@ function onNotify(event) {
   }
 }
 
-let configBuffer = '';
-
 function processLine(line) {
-  if (line.startsWith('CFGBEGIN')) configBuffer = '';
-  else if (line.startsWith('CFG ')) configBuffer += line.substring(4);
+  console.log('[BLE] Processing line:', line);
+  if (line.startsWith('CFGBEGIN')) {
+    console.log('[BLE] Config begin');
+    configBuffer = '';
+  }
+  else if (line.startsWith('CFG ')) {
+    configBuffer += line.substring(4);
+    console.log('[BLE] Config chunk, total length:', configBuffer.length);
+  }
   else if (line === 'CFGEND') {
-    try {
-      state.config = JSON.parse(atob(configBuffer));
-      renderRuntime();
-      toast('Config loaded!', 'success');
-    } catch (e) { console.error('Config parse error:', e); toast('Config error', 'error'); }
+    console.log('[BLE] Config end, decoding...');
+    try { 
+      // Unicode-safe base64 decoding (handles emojis!)
+      state.config = JSON.parse(decodeURIComponent(escape(atob(configBuffer)))); 
+      console.log('[BLE] Config decoded:', state.config);
+      renderRuntime(); 
+      toast('Remote loaded!', 'success'); 
+    }
+    catch(e) { console.error('[BLE] Config parse error:', e); toast('Config error', 'error'); }
   } else if (line.startsWith('UPD ')) {
     const parts = line.substring(4).split(' ');
     const id = parts[0];
     const val = parts.slice(1).join(' ');
+    console.log('[BLE] Update widget:', id, '=', val);
     state.values[id] = val;
     updateRuntimeWidget(id, val);
   }
@@ -1479,21 +807,17 @@ function processLine(line) {
 function renderRuntime() {
   if (!state.config) return;
   const cfg = state.config;
-  $('#runtimeTitle').textContent = cfg.title || 'Remote';
+  $('#runtimeTitle').textContent = cfg.title || 'My Remote';
   const grid = $('#runtimeGrid');
-  const w = cfg.grid.w * CELL + (cfg.grid.w + 1) * GAP;
-  const h = cfg.grid.h * CELL + (cfg.grid.h + 1) * GAP;
-  grid.style.width = `${w}px`;
-  grid.style.height = `${h}px`;
+  let maxX = 0, maxY = 0;
+  cfg.widgets.forEach(w => { maxX = Math.max(maxX, w.x + w.w); maxY = Math.max(maxY, w.y + w.h); });
+  grid.style.width = `${Math.max(400, maxX + 20)}px`;
+  grid.style.height = `${Math.max(320, maxY + 20)}px`;
   grid.innerHTML = '';
   cfg.widgets.forEach(w => {
     const el = document.createElement('div');
-    el.className = 'rt-widget';
-    el.dataset.id = w.id;
-    el.style.left = `${w.x * (CELL + GAP) + GAP}px`;
-    el.style.top = `${w.y * (CELL + GAP) + GAP}px`;
-    el.style.width = `${w.w * CELL + (w.w - 1) * GAP}px`;
-    el.style.height = `${w.h * CELL + (w.h - 1) * GAP}px`;
+    el.className = 'rt-widget'; el.dataset.id = w.id;
+    el.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
     el.innerHTML = createRuntimeWidget(w);
     grid.appendChild(el);
     bindRuntimeWidget(el, w);
@@ -1501,21 +825,17 @@ function renderRuntime() {
 }
 
 function createRuntimeWidget(w) {
-  const val = escape(state.values[w.id] || '0');
-  const label = escape(w.label || '');
+  const val = esc(state.values[w.id] || '0');
+  const label = esc(w.label || w.t);
   const rawVal = state.values[w.id] || '0';
   switch (w.t) {
-    case 'button': return `<button class="rt-button"><span style="font-size:2rem">👆</span><div>${label || 'Press'}</div></button>`;
-    case 'slider': return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span class="rt-slider-label">${label || 'Value'}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${rawVal}"></div>`;
-    case 'toggle': return `<div style="display:flex;flex-direction:column;align-items:center;gap:8px"><button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '◯'}</button><span style="color:var(--text);font-weight:600">${label || 'Switch'}</span></div>`;
-    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span style="color:var(--text);font-weight:600">${label || '💡'}</span></div>`;
-    case 'spinner': return `<div class="rt-led-wrap"><div class="rt-spinner"></div><span style="color:var(--text);font-weight:600">${label || '⏳'}</span></div>`;
-    case 'emoji': return `<div class="rt-emoji">${label || '🎉'}</div>`;
-    case 'dial': return `<div style="text-align:center"><div style="font-size:2rem;transform:rotate(${rawVal*3.6}deg);transition:transform 0.2s">🎛️</div><div style="color:var(--text);font-weight:600;margin-top:4px;font-size:0.9rem">${val}</div></div>`;
-    case 'joystick': return `<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center"><div class="rt-joystick-base"><div class="rt-joystick-stick"></div></div><span style="position:absolute;bottom:4px;color:var(--text);font-size:0.75rem;font-weight:600">${label || 'Move'}</span></div>`;
-    case 'graph': return `<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden"><svg width="100%" height="100%" style="background:linear-gradient(to bottom, rgba(34,197,94,0.2), rgba(34,197,94,0.05))"><polyline points="5,45 15,35 25,40 35,20 45,30 55,15 65,25 75,10 85,20 95,5" style="fill:none;stroke:#22c55e;stroke-width:2"/></svg><span style="position:absolute;color:var(--text);font-weight:600;font-size:0.7rem">${label || 'Data'}</span></div>`;
-    case 'label': return `<div class="rt-label-text" style="font-size:1.2rem">${val || label || 'Text'}</div>`;
-    default: return `<div>${escape(w.t)}</div>`;
+    case 'button': return `<button class="rt-button"><span class="icon">👆</span><span>${label}</span></button>`;
+    case 'slider': return `<div class="rt-slider-wrap"><div class="rt-slider-info"><span>${label}</span><span class="rt-slider-val">${val}</span></div><input type="range" class="rt-slider" min="0" max="100" value="${rawVal}"></div>`;
+    case 'toggle': return `<div class="rt-toggle-wrap"><button class="rt-toggle${rawVal === '1' ? ' on' : ''}">${rawVal === '1' ? '✓' : '○'}</button><span>${label}</span></div>`;
+    case 'led': return `<div class="rt-led-wrap"><div class="rt-led${rawVal === '1' ? ' on' : ''}"></div><span>${label}</span></div>`;
+    case 'joystick': return `<div class="rt-joystick-wrap"><div class="rt-joystick-base"><div class="rt-joystick-stick"></div></div><span>${label}</span></div>`;
+    case 'label': return `<div class="rt-label-text">${val || label}</div>`;
+    default: return `<div>${w.t}</div>`;
   }
 }
 
@@ -1523,34 +843,45 @@ function bindRuntimeWidget(el, w) {
   switch (w.t) {
     case 'button':
       const btn = el.querySelector('.rt-button');
-      const press = e => { e.preventDefault(); send(`SET ${w.id} 1`); };
-      const release = () => send(`SET ${w.id} 0`);
-      btn.onmousedown = press; btn.ontouchstart = press;
-      btn.onmouseup = release; btn.onmouseleave = release; btn.ontouchend = release;
+      const press = e => { 
+        e.preventDefault(); 
+        console.log('[BUTTON] Pressed:', w.id);
+        send(`SET ${w.id} 1`); 
+        btn.style.transform = 'scale(0.9)'; 
+      };
+      const release = () => { 
+        console.log('[BUTTON] Released:', w.id);
+        send(`SET ${w.id} 0`); 
+        btn.style.transform = ''; 
+      };
+      btn.onmousedown = btn.ontouchstart = press;
+      btn.onmouseup = btn.onmouseleave = btn.ontouchend = release;
       break;
     case 'slider':
+      let sliderTimer = null;
       el.querySelector('.rt-slider').oninput = e => {
         el.querySelector('.rt-slider-val').textContent = e.target.value;
-        send(`SET ${w.id} ${e.target.value}`);
+        // Debounce: only send after 50ms of no changes
+        clearTimeout(sliderTimer);
+        sliderTimer = setTimeout(() => {
+          console.log('[SLIDER] Sending value:', e.target.value);
+          send(`SET ${w.id} ${e.target.value}`);
+        }, 50);
       };
       break;
     case 'toggle':
       el.querySelector('.rt-toggle').onclick = function() {
         const on = this.classList.toggle('on');
-        this.textContent = on ? '✓' : '◯';
+        this.textContent = on ? '✓' : '○';
         send(`SET ${w.id} ${on ? '1' : '0'}`);
       };
-      break;
-    case 'emoji':
-      el.querySelector('.rt-emoji').onclick = () => send(`SET ${w.id} clicked`);
-      break;
-    case 'dial':
-      el.onclick = () => send(`SET ${w.id} dialed`);
       break;
     case 'joystick':
       const stick = el.querySelector('.rt-joystick-stick');
       const base = el.querySelector('.rt-joystick-base');
       let isDown = false;
+      let joyTimer = null;
+      let lastJoyMsg = '';
       const handleMove = e => {
         if (!isDown) return;
         const rect = base.getBoundingClientRect();
@@ -1563,50 +894,51 @@ function bindRuntimeWidget(el, w) {
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         const distance = Math.min(40, Math.hypot(dx, dy));
         stick.style.transform = `translate(${Math.cos(angle * Math.PI / 180) * distance}px, ${Math.sin(angle * Math.PI / 180) * distance}px)`;
-        send(`SET ${w.id} ${Math.round(angle)} ${Math.round(distance)}`);
+        // Debounce joystick messages
+        const msg = `SET ${w.id} ${Math.round(angle)} ${Math.round(distance)}`;
+        if (msg !== lastJoyMsg) {
+          lastJoyMsg = msg;
+          clearTimeout(joyTimer);
+          joyTimer = setTimeout(() => {
+            console.log('[JOYSTICK] Sending:', msg);
+            send(msg);
+          }, 50);
+        }
       };
-      base.onmousedown = () => { isDown = true; };
-      base.ontouchstart = () => { isDown = true; };
-      document.onmousemove = handleMove;
-      document.ontouchmove = handleMove;
-      document.onmouseup = () => { isDown = false; stick.style.transform = ''; };
-      document.ontouchend = () => { isDown = false; stick.style.transform = ''; };
+      base.onmousedown = () => { console.log('[JOYSTICK] Down'); isDown = true; };
+      base.ontouchstart = e => { e.preventDefault(); console.log('[JOYSTICK] Touch start'); isDown = true; };
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('mouseup', () => { console.log('[JOYSTICK] Up'); isDown = false; stick.style.transform = ''; clearTimeout(joyTimer); });
+      document.addEventListener('touchend', () => { console.log('[JOYSTICK] Touch end'); isDown = false; stick.style.transform = ''; clearTimeout(joyTimer); });
       break;
   }
 }
 
 function updateRuntimeWidget(id, val) {
+  console.log('[UI] Updating widget:', id, 'to', val);
   const el = $(`.rt-widget[data-id="${id}"]`);
-  if (!el || !state.config) return;
+  if (!el || !state.config) {
+    console.log('[UI] Widget not found or no config');
+    return;
+  }
   const w = state.config.widgets.find(x => x.id === id);
-  if (!w) return;
+  if (!w) {
+    console.log('[UI] Widget definition not found');
+    return;
+  }
+  console.log('[UI] Widget type:', w.t);
   switch (w.t) {
     case 'slider': el.querySelector('.rt-slider').value = val; el.querySelector('.rt-slider-val').textContent = val; break;
-    case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '◯'; break;
-    case 'led': el.querySelector('.rt-led').classList.toggle('on', val === '1'); break;
+    case 'toggle': el.querySelector('.rt-toggle').classList.toggle('on', val === '1'); el.querySelector('.rt-toggle').textContent = val === '1' ? '✓' : '○'; break;
+    case 'led': 
+      const ledEl = el.querySelector('.rt-led');
+      ledEl.classList.toggle('on', val === '1'); 
+      console.log('[UI] LED', id, 'is now', val === '1' ? 'ON' : 'OFF');
+      break;
     case 'label': el.querySelector('.rt-label-text').textContent = val; break;
-    case 'dial': 
-      const rotDeg = parseFloat(val) * 3.6 || 0;
-      el.querySelector('div:first-child').style.transform = `rotate(${rotDeg}deg)`;
-      el.querySelector('div:last-child').textContent = escape(val);
-      break;
-    case 'graph':
-      const graphVal = Math.min(45, Math.max(5, parseFloat(val) * 45 || 25));
-      el.querySelector('polyline').setAttribute('points', `5,${45-graphVal} 15,${45-graphVal*0.8} 25,${45-graphVal*0.9} 35,${45-graphVal*0.6} 45,${45-graphVal*0.7} 55,${45-graphVal*0.4} 65,${45-graphVal*0.5} 75,${45-graphVal*0.2} 85,${45-graphVal*0.3} 95,5`);
-      break;
   }
 }
-
-$('#modalClose').onclick = hideModal;
-$('#modalBg').onclick = e => { if (e.target === $('#modalBg')) hideModal(); };
-$('#copyBtn').onclick = () => { navigator.clipboard.writeText($('#modalCode').textContent); toast('Copied!', 'success'); };
-$('#downloadBtn').onclick = () => {
-  const blob = new Blob([$('#modalCode').textContent], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'microbit-remote.ts';
-  a.click();
-};
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
