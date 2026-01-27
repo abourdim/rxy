@@ -88,6 +88,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .header-btn:hover { transform: scale(1.05); }
 .btn-demo { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #000; }
 .btn-code { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #000; }
+.btn-template { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; }
 .btn-delete { background: var(--red); color: #fff; }
 
 /* Palette - Bottom on mobile */
@@ -149,7 +150,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* Runtime View */
-.runtime-view { align-items: center; justify-content: center; padding: 20px; position: relative; }
+.runtime-view { align-items: center; justify-content: center; padding: 20px; padding-top: 70px; position: relative; }
 .back-to-build-btn {
   position: absolute;
   top: 12px;
@@ -173,6 +174,276 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .back-to-build-btn:active {
   transform: scale(0.95);
 }
+
+/* ===== MOBILE-FRIENDLY ENHANCEMENTS ===== */
+@media (max-width: 600px) {
+  /* Safe area for notched phones */
+  .app {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Header compact */
+  header {
+    padding: 6px 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .logo { font-size: 0.95rem; }
+  .tabs { padding: 3px; }
+  .tab { 
+    padding: 8px 12px; 
+    font-size: 0.75rem;
+    min-height: 44px; /* Touch target */
+  }
+  
+  /* Hero pills compact */
+  .hero-pill {
+    padding: 8px 10px;
+    min-height: 44px;
+  }
+  .pill-text { display: none; }
+  
+  /* Builder header scrollable */
+  .builder-header {
+    padding: 8px;
+    gap: 6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .builder-header .action-card {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .title-input {
+    min-width: 120px;
+    flex: 0 0 auto;
+    width: 140px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  .header-btn {
+    padding: 10px 12px;
+    font-size: 0.7rem;
+    min-height: 44px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .header-btn span:not(.btn-icon) { display: none; }
+  
+  /* Palette compact horizontal scroll */
+  .palette {
+    padding: 8px;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .palette-item {
+    padding: 10px 12px;
+    min-width: 65px;
+    min-height: 70px;
+  }
+  .palette-icon { font-size: 24px; }
+  .palette-name { font-size: 0.6rem; }
+  
+  /* Canvas more space */
+  .canvas-wrap { 
+    padding: 6px; 
+    min-height: 300px;
+  }
+  .canvas { 
+    min-height: 280px;
+    border-radius: 16px;
+  }
+  
+  /* Runtime view */
+  .runtime-view {
+    padding: 12px;
+    padding-top: 60px;
+  }
+  .back-to-build-btn {
+    top: 8px;
+    left: 8px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+  .connect-icon { font-size: 4rem; }
+  .connect-text { font-size: 1.1rem; }
+  .connect-btn {
+    padding: 14px 30px;
+    font-size: 1rem;
+    min-height: 50px;
+  }
+  
+  /* Props panel as bottom sheet on mobile */
+  .props-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 50vh;
+    border-radius: 20px 20px 0 0;
+    border-left: none;
+    border-top: 2px solid var(--card);
+    z-index: 50;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .props-panel.show-mobile {
+    transform: translateY(0);
+  }
+  .props-panel .props-title {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Template modal */
+  .template-modal {
+    padding: 16px;
+    padding-top: 80px;
+  }
+  .template-content h2 { font-size: 1.4rem; }
+  .template-content p { font-size: 0.9rem; margin-bottom: 16px; }
+  .templates-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .template-card {
+    padding: 16px 8px;
+    border-radius: 16px;
+    min-height: 90px;
+  }
+  .template-icon { font-size: 2rem; margin-bottom: 6px; }
+  .template-name { font-size: 0.8rem; }
+  
+  /* Modal */
+  .modal {
+    padding: 16px;
+    max-height: 80vh;
+    border-radius: 20px;
+  }
+  .modal-title { font-size: 1.2rem; }
+  .modal-code { font-size: 0.7rem; max-height: 250px; }
+  .modal-btn { 
+    padding: 12px 16px; 
+    min-height: 48px;
+    font-size: 0.85rem;
+  }
+  
+  /* Widgets touch-friendly */
+  .widget {
+    min-width: 60px;
+    min-height: 60px;
+  }
+  .widget-icon { font-size: 1.6rem; }
+  .widget-label { font-size: 0.65rem; }
+  .resize-handle {
+    width: 28px;
+    height: 28px;
+  }
+  
+  /* Canvas tools */
+  .canvas-tools {
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+  }
+  .canvas-tool-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .zoom-controls {
+    bottom: 6px;
+    left: 6px;
+  }
+  .zoom-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 380px) {
+  .tab { padding: 6px 10px; font-size: 0.7rem; }
+  .title-input { width: 100px; font-size: 0.85rem; }
+  .header-btn { padding: 8px 10px; font-size: 0.65rem; }
+  .palette-item { 
+    min-width: 55px; 
+    padding: 8px 10px;
+  }
+  .palette-icon { font-size: 20px; }
+  .templates-grid { gap: 8px; }
+  .template-card { padding: 12px 6px; }
+  .template-icon { font-size: 1.8rem; }
+  .back-to-build-btn { 
+    padding: 8px 12px; 
+    font-size: 0.8rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  header { padding: 4px 8px; }
+  .builder-header { padding: 6px; }
+  .palette { 
+    padding: 6px;
+    max-height: 80px;
+  }
+  .palette-item { 
+    padding: 6px 10px;
+    min-width: 50px;
+  }
+  .palette-icon { font-size: 18px; }
+  .palette-name { display: none; }
+  .canvas-wrap { padding: 4px; }
+  .runtime-view { padding-top: 50px; }
+  .template-modal { padding-top: 20px; }
+  .templates-grid { 
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .template-card { padding: 10px 6px; }
+  .template-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .template-name { font-size: 0.7rem; }
+}
+
+/* Touch improvements */
+@media (pointer: coarse) {
+  .tab, .header-btn, .palette-item, .template-card, 
+  .connect-btn, .modal-btn, .back-to-build-btn,
+  .canvas-tool-btn, .zoom-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger hit areas */
+  .widget .resize-handle {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* Prevent text selection on touch */
+  .palette, .builder-header, header {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
 .connect-box { text-align: center; }
 .connect-icon { font-size: 6rem; margin-bottom: 20px; animation: bounce 1s infinite; }
 @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -713,7 +984,23 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   flex-direction: column;
   gap: 10px;
 }
-.props-title{ font-weight: 800; color: var(--accent); }
+.props-title{ font-weight: 800; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+.props-close-btn {
+  display: none;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.props-close-btn:hover { background: rgba(255,82,82,0.3); }
+@media (max-width: 600px) {
+  .props-close-btn { display: flex; align-items: center; justify-content: center; }
+}
 .props-empty{ color: var(--text-dim); font-weight: 600; font-size: 0.9rem; }
 
 .props-form label{
@@ -2818,7 +3105,7 @@ aside.widget-properties {
       </div>
 
       <div id="propsPanel" class="props-panel">
-        <div class="props-title">🛠️ Widget Properties</div>
+        <div class="props-title">🛠️ Widget Properties <button id="propsPanelClose" class="props-close-btn">✕</button></div>
         <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
         <div id="propsForm" class="props-form" style="display:none;"></div>
       </div>
@@ -3784,6 +4071,33 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
 
   state._allowLoadingOverlay = false;
   if (typeof hideLoading === 'function') hideLoading();
+  
+  // Mobile props panel handling
+  const propsPanel = $('#propsPanel');
+  const propsPanelClose = $('#propsPanelClose');
+  const isMobile = () => window.innerWidth <= 600;
+  
+  window.showMobilePropsPanel = function() {
+    if (isMobile() && propsPanel) {
+      propsPanel.classList.add('show-mobile');
+    }
+  };
+  window.hideMobilePropsPanel = function() {
+    if (propsPanel) {
+      propsPanel.classList.remove('show-mobile');
+    }
+  };
+  
+  if (propsPanelClose) {
+    propsPanelClose.onclick = (e) => {
+      e.stopPropagation();
+      hideMobilePropsPanel();
+      state.selected = null;
+      state.multiSelect = [];
+      renderWidgets();
+    };
+  }
+  
   // Tabs
   $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
   
@@ -4975,11 +5289,16 @@ function renderPropsPanel(){
     empty.style.display = 'block';
     form.style.display = 'none';
     form.innerHTML = '';
+    // Hide mobile panel when no widget selected
+    if (typeof hideMobilePropsPanel === 'function') hideMobilePropsPanel();
     return;
   }
 
   empty.style.display = 'none';
   form.style.display = 'block';
+  
+  // Show mobile panel when widget is selected
+  if (typeof showMobilePropsPanel === 'function') showMobilePropsPanel();
 
   // Common fields
   let html = `
