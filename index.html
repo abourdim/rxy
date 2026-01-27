@@ -175,6 +175,103 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   transform: scale(0.95);
 }
 
+/* Arrange Mode Button */
+.arrange-mode-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  border: 2px solid var(--text-dim);
+  display: none; /* Hidden by default, shown when connected */
+}
+.arrange-mode-btn.visible {
+  display: block;
+}
+.arrange-mode-btn:hover {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+.arrange-mode-btn.active {
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  color: #000;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(255,145,0,0.4);
+}
+.arrange-mode-btn.active:hover {
+  transform: scale(1.05);
+}
+
+/* Arrange Hint */
+.arrange-hint {
+  background: linear-gradient(135deg, rgba(255,145,0,0.2), rgba(255,234,0,0.2));
+  border: 2px solid var(--orange);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--yellow);
+  text-align: center;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+@keyframes pulse-hint {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Runtime grid in arrange mode */
+#runtimeGrid.arrange-mode {
+  border: 3px dashed var(--orange) !important;
+  background-image: linear-gradient(rgba(255,145,0,0.05) 1px, transparent 1px), 
+                    linear-gradient(90deg, rgba(255,145,0,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Runtime widgets in arrange mode */
+#runtimeGrid.arrange-mode .rt-widget {
+  cursor: move !important;
+  border: 2px dashed var(--orange);
+  border-radius: 12px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+#runtimeGrid.arrange-mode .rt-widget:hover {
+  border-color: var(--yellow);
+  box-shadow: 0 0 20px rgba(255,145,0,0.4);
+}
+#runtimeGrid.arrange-mode .rt-widget.dragging {
+  opacity: 0.8;
+  z-index: 1000 !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 30px rgba(255,145,0,0.5);
+  border-color: var(--yellow);
+}
+#runtimeGrid.arrange-mode .rt-widget * {
+  pointer-events: none !important;
+}
+
+/* Resize handle for runtime widgets in arrange mode */
+#runtimeGrid.arrange-mode .rt-widget .rt-resize-handle {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: se-resize;
+  background: var(--orange);
+  border-radius: 0 0 10px 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: auto !important;
+}
+
 /* ===== MOBILE-FRIENDLY ENHANCEMENTS ===== */
 @media (max-width: 600px) {
   /* Safe area for notched phones */
@@ -271,6 +368,25 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     font-size: 0.85rem;
     min-height: 44px;
   }
+  
+  /* Arrange mode mobile */
+  .arrange-mode-btn {
+    top: 8px;
+    right: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    min-height: 44px;
+  }
+  .arrange-hint {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+  }
+  #runtimeGrid.arrange-mode .rt-widget .rt-resize-handle {
+    width: 28px;
+    height: 28px;
+  }
+  
   .connect-icon { font-size: 4rem; }
   .connect-text { font-size: 1.1rem; }
   .connect-btn {
@@ -3128,12 +3244,19 @@ aside.widget-properties {
 
     <div class="view runtime-view">
       <button id="backToBuildBtn" class="back-to-build-btn">← Back to Build</button>
+      <button id="arrangeModeBtn" class="arrange-mode-btn">📐 Arrange</button>
       <div id="connectPrompt" class="connect-box">
         <div class="connect-icon">📡</div>
         <div class="connect-text">Connect your micro:bit!</div>
         <button id="connectBtn" class="connect-btn">🔗 Connect</button>
       </div>
-      <div id="runtimeContent"><div id="runtimeTitle"></div><div id="runtimeGrid"></div></div>
+      <div id="runtimeContent">
+        <div id="runtimeTitle"></div>
+        <div id="arrangeHint" class="arrange-hint" style="display:none;">
+          👆 Drag widgets to rearrange • Tap "Done" when finished
+        </div>
+        <div id="runtimeGrid"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -3540,7 +3663,8 @@ const state = {
   showRuler: false,
   livePreview: true,
   canvasBg: null, // background image
-  history: [] // visual history
+  history: [], // visual history
+  arrangeMode: false // runtime arrange mode
 };
 state._allowLoadingOverlay = false;
 
@@ -3880,6 +4004,15 @@ function showDemo() {
   state.values = state.values || {};
   renderRuntime();
   startDemoSim();
+  
+  // Show arrange button in demo mode
+  const arrangeBtn = $('#arrangeModeBtn');
+  if (arrangeBtn) arrangeBtn.classList.add('visible');
+  
+  // Show runtime content
+  $('#connectPrompt').style.display = 'none';
+  $('#runtimeContent').style.display = 'flex';
+  
   $('#modalTitle').textContent = 'Demo Ready! Copy this code to MakeCode:';
   $('#modalCode').textContent = generateDemoCode(cfg);
   $('#modalBg').classList.add('show');
@@ -4245,7 +4378,17 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
   
   // Back to Build button
   const backBtn = $('#backToBuildBtn');
-  if (backBtn) backBtn.onclick = () => switchTab('builder');
+  if (backBtn) backBtn.onclick = () => {
+    // Exit arrange mode if active
+    if (state.arrangeMode) {
+      toggleArrangeMode();
+    }
+    switchTab('builder');
+  };
+  
+  // Arrange mode button
+  const arrangeBtn = $('#arrangeModeBtn');
+  if (arrangeBtn) arrangeBtn.onclick = toggleArrangeMode;
   
   // Auto-save on title change
   const titleInput = $('#titleInput');
@@ -4354,7 +4497,46 @@ function switchTab(tab) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   $$('.view').forEach(v => v.classList.remove('active'));
   $(`.${tab === 'builder' ? 'builder-view' : 'runtime-view'}`).classList.add('active');
-  if (tab === 'runtime') startDemoSim(); else stopDemoSim();
+  
+  if (tab === 'runtime') {
+    startDemoSim();
+    
+    // Load current build widgets into runtime config if not connected
+    if (!state.ble.connected && state.widgets.length > 0) {
+      const titleEl = $('#titleInput');
+      state.config = {
+        title: titleEl ? titleEl.value : 'My Remote',
+        widgets: JSON.parse(JSON.stringify(state.widgets)) // Deep copy
+      };
+      state.values = state.values || {};
+      renderRuntime();
+      
+      // Show runtime content and arrange button
+      $('#connectPrompt').style.display = 'none';
+      $('#runtimeContent').style.display = 'flex';
+      const arrangeBtn = $('#arrangeModeBtn');
+      if (arrangeBtn) arrangeBtn.classList.add('visible');
+    }
+  } else {
+    stopDemoSim();
+    
+    // Exit arrange mode when switching to build
+    if (state.arrangeMode) {
+      state.arrangeMode = false;
+      const arrangeBtn = $('#arrangeModeBtn');
+      if (arrangeBtn) {
+        arrangeBtn.classList.remove('active');
+        arrangeBtn.textContent = '📐 Arrange';
+      }
+      const grid = $('#runtimeGrid');
+      if (grid) grid.classList.remove('arrange-mode');
+      const hint = $('#arrangeHint');
+      if (hint) hint.style.display = 'none';
+      
+      // Sync any changes made
+      syncRuntimeToBuild();
+    }
+  }
 }
 
 // Collision detection helpers
@@ -5915,16 +6097,31 @@ function onDisconnect() {
 
 function updateBleUI() {
   const btn = $('#bleBtn');
+  const arrangeBtn = $('#arrangeModeBtn');
   if (state.ble.connected) {
     btn.classList.add('connected');
     btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connected;
     $('#connectPrompt').style.display = 'none';
     $('#runtimeContent').style.display = 'flex';
+    if (arrangeBtn) arrangeBtn.classList.add('visible');
   } else {
     btn.classList.remove('connected');
     btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connect;
     $('#connectPrompt').style.display = 'block';
     $('#runtimeContent').style.display = 'none';
+    if (arrangeBtn) {
+      arrangeBtn.classList.remove('visible');
+      // Also exit arrange mode if disconnected
+      if (state.arrangeMode) {
+        state.arrangeMode = false;
+        arrangeBtn.classList.remove('active');
+        arrangeBtn.textContent = '📐 Arrange';
+        const grid = $('#runtimeGrid');
+        if (grid) grid.classList.remove('arrange-mode');
+        const hint = $('#arrangeHint');
+        if (hint) hint.style.display = 'none';
+      }
+    }
   }
 }
 
@@ -6003,7 +6200,7 @@ function renderRuntime() {
     const el = document.createElement('div');
     el.className = 'rt-widget'; el.dataset.id = w.id;
     el.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
-    el.innerHTML = createRuntimeWidget(w);
+    el.innerHTML = createRuntimeWidget(w) + '<div class="rt-resize-handle" style="display:none;"></div>';
     grid.appendChild(el);
     bindRuntimeWidget(el, w);
   });
@@ -6014,6 +6211,250 @@ function renderRuntime() {
     if (w.t === 'graph') drawGraphWidget(w);
     if (w.t === 'gauge') updateGaugeWidget(w, state.values[w.id] || '0');
   });
+  
+  // Re-apply arrange mode if it was active
+  if (state.arrangeMode) {
+    setupArrangeMode();
+  }
+}
+
+// === RUNTIME ARRANGE MODE ===
+function toggleArrangeMode() {
+  state.arrangeMode = !state.arrangeMode;
+  const btn = $('#arrangeModeBtn');
+  const grid = $('#runtimeGrid');
+  const hint = $('#arrangeHint');
+  
+  if (state.arrangeMode) {
+    btn.classList.add('active');
+    btn.textContent = '✓ Done';
+    grid.classList.add('arrange-mode');
+    hint.style.display = 'block';
+    
+    // Show resize handles
+    grid.querySelectorAll('.rt-resize-handle').forEach(h => h.style.display = 'block');
+    
+    setupArrangeMode();
+    toast('📐 Arrange mode ON - drag widgets to move', 'success');
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '📐 Arrange';
+    grid.classList.remove('arrange-mode');
+    hint.style.display = 'none';
+    
+    // Hide resize handles
+    grid.querySelectorAll('.rt-resize-handle').forEach(h => h.style.display = 'none');
+    
+    teardownArrangeMode();
+    
+    // Sync changes back to build mode widgets
+    syncRuntimeToBuild();
+    
+    toast('✅ Layout saved!', 'success');
+  }
+}
+
+function setupArrangeMode() {
+  const grid = $('#runtimeGrid');
+  if (!grid) return;
+  
+  grid.querySelectorAll('.rt-widget').forEach(el => {
+    // Skip if already set up
+    if (el._arrangeSetup) return;
+    el._arrangeSetup = true;
+    
+    const wid = el.dataset.id;
+    let startX, startY, startLeft, startTop;
+    let isDragging = false;
+    
+    // Touch/Mouse drag
+    const onStart = (e) => {
+      if (!state.arrangeMode) return;
+      if (e.target.closest('.rt-resize-handle')) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      isDragging = true;
+      el.classList.add('dragging');
+      
+      const touch = e.touches ? e.touches[0] : e;
+      startX = touch.clientX;
+      startY = touch.clientY;
+      startLeft = parseInt(el.style.left) || 0;
+      startTop = parseInt(el.style.top) || 0;
+    };
+    
+    const onMove = (e) => {
+      if (!isDragging || !state.arrangeMode) return;
+      e.preventDefault();
+      
+      const touch = e.touches ? e.touches[0] : e;
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+      
+      const newLeft = Math.max(0, startLeft + dx);
+      const newTop = Math.max(0, startTop + dy);
+      
+      el.style.left = newLeft + 'px';
+      el.style.top = newTop + 'px';
+    };
+    
+    const onEnd = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      el.classList.remove('dragging');
+      
+      // Update config
+      if (state.config) {
+        const w = state.config.widgets.find(w => w.id === wid);
+        if (w) {
+          w.x = parseInt(el.style.left) || 0;
+          w.y = parseInt(el.style.top) || 0;
+        }
+      }
+      
+      // Update grid size if widget moved outside
+      updateRuntimeGridSize();
+    };
+    
+    el.addEventListener('mousedown', onStart);
+    el.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchend', onEnd);
+    
+    // Store cleanup functions
+    el._arrangeCleanup = () => {
+      el.removeEventListener('mousedown', onStart);
+      el.removeEventListener('touchstart', onStart);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+      document.removeEventListener('touchend', onEnd);
+    };
+    
+    // Resize handle
+    const handle = el.querySelector('.rt-resize-handle');
+    if (handle) {
+      let isResizing = false;
+      let resizeStartX, resizeStartY, resizeStartW, resizeStartH;
+      
+      const onResizeStart = (e) => {
+        if (!state.arrangeMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+        isResizing = true;
+        
+        const touch = e.touches ? e.touches[0] : e;
+        resizeStartX = touch.clientX;
+        resizeStartY = touch.clientY;
+        resizeStartW = parseInt(el.style.width) || 100;
+        resizeStartH = parseInt(el.style.height) || 100;
+      };
+      
+      const onResizeMove = (e) => {
+        if (!isResizing || !state.arrangeMode) return;
+        e.preventDefault();
+        
+        const touch = e.touches ? e.touches[0] : e;
+        const dx = touch.clientX - resizeStartX;
+        const dy = touch.clientY - resizeStartY;
+        
+        const newW = Math.max(50, resizeStartW + dx);
+        const newH = Math.max(50, resizeStartH + dy);
+        
+        el.style.width = newW + 'px';
+        el.style.height = newH + 'px';
+      };
+      
+      const onResizeEnd = () => {
+        if (!isResizing) return;
+        isResizing = false;
+        
+        // Update config
+        if (state.config) {
+          const w = state.config.widgets.find(w => w.id === wid);
+          if (w) {
+            w.w = parseInt(el.style.width) || 100;
+            w.h = parseInt(el.style.height) || 100;
+          }
+        }
+        
+        updateRuntimeGridSize();
+      };
+      
+      handle.addEventListener('mousedown', onResizeStart);
+      handle.addEventListener('touchstart', onResizeStart, { passive: false });
+      document.addEventListener('mousemove', onResizeMove);
+      document.addEventListener('touchmove', onResizeMove, { passive: false });
+      document.addEventListener('mouseup', onResizeEnd);
+      document.addEventListener('touchend', onResizeEnd);
+      
+      handle._resizeCleanup = () => {
+        handle.removeEventListener('mousedown', onResizeStart);
+        handle.removeEventListener('touchstart', onResizeStart);
+        document.removeEventListener('mousemove', onResizeMove);
+        document.removeEventListener('touchmove', onResizeMove);
+        document.removeEventListener('mouseup', onResizeEnd);
+        document.removeEventListener('touchend', onResizeEnd);
+      };
+    }
+  });
+}
+
+function teardownArrangeMode() {
+  const grid = $('#runtimeGrid');
+  if (!grid) return;
+  
+  grid.querySelectorAll('.rt-widget').forEach(el => {
+    if (el._arrangeCleanup) {
+      el._arrangeCleanup();
+      el._arrangeCleanup = null;
+    }
+    el._arrangeSetup = false;
+    
+    const handle = el.querySelector('.rt-resize-handle');
+    if (handle && handle._resizeCleanup) {
+      handle._resizeCleanup();
+      handle._resizeCleanup = null;
+    }
+  });
+}
+
+function updateRuntimeGridSize() {
+  const grid = $('#runtimeGrid');
+  if (!grid || !state.config) return;
+  
+  let maxX = 0, maxY = 0;
+  state.config.widgets.forEach(w => {
+    maxX = Math.max(maxX, w.x + w.w);
+    maxY = Math.max(maxY, w.y + w.h);
+  });
+  
+  grid.style.width = `${Math.max(400, maxX + 20)}px`;
+  grid.style.height = `${Math.max(320, maxY + 20)}px`;
+}
+
+function syncRuntimeToBuild() {
+  if (!state.config || !state.config.widgets) return;
+  
+  // Update state.widgets with new positions from runtime config
+  state.config.widgets.forEach(rtW => {
+    const buildW = state.widgets.find(w => w.id === rtW.id);
+    if (buildW) {
+      buildW.x = rtW.x;
+      buildW.y = rtW.y;
+      buildW.w = rtW.w;
+      buildW.h = rtW.h;
+    }
+  });
+  
+  // Re-render build view with updated positions
+  renderWidgets();
+  
+  // Auto-save
+  scheduleAutoSave();
 }
 
 
