@@ -149,7 +149,30 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* Runtime View */
-.runtime-view { align-items: center; justify-content: center; padding: 20px; }
+.runtime-view { align-items: center; justify-content: center; padding: 20px; position: relative; }
+.back-to-build-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #000;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0,212,255,0.3);
+}
+.back-to-build-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,212,255,0.4);
+}
+.back-to-build-btn:active {
+  transform: scale(0.95);
+}
 .connect-box { text-align: center; }
 .connect-icon { font-size: 6rem; margin-bottom: 20px; animation: bounce 1s infinite; }
 @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -2817,6 +2840,7 @@ aside.widget-properties {
     </div>
 
     <div class="view runtime-view">
+      <button id="backToBuildBtn" class="back-to-build-btn">← Back to Build</button>
       <div id="connectPrompt" class="connect-box">
         <div class="connect-icon">📡</div>
         <div class="connect-text">Connect your micro:bit!</div>
@@ -3233,6 +3257,80 @@ const state = {
 };
 state._allowLoadingOverlay = false;
 
+// === AUTO-SAVE / LOAD PROJECT ===
+const PROJECT_STORAGE_KEY = 'microbit_remote_project';
+
+function saveProject() {
+  try {
+    const titleEl = document.querySelector('#titleInput');
+    const projectData = {
+      widgets: state.widgets,
+      nextId: state.nextId,
+      title: titleEl ? titleEl.value : '',
+      canvasBg: state.canvasBg,
+      theme: state.theme,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(projectData));
+  } catch (e) {
+    console.warn('Failed to save project:', e);
+  }
+}
+
+function loadSavedProject() {
+  try {
+    const saved = localStorage.getItem(PROJECT_STORAGE_KEY);
+    if (!saved) return false;
+    
+    const projectData = JSON.parse(saved);
+    if (!projectData.widgets || projectData.widgets.length === 0) return false;
+    
+    // Restore state
+    state.widgets = projectData.widgets.map(w => {
+      if (typeof applyWidgetDefaults === 'function') return applyWidgetDefaults({...w});
+      return {...w};
+    });
+    state.nextId = projectData.nextId || (state.widgets.length + 1);
+    state.canvasBg = projectData.canvasBg || null;
+    if (projectData.theme) state.theme = projectData.theme;
+    
+    // Restore title after DOM is ready
+    setTimeout(() => {
+      const titleEl = document.querySelector('#titleInput');
+      if (titleEl && projectData.title) titleEl.value = projectData.title;
+      
+      // Apply canvas background if saved
+      if (state.canvasBg) {
+        const canvas = document.querySelector('#canvas');
+        if (canvas) {
+          canvas.style.backgroundImage = `url(${state.canvasBg})`;
+          canvas.style.backgroundSize = 'cover';
+          canvas.style.backgroundPosition = 'center';
+        }
+      }
+    }, 50);
+    
+    return true;
+  } catch (e) {
+    console.warn('Failed to load project:', e);
+    return false;
+  }
+}
+
+function clearSavedProject() {
+  try {
+    localStorage.removeItem(PROJECT_STORAGE_KEY);
+  } catch (e) {}
+}
+
+// Auto-save with debounce
+let _autoSaveTimer = null;
+function scheduleAutoSave() {
+  if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(() => {
+    saveProject();
+  }, 500);
+}
 
 // ---- Kid-friendly sound engine (WebAudio) ----
 state.soundOn = true;
@@ -3830,12 +3928,35 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
   $('#bleBtn').onclick = connectBle;
   $('#connectBtn').onclick = connectBle;
   $('#demoBtn').onclick = showDemo;
+  
+  // Back to Build button
+  const backBtn = $('#backToBuildBtn');
+  if (backBtn) backBtn.onclick = () => switchTab('builder');
+  
+  // Auto-save on title change
+  const titleInput = $('#titleInput');
+  if (titleInput) {
+    titleInput.addEventListener('input', scheduleAutoSave);
+    titleInput.addEventListener('change', scheduleAutoSave);
+  }
+  
     // Templates
   $('#templateBtn').onclick = () => $('#templateModal').classList.remove('hidden');
   // Language on first load
   var savedLang = loadLang();
   setLang(savedLang || state.lang || detectBrowserLang());
-  $('#templateModal').classList.remove('hidden');
+  
+  // Try to load saved project first; only show templates if nothing saved
+  const hasProject = loadSavedProject();
+  if (hasProject) {
+    $('#templateModal').classList.add('hidden');
+    renderWidgets();
+    renderPropsPanel();
+    toast('📂 Restored your last project!', 'success');
+  } else {
+    $('#templateModal').classList.remove('hidden');
+  }
+  
   var _ov=$('#loadingOverlay');
   if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
   if (typeof hideLoadOverlay==='function') hideLoadOverlay();
@@ -3858,14 +3979,6 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
   $('#modalBg').onclick = e => { if (e.target === $('#modalBg')) $('#modalBg').classList.remove('show'); };
   $('#copyBtn').onclick = () => { navigator.clipboard.writeText($('#modalCode').textContent); toast('📋 Copied!', 'success'); };
   $('#downloadBtn').onclick = downloadCode;
-  
-    // Language on first load
-  var savedLang = loadLang();
-  setLang(savedLang || state.lang || detectBrowserLang());
-  $('#templateModal').classList.remove('hidden');
-  var _ov=$('#loadingOverlay');
-  if (_ov) _ov.onclick = () => { state._allowLoadingOverlay=false; hideLoading(); };
-  if (typeof hideLoadOverlay==='function') hideLoadOverlay();
   
   // Load saved theme
   try {
@@ -4832,6 +4945,9 @@ function renderWidgets() {
   resolveOverlaps(null);
   updateMinimap();
   saveUndoState();
+  
+  // Auto-save project
+  scheduleAutoSave();
 }
 
 
