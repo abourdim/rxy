@@ -117,15 +117,17 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .canvas {
   flex: 1; position: relative; background: var(--card);
   border: 3px dashed var(--text-dim); border-radius: 20px;
-  overflow: auto; min-height: 250px;
+  overflow: hidden; min-height: 350px; max-height: 80vh;
+  width: 100%; max-width: 600px;
 }
-#widgetsLayer { position: absolute; inset: 0; }
+#widgetsLayer { position: absolute; inset: 0; overflow: visible; }
 
 .widget {
   position: absolute; background: var(--surface);
   border: 3px solid var(--text-dim); border-radius: 16px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: move; touch-action: none; user-select: none; gap: 4px; padding: 8px;
+  min-width: 50px; min-height: 50px;
 }
 .widget.selected { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
 .widget-icon { font-size: 2rem; pointer-events: none; }
@@ -315,6 +317,585 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 #runtimeGrid.arrange-mode .runtime-size-badge {
   display: block;
+}
+
+/* === FULLSCREEN MODE === */
+.fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 140px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 30px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 10;
+  border: 2px solid var(--text-dim);
+  display: none;
+}
+.fullscreen-btn.visible { display: block; }
+.fullscreen-btn:hover { border-color: var(--accent); }
+
+body.runtime-fullscreen {
+  overflow: hidden;
+}
+body.runtime-fullscreen .app > header,
+body.runtime-fullscreen .back-to-build-btn,
+body.runtime-fullscreen .arrange-mode-btn,
+body.runtime-fullscreen #runtimeTitle,
+body.runtime-fullscreen #arrangeHint {
+  display: none !important;
+}
+body.runtime-fullscreen .runtime-view {
+  padding: 0 !important;
+  padding-top: 0 !important;
+}
+body.runtime-fullscreen #runtimeGrid {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+body.runtime-fullscreen .fullscreen-exit-btn {
+  display: flex !important;
+}
+.fullscreen-exit-btn {
+  display: none;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  border: 2px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.fullscreen-exit-btn:hover {
+  background: rgba(255,82,82,0.8);
+}
+
+/* === UNDO/REDO BUTTONS === */
+.history-buttons {
+  display: flex;
+  gap: 4px;
+  margin-right: 8px;
+}
+.history-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.history-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: #000;
+}
+.history-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* === QUICK ACTIONS MENU (long-press) === */
+.quick-actions-menu {
+  position: fixed;
+  background: rgba(20,30,50,0.95);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 8px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.2);
+  backdrop-filter: blur(20px);
+  animation: popIn 0.15s ease-out;
+}
+.quick-actions-menu.show { display: flex; }
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.quick-action-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quick-action-btn:hover {
+  background: var(--accent);
+  color: #000;
+}
+.quick-action-btn.danger:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+/* === CELEBRATION ANIMATION === */
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10000;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* === THEME OPTIONS === */
+body.theme-ocean { --bg: #0a1628; --surface: #0d2137; --card: #143a5c; --accent: #00b4d8; --pink: #48cae4; --text: #caf0f8; }
+body.theme-space { --bg: #0b0c10; --surface: #1f2833; --card: #2d3a4a; --accent: #66fcf1; --pink: #c5c6c7; --purple: #45a29e; }
+body.theme-candy { --bg: #ffeef8; --surface: #fff5f8; --card: #ffe0eb; --accent: #ff69b4; --pink: #ff1493; --text: #4a0028; --text-dim: #8b4060; }
+body.theme-forest { --bg: #1a2f1a; --surface: #243524; --card: #2d4a2d; --accent: #90ee90; --pink: #98fb98; --green: #32cd32; --text: #e8f5e9; }
+
+/* === MAGIC WAND / AUTO-STYLE === */
+.magic-btn {
+  background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3) !important;
+  background-size: 300% 300% !important;
+  animation: magic-gradient 3s ease infinite;
+  color: #000 !important;
+}
+@keyframes magic-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* === QR CODE MODAL === */
+.qr-modal {
+  text-align: center;
+}
+.qr-modal canvas {
+  margin: 20px auto;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px;
+}
+
+/* === ONBOARDING TUTORIAL === */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.tutorial-overlay.hidden { display: none; }
+.tutorial-card {
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 400px;
+  text-align: center;
+  animation: bounceIn 0.5s ease-out;
+}
+@keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.tutorial-icon { font-size: 4rem; margin-bottom: 16px; }
+.tutorial-title { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; }
+.tutorial-text { color: var(--text-dim); margin-bottom: 20px; line-height: 1.6; }
+.tutorial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.tutorial-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--card);
+  transition: all 0.3s;
+}
+.tutorial-dot.active { background: var(--accent); transform: scale(1.3); }
+.tutorial-btn {
+  padding: 14px 40px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #000;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.tutorial-skip {
+  margin-top: 16px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.tutorial-skip:hover { color: var(--text); }
+
+/* === THEME SELECTOR === */
+.theme-selector {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background: var(--card);
+  border-radius: 16px;
+}
+.theme-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-dot:hover { transform: scale(1.2); }
+.theme-dot.active { border-color: #fff; box-shadow: 0 0 15px currentColor; }
+.theme-dot[data-theme="dark"] { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+.theme-dot[data-theme="ocean"] { background: linear-gradient(135deg, #0a1628, #00b4d8); }
+.theme-dot[data-theme="space"] { background: linear-gradient(135deg, #0b0c10, #66fcf1); }
+.theme-dot[data-theme="candy"] { background: linear-gradient(135deg, #ffeef8, #ff69b4); }
+.theme-dot[data-theme="forest"] { background: linear-gradient(135deg, #1a2f1a, #90ee90); }
+.theme-dot[data-theme="neon"] { background: linear-gradient(135deg, #0a0a0a, #ff00ff); }
+
+/* === AUTO ARRANGE BUTTON === */
+.auto-arrange-btn {
+  background: linear-gradient(135deg, var(--purple), var(--pink)) !important;
+}
+
+/* Fullscreen Button */
+.fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 140px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--text);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  border: 2px solid var(--text-dim);
+  display: none;
+}
+.fullscreen-btn.visible { display: flex; align-items: center; justify-content: center; }
+.fullscreen-btn:hover { background: var(--surface); border-color: var(--accent); transform: scale(1.1); }
+
+/* Fullscreen Mode */
+body.fullscreen-mode {
+  overflow: hidden !important;
+}
+body.fullscreen-mode .app > header,
+body.fullscreen-mode .back-to-build-btn,
+body.fullscreen-mode .arrange-mode-btn,
+body.fullscreen-mode #runtimeTitle,
+body.fullscreen-mode .arrange-hint {
+  display: none !important;
+}
+body.fullscreen-mode .runtime-view {
+  padding: 0 !important;
+  background: #000 !important;
+}
+body.fullscreen-mode #runtimeGrid {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+body.fullscreen-mode .fullscreen-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  background: rgba(0,0,0,0.6);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Celebration Animation */
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.celebration-text {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 3rem;
+  font-weight: 900;
+  text-align: center;
+  animation: celebration-pop 0.5s ease-out 0.2s forwards;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  z-index: 10000;
+}
+@keyframes celebration-pop {
+  0% { transform: translate(-50%, -50%) scale(0); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Quick Action Menu */
+.quick-action-menu {
+  position: absolute;
+  background: rgba(0,0,0,0.9);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 500;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: menu-pop 0.2s ease-out;
+}
+@keyframes menu-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.quick-action-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quick-action-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
+.quick-action-btn.danger:hover { background: var(--red); color: #fff; }
+
+/* Build Toolbar */
+.build-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 16px;
+  margin-bottom: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.build-toolbar-btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.build-toolbar-btn:hover { background: var(--surface); transform: scale(1.05); }
+.build-toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.build-toolbar-btn.active { background: var(--accent); color: #000; }
+
+/* Toolbar inline theme selector */
+.build-toolbar .theme-selector {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--card);
+  border-radius: 30px;
+  margin-left: auto;
+  margin-top: 0;
+}
+.theme-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-dot:hover { transform: scale(1.15); }
+.theme-dot.active { border-color: #fff; box-shadow: 0 0 10px currentColor; }
+.theme-dot[data-theme="dark"] { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+.theme-dot[data-theme="ocean"] { background: linear-gradient(135deg, #0077b6, #00b4d8); }
+.theme-dot[data-theme="space"] { background: linear-gradient(135deg, #3c096c, #9d4edd); }
+.theme-dot[data-theme="candy"] { background: linear-gradient(135deg, #ff6b9d, #feca57); }
+.theme-dot[data-theme="forest"] { background: linear-gradient(135deg, #2d5a27, #52b788); }
+
+/* Magic button animated gradient */
+.magic-btn {
+  background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3) !important;
+  background-size: 300% 300% !important;
+  animation: magic-gradient 3s ease infinite !important;
+  color: #000 !important;
+}
+@keyframes magic-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Auto arrange button */
+.auto-arrange-btn {
+  background: linear-gradient(135deg, var(--purple), var(--pink)) !important;
+  color: #fff !important;
+}
+
+/* Snap Guides */
+.snap-guide {
+  position: absolute;
+  background: var(--pink);
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.8;
+}
+.snap-guide.horizontal { height: 2px; left: 0; right: 0; }
+.snap-guide.vertical { width: 2px; top: 0; bottom: 0; }
+
+/* Theme Selector */
+.theme-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.theme-chip {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.theme-chip:hover { transform: scale(1.05); }
+.theme-chip.active { border-color: #fff; }
+.theme-chip.dark { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; }
+.theme-chip.ocean { background: linear-gradient(135deg, #0077b6, #00b4d8); color: #fff; }
+.theme-chip.space { background: linear-gradient(135deg, #2d1b69, #7b2cbf); color: #fff; }
+.theme-chip.candy { background: linear-gradient(135deg, #ff6b9d, #feca57); color: #000; }
+.theme-chip.forest { background: linear-gradient(135deg, #2d5a27, #52b788); color: #fff; }
+.theme-chip.sunset { background: linear-gradient(135deg, #f72585, #ff9100); color: #fff; }
+
+/* Theme: Ocean */
+body.theme-ocean { --bg: #023e8a; --surface: #0077b6; --card: #0096c7; --accent: #00b4d8; --text: #caf0f8; --text-dim: #90e0ef; }
+body.theme-ocean .canvas { background: linear-gradient(135deg, #0077b6, #0096c7); border-color: #00b4d8; }
+
+/* Theme: Space */
+body.theme-space { --bg: #10002b; --surface: #240046; --card: #3c096c; --accent: #9d4edd; --pink: #e0aaff; --text: #e0aaff; --text-dim: #7b2cbf; }
+body.theme-space .canvas { background: linear-gradient(135deg, #240046, #3c096c); border-color: #9d4edd; }
+
+/* Theme: Candy */
+body.theme-candy { --bg: #fff0f3; --surface: #ffccd5; --card: #ffb3c1; --accent: #ff758f; --pink: #ff4d6d; --text: #590d22; --text-dim: #a4133c; }
+body.theme-candy .canvas { background: linear-gradient(135deg, #ffccd5, #ffb3c1); border-color: #ff758f; }
+body.theme-candy .widget { background: #fff; border-color: #ff758f; color: #590d22; }
+
+/* Theme: Forest */
+body.theme-forest { --bg: #1b4332; --surface: #2d6a4f; --card: #40916c; --accent: #52b788; --green: #95d5b2; --text: #d8f3dc; --text-dim: #74c69d; }
+body.theme-forest .canvas { background: linear-gradient(135deg, #2d6a4f, #40916c); border-color: #52b788; }
+
+/* Theme: Sunset */
+body.theme-sunset { --bg: #3d0066; --surface: #6a0572; --card: #ab0a78; --accent: #ff9100; --pink: #f72585; --text: #fff; --text-dim: #ff85a1; }
+body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78); border-color: #ff9100; }
+
+/* QR Code Modal */
+.qr-modal {
+  text-align: center;
+}
+.qr-code-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  display: inline-block;
+  margin: 16px 0;
+}
+.qr-code-container canvas {
+  display: block;
+}
+
+/* Button Press Effects */
+.rt-button.pressing {
+  animation: button-squish 0.15s ease-out;
+}
+@keyframes button-squish {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* Particle effects container */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particle-burst 0.6s ease-out forwards;
+}
+@keyframes particle-burst {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
 }
 
 /* ===== MOBILE-FRIENDLY ENHANCEMENTS ===== */
@@ -625,32 +1206,37 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   display:flex; flex-direction:column; gap:8px;
   padding: 12px;
   border-radius: 20px;
-  background: linear-gradient(145deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
-  border: 3px solid rgba(255,255,255,0.15);
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+  background: linear-gradient(145deg, rgba(0,180,216,0.15), rgba(179,136,255,0.15));
+  border: 3px solid rgba(0,212,255,0.4);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.2), 0 0 20px rgba(0,212,255,0.1);
 }
 .rt-graph-head{ 
   display:flex; justify-content:space-between; align-items: center;
-  font-weight:800; font-size: clamp(0.8rem, 2vw, 1.1rem); color: var(--text); 
+  font-weight:800; font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--accent); 
+  text-shadow: 0 0 10px rgba(0,212,255,0.5);
 }
 .rt-graph-head::before { content: '📊 '; }
-.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size: clamp(0.6rem, 1.5vw, 0.8rem); color: var(--text-dim); font-weight:800; }
-.rt-graph-dot{ width: 12px; height:12px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; box-shadow: 0 0 8px currentColor; }
+.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--text); font-weight:700; }
+.rt-graph-dot{ width: 14px; height:14px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; box-shadow: 0 0 12px currentColor; animation: dotPulse 2s ease-in-out infinite; }
+@keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 .rt-graph-canvas{
   width: 100%; flex:1;
   border-radius: 14px;
-  background: rgba(0,0,0,0.14);
-  border: 2px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.25);
+  border: 2px solid rgba(0,212,255,0.3);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
 }
 .rt-graph-wrap.model-grid{
-  background: linear-gradient(135deg, rgba(0,212,255,0.10), rgba(179,136,255,0.10));
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(179,136,255,0.15));
+  border-color: rgba(0,212,255,0.5);
 }
 .rt-graph-wrap.model-dark{
-  background: rgba(0,0,0,0.15);
+  background: linear-gradient(145deg, rgba(0,0,0,0.3), rgba(20,30,50,0.4));
+  border-color: rgba(100,150,255,0.3);
 }
 .rt-graph-wrap.model-min{
   background: transparent;
-  border: 2px solid rgba(255,255,255,0.10);
+  border: 2px solid rgba(0,212,255,0.3);
 }
 
 /* Gauge */
@@ -775,12 +1361,11 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   transform: rotate(180deg);
 }
 .rt-slider-wrap.vertical .rt-slider {
-  writing-mode: bt-lr;
-  -webkit-appearance: slider-vertical;
-  appearance: slider-vertical;
   width: 22px;
   height: 100%;
   min-height: 80px;
+  writing-mode: vertical-lr;
+  direction: rtl;
   background: linear-gradient(0deg, #ff6b6b 0%, #feca57 25%, #48dbfb 50%, #ff9ff3 75%, #54a0ff 100%);
 }
 .rt-slider-wrap.vertical .rt-slider::-webkit-slider-thumb {
@@ -954,14 +1539,14 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 /* Vertical slider model overrides */
 .rt-slider-wrap.vertical .rt-slider.model-track {
-  background: linear-gradient(0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+  background: linear-gradient(to top, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
 }
 .rt-slider-wrap.vertical .rt-slider.model-min {
   width: 14px;
-  background: linear-gradient(0deg, #a29bfe, #fd79a8);
+  background: linear-gradient(to top, #a29bfe, #fd79a8);
 }
 .rt-slider-wrap.vertical .rt-slider.model-neon {
-  background: linear-gradient(0deg, #00ff87, #60efff, #00ff87);
+  background: linear-gradient(to top, #00ff87, #60efff, #00ff87);
   background-size: 100% 200%;
   animation: neon-slide-v 3s ease-in-out infinite;
 }
@@ -3310,7 +3895,20 @@ aside.widget-properties {
         </div>
       </div>
       <div class="canvas-wrap">
-        <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it!</div>
+        <div class="build-toolbar">
+          <button class="build-toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↩️</button>
+          <button class="build-toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>↪️</button>
+          <button class="build-toolbar-btn auto-arrange-btn" id="autoArrangeBtn" title="Auto-arrange widgets">✨ Tidy</button>
+          <button class="build-toolbar-btn magic-btn" id="magicBtn" title="Magic styling!">🪄 Magic</button>
+          <div class="theme-selector">
+            <div class="theme-dot active" data-theme="dark" title="Dark"></div>
+            <div class="theme-dot" data-theme="ocean" title="Ocean"></div>
+            <div class="theme-dot" data-theme="space" title="Space"></div>
+            <div class="theme-dot" data-theme="candy" title="Candy"></div>
+            <div class="theme-dot" data-theme="forest" title="Forest"></div>
+          </div>
+        </div>
+        <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it! • 📱 Shake phone for surprise!</div>
         <div id="canvas" class="canvas"><div id="widgetsLayer"></div></div>
       </div>
 
@@ -3339,6 +3937,16 @@ aside.widget-properties {
     <div class="view runtime-view">
       <button id="backToBuildBtn" class="back-to-build-btn">← Back to Build</button>
       <button id="arrangeModeBtn" class="arrange-mode-btn">📐 Arrange</button>
+      <button id="fullscreenBtn" class="fullscreen-btn">⛶ Fullscreen</button>
+      <button id="fullscreenExitBtn" class="fullscreen-exit-btn">✕</button>
+      <div id="quickActionsMenu" class="quick-actions-menu">
+        <button class="quick-action-btn" data-action="duplicate">📋 Duplicate</button>
+        <button class="quick-action-btn" data-action="color">🎨 Random Color</button>
+        <button class="quick-action-btn" data-action="lock">🔒 Lock/Unlock</button>
+        <button class="quick-action-btn" data-action="front">⬆️ Bring Front</button>
+        <button class="quick-action-btn" data-action="back">⬇️ Send Back</button>
+        <button class="quick-action-btn danger" data-action="delete">🗑️ Delete</button>
+      </div>
       <div id="connectPrompt" class="connect-box">
         <div class="connect-icon">📡</div>
         <div class="connect-text">Connect your micro:bit!</div>
@@ -3356,6 +3964,23 @@ aside.widget-properties {
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- Tutorial Overlay -->
+<div id="tutorialOverlay" class="tutorial-overlay hidden">
+  <div class="tutorial-card">
+    <div class="tutorial-icon" id="tutorialIcon">👋</div>
+    <div class="tutorial-title" id="tutorialTitle">Welcome!</div>
+    <div class="tutorial-text" id="tutorialText">Let's build your first remote control!</div>
+    <div class="tutorial-dots">
+      <div class="tutorial-dot active" data-step="0"></div>
+      <div class="tutorial-dot" data-step="1"></div>
+      <div class="tutorial-dot" data-step="2"></div>
+      <div class="tutorial-dot" data-step="3"></div>
+    </div>
+    <button class="tutorial-btn" id="tutorialNextBtn">Let's Go! 🚀</button>
+    <button class="tutorial-skip" id="tutorialSkipBtn">Skip Tutorial</button>
+  </div>
+</div>
 
 <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
   <div class="loading-card">
@@ -4103,6 +4728,10 @@ function showDemo() {
   const arrangeBtn = $('#arrangeModeBtn');
   if (arrangeBtn) arrangeBtn.classList.add('visible');
   
+  // Show fullscreen button in demo mode
+  const fullscreenBtn = $('#fullscreenBtn');
+  if (fullscreenBtn) fullscreenBtn.classList.add('visible');
+  
   // Show runtime content
   $('#connectPrompt').style.display = 'none';
   $('#runtimeContent').style.display = 'flex';
@@ -4545,6 +5174,522 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
   
   // Check for URL layout parameter
   loadURLLayout();
+  
+  // === NEW FEATURES ===
+  
+  // Build toolbar buttons
+  const undoBtn = $('#undoBtn');
+  const redoBtn = $('#redoBtn');
+  const autoArrangeBtn = $('#autoArrangeBtn');
+  const magicBtn = $('#magicBtn');
+  
+  if (undoBtn) undoBtn.onclick = undo;
+  if (redoBtn) redoBtn.onclick = redo;
+  if (autoArrangeBtn) autoArrangeBtn.onclick = autoArrangeWidgets;
+  if (magicBtn) magicBtn.onclick = magicStyleWidgets;
+  
+  // Theme dots
+  $$('.theme-dot').forEach(dot => {
+    dot.onclick = () => setTheme(dot.dataset.theme);
+  });
+  
+  // Load saved theme
+  try {
+    const savedTheme = localStorage.getItem('app_theme');
+    if (savedTheme) {
+      document.body.classList.remove('theme-dark', 'theme-ocean', 'theme-space', 'theme-candy', 'theme-forest', 'theme-neon');
+      if (savedTheme !== 'dark') document.body.classList.add('theme-' + savedTheme);
+      $$('.theme-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === savedTheme));
+      state.theme = savedTheme;
+    }
+  } catch(e) {}
+  
+  // Fullscreen buttons
+  const fullscreenBtn = $('#fullscreenBtn');
+  const fullscreenExitBtn = $('#fullscreenExitBtn');
+  if (fullscreenBtn) fullscreenBtn.onclick = toggleFullscreen;
+  if (fullscreenExitBtn) fullscreenExitBtn.onclick = toggleFullscreen;
+  
+  // Quick actions menu
+  const quickMenu = $('#quickActionsMenu');
+  if (quickMenu) {
+    quickMenu.querySelectorAll('.quick-action-btn').forEach(btn => {
+      btn.onclick = () => handleQuickAction(btn.dataset.action);
+    });
+  }
+  
+  // Long-press for quick actions on widgets
+  let longPressTimer = null;
+  document.addEventListener('pointerdown', e => {
+    const widget = e.target.closest('.widget');
+    if (!widget) return;
+    longPressTimer = setTimeout(() => {
+      showQuickActions(widget.dataset.id, e.clientX, e.clientY);
+    }, 500);
+  });
+  document.addEventListener('pointerup', () => { clearTimeout(longPressTimer); });
+  document.addEventListener('pointermove', () => { clearTimeout(longPressTimer); });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.quick-actions-menu')) hideQuickActions();
+  });
+  
+  // Tutorial
+  const tutorialNextBtn = $('#tutorialNextBtn');
+  const tutorialSkipBtn = $('#tutorialSkipBtn');
+  if (tutorialNextBtn) tutorialNextBtn.onclick = nextTutorialStep;
+  if (tutorialSkipBtn) tutorialSkipBtn.onclick = closeTutorial;
+  
+  // Show tutorial on first visit
+  try {
+    if (!localStorage.getItem('tutorial_done')) {
+      setTimeout(showTutorial, 500);
+    }
+  } catch(e) {}
+  
+  // Setup shake detection and swipe gestures
+  setupShakeDetection();
+  setupSwipeGestures();
+  
+  // Update toolbar state
+  updateBuildToolbar();
+}
+
+// === CELEBRATION ANIMATION ===
+function celebrate(message = '🎉 Connected!') {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  
+  // Create confetti
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676', '#ff9100'];
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    overlay.appendChild(confetti);
+  }
+  
+  // Create text
+  const text = document.createElement('div');
+  text.className = 'celebration-text';
+  text.textContent = message;
+  overlay.appendChild(text);
+  
+  document.body.appendChild(overlay);
+  
+  // Play celebration sound
+  if (state.soundOn) {
+    beep(523, 0.1, 0.06); // C
+    setTimeout(() => beep(659, 0.1, 0.06), 100); // E
+    setTimeout(() => beep(784, 0.15, 0.06), 200); // G
+    setTimeout(() => beep(1047, 0.2, 0.08), 300); // High C
+  }
+  
+  // Remove after animation
+  setTimeout(() => overlay.remove(), 3000);
+}
+
+// === FULLSCREEN MODE ===
+function toggleFullscreen() {
+  const btn = $('#fullscreenBtn');
+  const isFullscreen = document.body.classList.contains('fullscreen-mode');
+  
+  if (isFullscreen) {
+    document.body.classList.remove('fullscreen-mode');
+    if (btn) btn.textContent = '⛶';
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  } else {
+    document.body.classList.add('fullscreen-mode');
+    if (btn) btn.textContent = '✕';
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }
+}
+
+// Exit fullscreen on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
+    toggleFullscreen();
+  }
+});
+
+// === AUTO ARRANGE WIDGETS ===
+function autoArrangeWidgets() {
+  if (!state.widgets.length) {
+    toast('No widgets to arrange!', 'error');
+    return;
+  }
+  
+  saveUndoState();
+  
+  const padding = 15;
+  const canvas = $('#canvas');
+  const canvasW = canvas?.offsetWidth || 500;
+  
+  // Sort by size (larger first)
+  const sorted = [...state.widgets].sort((a, b) => (b.w * b.h) - (a.w * a.h));
+  
+  let currentX = padding;
+  let currentY = padding;
+  let rowHeight = 0;
+  
+  sorted.forEach(w => {
+    // Check if widget fits in current row
+    if (currentX + w.w + padding > canvasW) {
+      // Move to next row
+      currentX = padding;
+      currentY += rowHeight + padding;
+      rowHeight = 0;
+    }
+    
+    w.x = currentX;
+    w.y = currentY;
+    currentX += w.w + padding;
+    rowHeight = Math.max(rowHeight, w.h);
+  });
+  
+  renderWidgets();
+  toast('✨ Widgets arranged!', 'success');
+  if (state.soundOn) beepClick();
+}
+
+// === THEME SELECTOR ===
+function showThemeSelector() {
+  // Remove existing selector
+  const existing = document.querySelector('.theme-modal');
+  if (existing) existing.remove();
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg show theme-modal';
+  modal.innerHTML = `
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-title">🎨 Choose Theme</div>
+      <div class="theme-selector">
+        <div class="theme-chip dark ${state.theme === 'dark' ? 'active' : ''}" data-theme="dark">🌙 Dark</div>
+        <div class="theme-chip ocean ${state.theme === 'ocean' ? 'active' : ''}" data-theme="ocean">🌊 Ocean</div>
+        <div class="theme-chip space ${state.theme === 'space' ? 'active' : ''}" data-theme="space">🚀 Space</div>
+        <div class="theme-chip candy ${state.theme === 'candy' ? 'active' : ''}" data-theme="candy">🍬 Candy</div>
+        <div class="theme-chip forest ${state.theme === 'forest' ? 'active' : ''}" data-theme="forest">🌲 Forest</div>
+        <div class="theme-chip sunset ${state.theme === 'sunset' ? 'active' : ''}" data-theme="sunset">🌅 Sunset</div>
+      </div>
+      <div style="margin-top: 16px;">
+        <button class="modal-btn secondary" onclick="this.closest('.modal-bg').remove()">✕ Close</button>
+      </div>
+    </div>
+  `;
+  
+  modal.querySelectorAll('.theme-chip').forEach(chip => {
+    chip.onclick = () => {
+      const theme = chip.dataset.theme;
+      setAppTheme(theme);
+      modal.querySelectorAll('.theme-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      if (state.soundOn) beepClick();
+    };
+  });
+  
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function setAppTheme(theme) {
+  // Remove all theme classes
+  document.body.classList.remove('theme-dark', 'theme-ocean', 'theme-space', 'theme-candy', 'theme-forest', 'theme-sunset', 'theme-light', 'theme-neon', 'theme-nature');
+  
+  if (theme && theme !== 'dark') {
+    document.body.classList.add('theme-' + theme);
+  }
+  
+  state.theme = theme;
+  try { localStorage.setItem('app_theme', theme); } catch(e) {}
+  toast(`🎨 Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`, 'success');
+}
+
+// Load saved theme on startup
+try {
+  const savedTheme = localStorage.getItem('app_theme');
+  if (savedTheme) setAppTheme(savedTheme);
+} catch(e) {}
+
+// === SHARE VIA QR CODE ===
+function showShareQR() {
+  const titleEl = $('#titleInput');
+  const data = {
+    title: titleEl?.value || 'My Remote',
+    widgets: state.widgets
+  };
+  
+  // Create simple URL-safe layout string
+  const layoutStr = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url = location.origin + location.pathname + '?layout=' + layoutStr;
+  
+  // Create QR modal
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg show';
+  modal.innerHTML = `
+    <div class="modal qr-modal" style="max-width: 350px;">
+      <div class="modal-title">📱 Share Your Remote</div>
+      <div class="qr-code-container">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+      <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 16px;">Scan this code to load your layout!</p>
+      <div class="modal-buttons">
+        <button class="modal-btn primary" onclick="navigator.clipboard.writeText('${url}'); toast('📋 Link copied!', 'success');">📋 Copy Link</button>
+        <button class="modal-btn secondary" onclick="this.closest('.modal-bg').remove()">✕ Close</button>
+      </div>
+    </div>
+  `;
+  
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  document.body.appendChild(modal);
+  
+  // Generate QR code
+  generateQRCode('qrCanvas', url);
+}
+
+// Simple QR code generator (basic version)
+function generateQRCode(canvasId, text) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const size = 200;
+  canvas.width = size;
+  canvas.height = size;
+  
+  // Simple placeholder - in production you'd use a QR library
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('QR Code', size/2, size/2 - 20);
+  ctx.font = '11px sans-serif';
+  ctx.fillText('(Add qrcode.js library', size/2, size/2 + 10);
+  ctx.fillText('for real QR codes)', size/2, size/2 + 25);
+  
+  // Draw simple pattern to indicate it's a QR placeholder
+  ctx.fillStyle = '#000';
+  const patternSize = 30;
+  // Top-left corner
+  ctx.fillRect(10, 10, patternSize, patternSize);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(15, 15, patternSize - 10, patternSize - 10);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(20, 20, patternSize - 20, patternSize - 20);
+  
+  // Top-right corner
+  ctx.fillStyle = '#000';
+  ctx.fillRect(size - 10 - patternSize, 10, patternSize, patternSize);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(size - 15 - patternSize + 5, 15, patternSize - 10, patternSize - 10);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(size - 20 - patternSize + 10, 20, patternSize - 20, patternSize - 20);
+  
+  // Bottom-left corner
+  ctx.fillStyle = '#000';
+  ctx.fillRect(10, size - 10 - patternSize, patternSize, patternSize);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(15, size - 15 - patternSize + 5, patternSize - 10, patternSize - 10);
+  ctx.fillStyle = '#000';
+  ctx.fillRect(20, size - 20 - patternSize + 10, patternSize - 20, patternSize - 20);
+}
+
+// === SCREENSHOT ===
+function takeScreenshot() {
+  const canvas = $('#canvas') || $('#runtimeGrid');
+  if (!canvas) {
+    toast('Nothing to capture!', 'error');
+    return;
+  }
+  
+  // Use html2canvas if available
+  if (typeof html2canvas !== 'undefined') {
+    html2canvas(canvas).then(c => {
+      const link = document.createElement('a');
+      link.download = 'my-remote.png';
+      link.href = c.toDataURL();
+      link.click();
+      toast('📸 Screenshot saved!', 'success');
+    }).catch(() => toast('Screenshot failed', 'error'));
+  } else {
+    toast('📸 Screenshot requires html2canvas library', 'error');
+  }
+}
+
+// === LONG PRESS QUICK ACTIONS ===
+function setupLongPressActions() {
+  let longPressTimer = null;
+  let longPressTarget = null;
+  
+  const showQuickMenu = (widget, x, y) => {
+    // Remove existing menu
+    document.querySelectorAll('.quick-action-menu').forEach(m => m.remove());
+    
+    const menu = document.createElement('div');
+    menu.className = 'quick-action-menu';
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.innerHTML = `
+      <button class="quick-action-btn" data-action="duplicate" title="Duplicate">📋</button>
+      <button class="quick-action-btn" data-action="color" title="Change color">🎨</button>
+      <button class="quick-action-btn" data-action="lock" title="Lock/Unlock">🔒</button>
+      <button class="quick-action-btn" data-action="front" title="Bring to front">⬆️</button>
+      <button class="quick-action-btn" data-action="back" title="Send to back">⬇️</button>
+      <button class="quick-action-btn danger" data-action="delete" title="Delete">🗑️</button>
+    `;
+    
+    menu.querySelectorAll('.quick-action-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        const w = state.widgets.find(w => w.id === widget.dataset.id);
+        
+        if (action === 'duplicate') {
+          duplicateWidget(w);
+        } else if (action === 'color') {
+          randomizeWidgetColor(w);
+        } else if (action === 'lock') {
+          w.locked = !w.locked;
+          toast(w.locked ? '🔒 Locked' : '🔓 Unlocked', 'success');
+          renderWidgets();
+        } else if (action === 'front') {
+          bringToFront(w);
+        } else if (action === 'back') {
+          sendToBack(w);
+        } else if (action === 'delete') {
+          saveUndoState();
+          state.widgets = state.widgets.filter(x => x.id !== w.id);
+          state.selected = null;
+          renderWidgets();
+          renderPropsPanel();
+          toast('🗑️ Deleted', 'success');
+        }
+        
+        menu.remove();
+        if (state.soundOn) beepClick();
+      };
+    });
+    
+    document.body.appendChild(menu);
+    
+    // Close menu on click elsewhere
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target)) {
+        menu.remove();
+        document.removeEventListener('click', closeMenu);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeMenu), 10);
+  };
+  
+  document.addEventListener('pointerdown', e => {
+    const widget = e.target.closest('.widget');
+    if (!widget) return;
+    
+    longPressTarget = widget;
+    longPressTimer = setTimeout(() => {
+      // Vibrate if supported
+      if (navigator.vibrate) navigator.vibrate(50);
+      showQuickMenu(widget, e.clientX, e.clientY);
+    }, 500);
+  });
+  
+  document.addEventListener('pointerup', () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  });
+  
+  document.addEventListener('pointermove', e => {
+    if (longPressTimer && longPressTarget) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  });
+}
+
+function duplicateWidget(w) {
+  if (!w) return;
+  saveUndoState();
+  const newW = { ...w, id: `${w.t}${state.nextId++}`, x: w.x + 20, y: w.y + 20 };
+  state.widgets.push(newW);
+  state.selected = newW.id;
+  renderWidgets();
+  toast('📋 Duplicated!', 'success');
+}
+
+function randomizeWidgetColor(w) {
+  if (!w) return;
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676', '#ff9100', '#b388ff'];
+  w.color = colors[Math.floor(Math.random() * colors.length)];
+  renderWidgets();
+  renderPropsPanel();
+  toast('🎨 New color!', 'success');
+}
+
+function bringToFront(w) {
+  if (!w) return;
+  const idx = state.widgets.findIndex(x => x.id === w.id);
+  if (idx >= 0) {
+    state.widgets.splice(idx, 1);
+    state.widgets.push(w);
+    renderWidgets();
+    toast('⬆️ Brought to front', 'success');
+  }
+}
+
+function sendToBack(w) {
+  if (!w) return;
+  const idx = state.widgets.findIndex(x => x.id === w.id);
+  if (idx >= 0) {
+    state.widgets.splice(idx, 1);
+    state.widgets.unshift(w);
+    renderWidgets();
+    toast('⬇️ Sent to back', 'success');
+  }
+}
+
+// === UPDATE BUILD TOOLBAR STATE ===
+function updateBuildToolbar() {
+  const undoBtn = $('#undoBtn');
+  const redoBtn = $('#redoBtn');
+  
+  if (undoBtn) undoBtn.disabled = !state.undoStack.length;
+  if (redoBtn) redoBtn.disabled = !state.redoStack.length;
+}
+
+// === HAPTIC FEEDBACK ===
+function vibrate(pattern = 10) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+// === PARTICLE EFFECTS ON BUTTON PRESS ===
+function createParticles(x, y, count = 8) {
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+  
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const size = 4 + Math.random() * 8;
+    const angle = (Math.PI * 2 / count) * i;
+    const distance = 20 + Math.random() * 30;
+    
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+    
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 600);
+  }
 }
 
 function selectTemplate(name) {
@@ -4579,7 +5724,6 @@ function selectTemplate(name) {
     renderWidgets();
     renderPropsPanel();
 
-    if (typeof showLoadOverlay === 'function') showBuildOverlay(titles[name] || '✨ Building...');
     if (typeof hideLoadOverlay === 'function') hideLoadOverlay();
 
     if (name === 'blank') toast('✨ Canvas ready! Pick a widget below', 'success');
@@ -4587,10 +5731,338 @@ function selectTemplate(name) {
   }, 250);
 }
 
+// === FULLSCREEN MODE ===
+function toggleFullscreen() {
+  const isFullscreen = document.body.classList.contains('runtime-fullscreen');
+  if (isFullscreen) {
+    document.body.classList.remove('runtime-fullscreen');
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  } else {
+    document.body.classList.add('runtime-fullscreen');
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }
+}
+
+// === CELEBRATION ANIMATION ===
+function celebrate(message = '🎉 Connected!') {
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    overlay.appendChild(c);
+  }
+  
+  document.body.appendChild(overlay);
+  if (state.soundOn) {
+    beep(523, 0.1, 0.05);
+    setTimeout(() => beep(659, 0.1, 0.05), 100);
+    setTimeout(() => beep(784, 0.15, 0.05), 200);
+  }
+  setTimeout(() => overlay.remove(), 3500);
+  toast(message, 'success');
+}
+
+// === QUICK ACTIONS MENU ===
+function showQuickActions(widgetId, x, y) {
+  const menu = $('#quickActionsMenu');
+  if (!menu) return;
+  
+  state._quickActionTarget = widgetId;
+  menu.style.left = Math.min(x, window.innerWidth - 160) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 250) + 'px';
+  menu.classList.add('show');
+  
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function hideQuickActions() {
+  const menu = $('#quickActionsMenu');
+  if (menu) menu.classList.remove('show');
+}
+
+function handleQuickAction(action) {
+  const w = state.widgets.find(w => w.id === state._quickActionTarget);
+  if (!w) return;
+  
+  switch(action) {
+    case 'duplicate':
+      saveUndoState();
+      const newW = { ...w, id: `${w.t}${state.nextId++}`, x: w.x + 20, y: w.y + 20 };
+      state.widgets.push(newW);
+      state.selected = newW.id;
+      renderWidgets();
+      toast('📋 Duplicated!', 'success');
+      break;
+    case 'color':
+      const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676', '#ff9100', '#b388ff'];
+      w.color = colors[Math.floor(Math.random() * colors.length)];
+      renderWidgets();
+      toast('🎨 New color!', 'success');
+      break;
+    case 'lock':
+      w.locked = !w.locked;
+      renderWidgets();
+      toast(w.locked ? '🔒 Locked' : '🔓 Unlocked', 'success');
+      break;
+    case 'front':
+      const idx = state.widgets.indexOf(w);
+      state.widgets.splice(idx, 1);
+      state.widgets.push(w);
+      renderWidgets();
+      toast('⬆️ Brought to front', 'success');
+      break;
+    case 'back':
+      const idx2 = state.widgets.indexOf(w);
+      state.widgets.splice(idx2, 1);
+      state.widgets.unshift(w);
+      renderWidgets();
+      toast('⬇️ Sent to back', 'success');
+      break;
+    case 'delete':
+      saveUndoState();
+      state.widgets = state.widgets.filter(x => x.id !== w.id);
+      state.selected = null;
+      renderWidgets();
+      renderPropsPanel();
+      toast('🗑️ Deleted', 'success');
+      break;
+  }
+  
+  hideQuickActions();
+  if (state.soundOn) beepClick();
+}
+
+// === TUTORIAL ===
+const tutorialSteps = [
+  { icon: '👋', title: 'Welcome!', text: 'Let\'s build your first micro:bit remote control! It\'s easy and fun!' },
+  { icon: '👆', title: 'Pick a Widget', text: 'Tap any widget below (like Button or Slider) to select it.' },
+  { icon: '📱', title: 'Place It', text: 'Then tap on the canvas to place your widget. You can drag it around!' },
+  { icon: '🔗', title: 'Connect & Play!', text: 'When ready, go to Play mode and connect your micro:bit. Have fun!' }
+];
+let tutorialStep = 0;
+
+function showTutorial() {
+  tutorialStep = 0;
+  updateTutorialStep();
+  $('#tutorialOverlay')?.classList.remove('hidden');
+}
+
+function updateTutorialStep() {
+  const step = tutorialSteps[tutorialStep];
+  if (!step) {
+    closeTutorial();
+    return;
+  }
+  
+  $('#tutorialIcon').textContent = step.icon;
+  $('#tutorialTitle').textContent = step.title;
+  $('#tutorialText').textContent = step.text;
+  
+  const btn = $('#tutorialNextBtn');
+  btn.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Start Building! 🚀' : 'Next →';
+  
+  $$('.tutorial-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === tutorialStep);
+  });
+}
+
+function nextTutorialStep() {
+  tutorialStep++;
+  if (tutorialStep >= tutorialSteps.length) {
+    closeTutorial();
+  } else {
+    updateTutorialStep();
+  }
+  if (state.soundOn) beepClick();
+}
+
+function closeTutorial() {
+  $('#tutorialOverlay')?.classList.add('hidden');
+  try { localStorage.setItem('tutorial_done', '1'); } catch(e) {}
+}
+
+// === THEME SWITCHING ===
+function setTheme(theme) {
+  document.body.classList.remove('theme-dark', 'theme-ocean', 'theme-space', 'theme-candy', 'theme-forest', 'theme-neon');
+  if (theme !== 'dark') {
+    document.body.classList.add('theme-' + theme);
+  }
+  state.theme = theme;
+  
+  $$('.theme-dot').forEach(d => d.classList.toggle('active', d.dataset.theme === theme));
+  
+  try { localStorage.setItem('app_theme', theme); } catch(e) {}
+  toast('🎨 Theme: ' + theme.charAt(0).toUpperCase() + theme.slice(1), 'success');
+  if (state.soundOn) beepClick();
+}
+
+// === AUTO ARRANGE ===
+function autoArrangeWidgets() {
+  if (!state.widgets.length) {
+    toast('No widgets to arrange!', 'error');
+    return;
+  }
+  
+  saveUndoState();
+  
+  const padding = 15;
+  const canvas = $('#canvas');
+  const canvasW = canvas?.offsetWidth || 500;
+  
+  const sorted = [...state.widgets].sort((a, b) => (b.w * b.h) - (a.w * a.h));
+  
+  let currentX = padding;
+  let currentY = padding;
+  let rowHeight = 0;
+  
+  sorted.forEach(w => {
+    if (currentX + w.w + padding > canvasW) {
+      currentX = padding;
+      currentY += rowHeight + padding;
+      rowHeight = 0;
+    }
+    
+    w.x = currentX;
+    w.y = currentY;
+    currentX += w.w + padding;
+    rowHeight = Math.max(rowHeight, w.h);
+  });
+  
+  renderWidgets();
+  toast('✨ Widgets tidied up!', 'success');
+  if (state.soundOn) beepClick();
+}
+
+// === MAGIC WAND - Random Style All Widgets ===
+function magicStyleWidgets() {
+  if (!state.widgets.length) {
+    toast('Add some widgets first!', 'error');
+    return;
+  }
+  
+  saveUndoState();
+  
+  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676', '#ff9100', '#b388ff', '#00d4ff'];
+  const models = {
+    button: ['neo', 'glass', 'pill', 'flat'],
+    slider: ['track', 'neon', 'min'],
+    toggle: ['square', 'pill', 'icon'],
+    joystick: ['classic', 'ring', 'min'],
+    gauge: ['classic', 'neon', 'minimal'],
+    led: ['dot', 'ring', 'bar']
+  };
+  
+  state.widgets.forEach(w => {
+    w.color = colors[Math.floor(Math.random() * colors.length)];
+    if (models[w.t]) {
+      w.model = models[w.t][Math.floor(Math.random() * models[w.t].length)];
+    }
+  });
+  
+  renderWidgets();
+  renderPropsPanel();
+  
+  // Fun particle explosion
+  const canvas = $('#canvas');
+  if (canvas) {
+    const rect = canvas.getBoundingClientRect();
+    createParticles(rect.left + rect.width/2, rect.top + rect.height/2, 20);
+  }
+  
+  toast('🪄 Magic applied!', 'success');
+  if (state.soundOn) {
+    beep(440, 0.1, 0.05);
+    setTimeout(() => beep(554, 0.1, 0.05), 80);
+    setTimeout(() => beep(659, 0.1, 0.05), 160);
+    setTimeout(() => beep(880, 0.15, 0.05), 240);
+  }
+}
+
+// === SHAKE TO RANDOMIZE ===
+let lastShakeTime = 0;
+function setupShakeDetection() {
+  if (!window.DeviceMotionEvent) return;
+  
+  let shakeThreshold = 15;
+  let lastX = 0, lastY = 0, lastZ = 0;
+  
+  window.addEventListener('devicemotion', (e) => {
+    const acc = e.accelerationIncludingGravity;
+    if (!acc) return;
+    
+    const deltaX = Math.abs(acc.x - lastX);
+    const deltaY = Math.abs(acc.y - lastY);
+    const deltaZ = Math.abs(acc.z - lastZ);
+    
+    if ((deltaX > shakeThreshold || deltaY > shakeThreshold || deltaZ > shakeThreshold)) {
+      const now = Date.now();
+      if (now - lastShakeTime > 1000) { // Debounce 1 second
+        lastShakeTime = now;
+        onShake();
+      }
+    }
+    
+    lastX = acc.x;
+    lastY = acc.y;
+    lastZ = acc.z;
+  });
+}
+
+function onShake() {
+  if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+  magicStyleWidgets();
+}
+
+// === SWIPE GESTURES ===
+function setupSwipeGestures() {
+  let touchStartY = 0;
+  let touchStartX = 0;
+  
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  
+  document.addEventListener('touchend', e => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // Only trigger if swipe is significant and more vertical than horizontal
+    if (Math.abs(deltaY) > 100 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      const runtimeView = $('.runtime-view.active');
+      if (runtimeView) {
+        if (deltaY < -100) { // Swipe up
+          if (!document.body.classList.contains('runtime-fullscreen')) {
+            toggleFullscreen();
+          }
+        } else if (deltaY > 100) { // Swipe down
+          if (document.body.classList.contains('runtime-fullscreen')) {
+            toggleFullscreen();
+          }
+        }
+      }
+    }
+  }, { passive: true });
+}
+
 function switchTab(tab) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   $$('.view').forEach(v => v.classList.remove('active'));
   $(`.${tab === 'builder' ? 'builder-view' : 'runtime-view'}`).classList.add('active');
+  
+  const fullscreenBtn = $('#fullscreenBtn');
   
   if (tab === 'runtime') {
     startDemoSim();
@@ -4605,6 +6077,7 @@ function switchTab(tab) {
       $('#runtimeContent').style.display = 'flex';
       const arrangeBtn = $('#arrangeModeBtn');
       if (arrangeBtn) arrangeBtn.classList.add('visible');
+      if (fullscreenBtn) fullscreenBtn.classList.add('visible');
     }
     // Otherwise show connect prompt for kids
     else {
@@ -4612,9 +6085,19 @@ function switchTab(tab) {
       $('#runtimeContent').style.display = 'none';
       const arrangeBtn = $('#arrangeModeBtn');
       if (arrangeBtn) arrangeBtn.classList.remove('visible');
+      if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
     }
   } else {
     stopDemoSim();
+    
+    // Hide fullscreen button
+    if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
+    
+    // Exit fullscreen mode if active
+    if (document.body.classList.contains('fullscreen-mode')) {
+      document.body.classList.remove('fullscreen-mode');
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    }
     
     // Exit arrange mode when switching to build
     if (state.arrangeMode) {
@@ -5432,6 +6915,36 @@ function endSelectionBox() {
   if (state.multiSelect.length) toast(`Selected ${state.multiSelect.length} widgets`, 'success');
 }
 
+// Auto-resize canvas based on widget positions
+function autoResizeCanvas() {
+  const canvas = $('#canvas');
+  if (!canvas || !state.widgets.length) return;
+  
+  // Calculate needed size based on widget positions
+  let maxX = 0, maxY = 0;
+  state.widgets.forEach(w => {
+    maxX = Math.max(maxX, w.x + w.w + 20);
+    maxY = Math.max(maxY, w.y + w.h + 20);
+  });
+  
+  // Get current canvas size
+  const currentW = canvas.offsetWidth;
+  const currentH = canvas.offsetHeight;
+  
+  // Don't shrink below minimum or current content
+  const minW = 320;
+  const minH = 280;
+  
+  // If widgets extend beyond canvas, expand it
+  const newW = Math.max(minW, Math.min(600, maxX));
+  const newH = Math.max(minH, Math.min(800, maxY));
+  
+  // Only update if different
+  if (Math.abs(newH - currentH) > 10) {
+    canvas.style.minHeight = newH + 'px';
+  }
+}
+
 function renderWidgets() {
   const layer = $('#widgetsLayer');
   layer.innerHTML = '';
@@ -5467,7 +6980,6 @@ function renderWidgets() {
     if (!w.locked) {
       interact(el).draggable({
         inertia: false,
-        modifiers: [interact.modifiers.restrictRect({ restriction: 'parent' })],
         listeners: {
           start() { 
             saveUndoState();
@@ -5487,17 +6999,24 @@ function renderWidgets() {
               newY = snapToGrid(newY);
             }
             
-            w.x = Math.max(0, newX);
-            w.y = Math.max(0, newY);
+            // Clamp to canvas bounds
+            const canvas = $('#canvas');
+            const maxX = (canvas?.offsetWidth || 500) - w.w - 10;
+            const maxY = (canvas?.offsetHeight || 400) - w.h - 10;
+            
+            w.x = Math.max(0, Math.min(maxX, newX));
+            w.y = Math.max(0, Math.min(maxY, newY));
             e.target.style.left = w.x + 'px';
             e.target.style.top = w.y + 'px';
             
             showAlignGuides(w);
             resolveOverlaps(w);
+            autoResizeCanvas();
           },
           end() {
             removeAlignGuides();
-            saveUndoState();
+            autoResizeCanvas();
+            scheduleAutoSave();
           }
         }
       }).resizable({
@@ -5508,11 +7027,20 @@ function renderWidgets() {
           move(e) {
             w.w = state.gridSnap ? snapToGrid(e.rect.width) : e.rect.width;
             w.h = state.gridSnap ? snapToGrid(e.rect.height) : e.rect.height;
+            
+            // Clamp size to canvas
+            const canvas = $('#canvas');
+            const maxW = (canvas?.offsetWidth || 500) - w.x - 10;
+            const maxH = (canvas?.offsetHeight || 400) - w.y - 10;
+            w.w = Math.min(w.w, maxW);
+            w.h = Math.min(w.h, maxH);
+            
             e.target.style.width = w.w + 'px';
             e.target.style.height = w.h + 'px';
             resolveOverlaps(w);
+            autoResizeCanvas();
           },
-          end() { saveUndoState(); }
+          end() { autoResizeCanvas(); scheduleAutoSave(); }
         }
       });
     }
@@ -6194,17 +7722,26 @@ function onDisconnect() {
 function updateBleUI() {
   const btn = $('#bleBtn');
   const arrangeBtn = $('#arrangeModeBtn');
+  const fullscreenBtn = $('#fullscreenBtn');
   if (state.ble.connected) {
     btn.classList.add('connected');
     btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connected;
     $('#connectPrompt').style.display = 'none';
     $('#runtimeContent').style.display = 'flex';
     if (arrangeBtn) arrangeBtn.classList.add('visible');
+    if (fullscreenBtn) fullscreenBtn.classList.add('visible');
+    
+    // Celebrate connection!
+    if (!state._celebrated) {
+      state._celebrated = true;
+      celebrate('🎉 Connected!');
+    }
   } else {
     btn.classList.remove('connected');
     btn.querySelector('span:last-child').textContent = (I18N[state.lang]||I18N.en).connect;
     $('#connectPrompt').style.display = 'block';
     $('#runtimeContent').style.display = 'none';
+    state._celebrated = false;
     if (arrangeBtn) {
       arrangeBtn.classList.remove('visible');
       // Also exit arrange mode if disconnected
@@ -6218,6 +7755,7 @@ function updateBleUI() {
         if (hint) hint.style.display = 'none';
       }
     }
+    if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
   }
 }
 
