@@ -272,6 +272,51 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   pointer-events: auto !important;
 }
 
+/* Canvas/Grid resize handle in arrange mode */
+#runtimeGrid.arrange-mode .canvas-resize-handle {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 30px;
+  height: 30px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,212,255,0.4);
+  z-index: 100;
+  transition: transform 0.2s;
+}
+#runtimeGrid.arrange-mode .canvas-resize-handle:hover {
+  transform: scale(1.1);
+}
+#runtimeGrid.arrange-mode .canvas-resize-handle::after {
+  content: '⤡';
+}
+
+/* Canvas size badge in arrange mode */
+.runtime-size-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  z-index: 100;
+  display: none;
+}
+#runtimeGrid.arrange-mode .runtime-size-badge {
+  display: block;
+}
+
 /* ===== MOBILE-FRIENDLY ENHANCEMENTS ===== */
 @media (max-width: 600px) {
   /* Safe area for notched phones */
@@ -671,30 +716,39 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 .rt-button .icon { font-size: clamp(1.5rem, 5vw, 3rem); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
-.rt-slider-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.rt-slider-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 8px; }
 .rt-slider-info { display: flex; justify-content: space-between; font-weight: 700; font-size: clamp(0.8rem, 2vw, 1rem); }
 .rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider-val { 
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: #000;
+  font-weight: 800;
+  min-width: 45px;
+  text-align: center;
+}
 .rt-slider { 
-  width: 100%; height: 18px; border-radius: 999px; 
+  width: 100%; height: 22px; border-radius: 999px; 
   background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff); 
   -webkit-appearance: none; 
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
   border: 3px solid rgba(255,255,255,0.3);
 }
 .rt-slider::-webkit-slider-thumb { 
-  width: 36px; height: 36px; -webkit-appearance: none; 
+  width: 40px; height: 40px; -webkit-appearance: none; 
   border-radius: 50%; 
-  background: linear-gradient(145deg, #fff, #e0e0e0); 
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #f0f0f0 50%, #ddd 100%); 
   border: 4px solid var(--accent);
   cursor: pointer; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.8);
-  transition: transform 0.1s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.8), 0 0 15px rgba(0,212,255,0.3);
+  transition: transform 0.1s, box-shadow 0.2s;
 }
-.rt-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
-.rt-slider::-webkit-slider-thumb:active { transform: scale(0.95); }
+.rt-slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 25px rgba(0,212,255,0.5); }
+.rt-slider::-webkit-slider-thumb:active { transform: scale(0.95); background: radial-gradient(circle at 30% 30%, var(--accent) 0%, #0099cc 100%); }
 .rt-slider::-moz-range-thumb { 
-  width: 36px; height: 36px; border-radius: 50%; 
-  background: linear-gradient(145deg, #fff, #e0e0e0); 
+  width: 40px; height: 40px; border-radius: 50%; 
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #f0f0f0 50%, #ddd 100%); 
   border: 4px solid var(--accent);
   cursor: pointer;
 }
@@ -704,29 +758,34 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 10px;
 }
 .rt-slider-wrap.vertical .rt-slider-info {
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
 }
 .rt-slider-wrap.vertical .rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider-wrap.vertical .rt-slider-val {
+  writing-mode: horizontal-tb;
+  transform: rotate(180deg);
+}
 .rt-slider-wrap.vertical .rt-slider {
   writing-mode: bt-lr;
   -webkit-appearance: slider-vertical;
   appearance: slider-vertical;
-  width: 18px;
+  width: 22px;
   height: 100%;
   min-height: 80px;
-  background: linear-gradient(0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+  background: linear-gradient(0deg, #ff6b6b 0%, #feca57 25%, #48dbfb 50%, #ff9ff3 75%, #54a0ff 100%);
 }
 .rt-slider-wrap.vertical .rt-slider::-webkit-slider-thumb {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
 }
 
 .rt-toggle-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
@@ -853,27 +912,62 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
 }
 
-/* Sliders */
+/* Sliders - More fun styles! */
 .rt-slider.model-track{ 
-  height: 18px; border-radius: 999px; 
+  height: 22px; border-radius: 999px; 
   background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+  border: 3px solid rgba(255,255,255,0.4);
+}
+.rt-slider.model-track::-webkit-slider-thumb {
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #feca57 80%, #ff9100 100%);
+  border-color: #ff9100;
+  box-shadow: 0 0 20px rgba(255,145,0,0.6), 0 4px 10px rgba(0,0,0,0.3);
 }
 .rt-slider.model-min{ 
-  height: 10px; border-radius: 999px;
+  height: 14px; border-radius: 999px;
   background: linear-gradient(90deg, #a29bfe, #fd79a8);
-}
-.rt-slider.model-neon{
-  height: 18px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #00ff87, #60efff);
-  box-shadow: 0 0 25px rgba(0,255,135,0.4), 0 0 50px rgba(96,239,255,0.2);
-}
-.rt-slider.model-neon::-webkit-slider-thumb{
-  box-shadow: 0 0 30px rgba(0,255,135,0.8), 0 4px 15px rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.3);
 }
 .rt-slider.model-min::-webkit-slider-thumb{
-   height: 32px;
-  background: linear-gradient(145deg, #fd79a8, #e84393);
+  width: 32px; height: 32px;
+  background: radial-gradient(circle at 30% 30%, #fd79a8, #e84393);
+  border-color: #e84393;
+}
+.rt-slider.model-neon{
+  height: 20px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #00ff87, #60efff, #00ff87);
+  background-size: 200% 100%;
+  animation: neon-slide 3s ease-in-out infinite;
+  box-shadow: 0 0 25px rgba(0,255,135,0.5), 0 0 50px rgba(96,239,255,0.3), inset 0 0 10px rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.5);
+}
+@keyframes neon-slide {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.rt-slider.model-neon::-webkit-slider-thumb{
+  background: radial-gradient(circle at 30% 30%, #fff, #60efff);
+  border-color: #00ff87;
+  box-shadow: 0 0 30px rgba(0,255,135,0.8), 0 0 60px rgba(96,239,255,0.5), 0 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Vertical slider model overrides */
+.rt-slider-wrap.vertical .rt-slider.model-track {
+  background: linear-gradient(0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+}
+.rt-slider-wrap.vertical .rt-slider.model-min {
+  width: 14px;
+  background: linear-gradient(0deg, #a29bfe, #fd79a8);
+}
+.rt-slider-wrap.vertical .rt-slider.model-neon {
+  background: linear-gradient(0deg, #00ff87, #60efff, #00ff87);
+  background-size: 100% 200%;
+  animation: neon-slide-v 3s ease-in-out infinite;
+}
+@keyframes neon-slide-v {
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
 }
 
 /* Toggles */
@@ -4501,21 +4595,23 @@ function switchTab(tab) {
   if (tab === 'runtime') {
     startDemoSim();
     
-    // Load current build widgets into runtime config if not connected
-    if (!state.ble.connected && state.widgets.length > 0) {
-      const titleEl = $('#titleInput');
-      state.config = {
-        title: titleEl ? titleEl.value : 'My Remote',
-        widgets: JSON.parse(JSON.stringify(state.widgets)) // Deep copy
-      };
-      state.values = state.values || {};
-      renderRuntime();
-      
-      // Show runtime content and arrange button
+    // If connected via BLE, runtime is already set up
+    if (state.ble.connected) {
+      // Already handled by updateBleUI
+    }
+    // If we have a config (from demo), show it
+    else if (state.config && state.config.widgets && state.config.widgets.length > 0) {
       $('#connectPrompt').style.display = 'none';
       $('#runtimeContent').style.display = 'flex';
       const arrangeBtn = $('#arrangeModeBtn');
       if (arrangeBtn) arrangeBtn.classList.add('visible');
+    }
+    // Otherwise show connect prompt for kids
+    else {
+      $('#connectPrompt').style.display = 'block';
+      $('#runtimeContent').style.display = 'none';
+      const arrangeBtn = $('#arrangeModeBtn');
+      if (arrangeBtn) arrangeBtn.classList.remove('visible');
     }
   } else {
     stopDemoSim();
@@ -6193,9 +6289,24 @@ function renderRuntime() {
   const grid = $('#runtimeGrid');
   let maxX = 0, maxY = 0;
   cfg.widgets.forEach(w => { maxX = Math.max(maxX, w.x + w.w); maxY = Math.max(maxY, w.y + w.h); });
-  grid.style.width = `${Math.max(400, maxX + 20)}px`;
-  grid.style.height = `${Math.max(320, maxY + 20)}px`;
+  
+  // Use saved canvas size or calculate from widgets
+  const canvasW = state.runtimeCanvasSize?.w || Math.max(400, maxX + 20);
+  const canvasH = state.runtimeCanvasSize?.h || Math.max(320, maxY + 20);
+  grid.style.width = `${canvasW}px`;
+  grid.style.height = `${canvasH}px`;
   grid.innerHTML = '';
+  
+  // Add canvas resize handle and size badge
+  const resizeHandle = document.createElement('div');
+  resizeHandle.className = 'canvas-resize-handle';
+  grid.appendChild(resizeHandle);
+  
+  const sizeBadge = document.createElement('div');
+  sizeBadge.className = 'runtime-size-badge';
+  sizeBadge.textContent = `${canvasW} × ${canvasH}`;
+  grid.appendChild(sizeBadge);
+  
   cfg.widgets.forEach(w => {
     const el = document.createElement('div');
     el.className = 'rt-widget'; el.dataset.id = w.id;
@@ -6257,6 +6368,73 @@ function toggleArrangeMode() {
 function setupArrangeMode() {
   const grid = $('#runtimeGrid');
   if (!grid) return;
+  
+  // Setup canvas resize
+  const canvasHandle = grid.querySelector('.canvas-resize-handle');
+  if (canvasHandle && !canvasHandle._resizeSetup) {
+    canvasHandle._resizeSetup = true;
+    let isResizingCanvas = false;
+    let canvasStartX, canvasStartY, canvasStartW, canvasStartH;
+    
+    const onCanvasResizeStart = (e) => {
+      if (!state.arrangeMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+      isResizingCanvas = true;
+      
+      const touch = e.touches ? e.touches[0] : e;
+      canvasStartX = touch.clientX;
+      canvasStartY = touch.clientY;
+      canvasStartW = parseInt(grid.style.width) || 400;
+      canvasStartH = parseInt(grid.style.height) || 320;
+    };
+    
+    const onCanvasResizeMove = (e) => {
+      if (!isResizingCanvas || !state.arrangeMode) return;
+      e.preventDefault();
+      
+      const touch = e.touches ? e.touches[0] : e;
+      const dx = touch.clientX - canvasStartX;
+      const dy = touch.clientY - canvasStartY;
+      
+      const newW = Math.max(300, canvasStartW + dx);
+      const newH = Math.max(200, canvasStartH + dy);
+      
+      grid.style.width = newW + 'px';
+      grid.style.height = newH + 'px';
+      
+      // Update size badge
+      const badge = grid.querySelector('.runtime-size-badge');
+      if (badge) badge.textContent = `${newW} × ${newH}`;
+    };
+    
+    const onCanvasResizeEnd = () => {
+      if (!isResizingCanvas) return;
+      isResizingCanvas = false;
+      
+      // Save canvas size
+      state.runtimeCanvasSize = {
+        w: parseInt(grid.style.width) || 400,
+        h: parseInt(grid.style.height) || 320
+      };
+    };
+    
+    canvasHandle.addEventListener('mousedown', onCanvasResizeStart);
+    canvasHandle.addEventListener('touchstart', onCanvasResizeStart, { passive: false });
+    document.addEventListener('mousemove', onCanvasResizeMove);
+    document.addEventListener('touchmove', onCanvasResizeMove, { passive: false });
+    document.addEventListener('mouseup', onCanvasResizeEnd);
+    document.addEventListener('touchend', onCanvasResizeEnd);
+    
+    canvasHandle._cleanup = () => {
+      canvasHandle.removeEventListener('mousedown', onCanvasResizeStart);
+      canvasHandle.removeEventListener('touchstart', onCanvasResizeStart);
+      document.removeEventListener('mousemove', onCanvasResizeMove);
+      document.removeEventListener('touchmove', onCanvasResizeMove);
+      document.removeEventListener('mouseup', onCanvasResizeEnd);
+      document.removeEventListener('touchend', onCanvasResizeEnd);
+    };
+  }
   
   grid.querySelectorAll('.rt-widget').forEach(el => {
     // Skip if already set up
@@ -6406,6 +6584,14 @@ function setupArrangeMode() {
 function teardownArrangeMode() {
   const grid = $('#runtimeGrid');
   if (!grid) return;
+  
+  // Cleanup canvas resize
+  const canvasHandle = grid.querySelector('.canvas-resize-handle');
+  if (canvasHandle && canvasHandle._cleanup) {
+    canvasHandle._cleanup();
+    canvasHandle._cleanup = null;
+    canvasHandle._resizeSetup = false;
+  }
   
   grid.querySelectorAll('.rt-widget').forEach(el => {
     if (el._arrangeCleanup) {
@@ -6865,6 +7051,10 @@ function pushGraphPoint(w, csvVal){
   const winMs = Math.max(5, Math.min(300, parseFloat(w.windowSec ?? 30))) * 1000;
   const cutoff = now - winMs;
   while (hs.points.length && hs.points[0].t < cutoff) hs.points.shift();
+  
+  // Also limit max points for smoother rendering
+  const maxPoints = 150;
+  while (hs.points.length > maxPoints) hs.points.shift();
 }
 
 function resizeCanvasToDisplaySize(canvas){
@@ -7003,12 +7193,32 @@ function drawGraphWidget(w){
     ctx.fillText(sec.toFixed(0) + 's', x - 10, plotY + plotH + 16);
   }
 
-  // draw each series
+  // draw each series with smooth lines
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
   hs.colors.forEach((c, si) => {
+    // Draw glow effect first
     ctx.strokeStyle = c;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 6;
+    ctx.globalAlpha = 0.3;
     ctx.beginPath();
     let started = false;
+    for (let i=0;i<pts.length;i++){
+      const v = pts[i].v[si];
+      if (!isFinite(v)) continue;
+      const x = xForT(pts[i].t);
+      const y = yForV(v);
+      if (!started){ ctx.moveTo(x,y); started = true; }
+      else { ctx.lineTo(x,y); }
+    }
+    if (started) ctx.stroke();
+    
+    // Draw main line
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    started = false;
     for (let i=0;i<pts.length;i++){
       const v = pts[i].v[si];
       if (!isFinite(v)) continue;
@@ -7047,8 +7257,9 @@ function startDemoSim(){
   state._demoTimer = setInterval(() => {
     const t = (Date.now() - t0) / 1000;
 
-    const temp = 25 + 10 * Math.sin(t / 2);
-    const level = 50 + 40 * Math.sin(t / 3);
+    // Smooth sine waves for gauges
+    const temp = 25 + 8 * Math.sin(t / 4);
+    const level = 50 + 35 * Math.sin(t / 5);
 
     state.values['gauge_temp'] = temp.toFixed(1);
     state.values['gauge_level'] = level.toFixed(0);
@@ -7056,8 +7267,9 @@ function startDemoSim(){
     updateRuntimeWidget('gauge_temp', state.values['gauge_temp']);
     updateRuntimeWidget('gauge_level', state.values['gauge_level']);
 
-    const s1 = 50 + 25 * Math.sin(t);
-    const s2 = 30 + 15 * Math.cos(t * 1.2);
+    // Smooth waves for graph - slower, more gradual changes
+    const s1 = 50 + 30 * Math.sin(t / 2);
+    const s2 = 40 + 25 * Math.cos(t / 2.5);
     const csv = `${s1.toFixed(1)},${s2.toFixed(1)}`;
     state.values['graph_env'] = csv;
     updateRuntimeWidget('graph_env', csv);
@@ -7069,7 +7281,7 @@ function startDemoSim(){
       state.values['label_score'] = txt;
       updateRuntimeWidget('label_score', txt);
     }
-  }, 250);
+  }, 400); // Slower updates for smoother appearance
 }
 
 
