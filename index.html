@@ -117,8 +117,8 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .canvas {
   flex: 1; position: relative; background: var(--card);
   border: 3px dashed var(--text-dim); border-radius: 20px;
-  overflow: hidden; min-height: 350px; max-height: 80vh;
-  width: 100%; max-width: 600px;
+  overflow: hidden; min-height: 300px; max-height: 500px;
+  width: 100%; max-width: 550px;
 }
 #widgetsLayer { position: absolute; inset: 0; overflow: visible; }
 
@@ -132,12 +132,70 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .widget.selected { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
 .widget-icon { font-size: 2rem; pointer-events: none; }
 .widget-label { font-size: 0.75rem; font-weight: 700; color: var(--text-dim); pointer-events: none; }
+
+/* Resize handles - all edges */
 .widget .resize-handle {
-  position: absolute; bottom: -2px; right: -2px;
-   height: 24px; cursor: se-resize;
-  background: var(--accent); border-radius: 0 0 14px 0;
+  position: absolute;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.widget.selected .resize-handle,
+.widget:hover .resize-handle { opacity: 1; }
+
+.widget .resize-handle.handle-se {
+  bottom: -3px; right: -3px;
+  width: 20px; height: 20px;
+  cursor: se-resize;
+  border-radius: 0 0 12px 0;
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
+.widget .resize-handle.handle-sw {
+  bottom: -3px; left: -3px;
+  width: 20px; height: 20px;
+  cursor: sw-resize;
+  border-radius: 0 0 0 12px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+.widget .resize-handle.handle-ne {
+  top: -3px; right: -3px;
+  width: 20px; height: 20px;
+  cursor: ne-resize;
+  border-radius: 0 12px 0 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.widget .resize-handle.handle-nw {
+  top: -3px; left: -3px;
+  width: 20px; height: 20px;
+  cursor: nw-resize;
+  border-radius: 12px 0 0 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.widget .resize-handle.handle-n {
+  top: -4px; left: 50%; transform: translateX(-50%);
+  width: 30px; height: 8px;
+  cursor: n-resize;
+  border-radius: 4px;
+}
+.widget .resize-handle.handle-s {
+  bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 30px; height: 8px;
+  cursor: s-resize;
+  border-radius: 4px;
+}
+.widget .resize-handle.handle-e {
+  right: -4px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 30px;
+  cursor: e-resize;
+  border-radius: 4px;
+}
+.widget .resize-handle.handle-w {
+  left: -4px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 30px;
+  cursor: w-resize;
+  border-radius: 4px;
+}
+
 .widget .widget-orient-badge {
   position: absolute;
   top: 4px;
@@ -6923,26 +6981,16 @@ function autoResizeCanvas() {
   // Calculate needed size based on widget positions
   let maxX = 0, maxY = 0;
   state.widgets.forEach(w => {
-    maxX = Math.max(maxX, w.x + w.w + 20);
-    maxY = Math.max(maxY, w.y + w.h + 20);
+    maxX = Math.max(maxX, w.x + w.w + 15);
+    maxY = Math.max(maxY, w.y + w.h + 15);
   });
   
-  // Get current canvas size
-  const currentW = canvas.offsetWidth;
-  const currentH = canvas.offsetHeight;
-  
-  // Don't shrink below minimum or current content
-  const minW = 320;
+  // Strict limits
   const minH = 280;
+  const maxH = 500;
   
-  // If widgets extend beyond canvas, expand it
-  const newW = Math.max(minW, Math.min(600, maxX));
-  const newH = Math.max(minH, Math.min(800, maxY));
-  
-  // Only update if different
-  if (Math.abs(newH - currentH) > 10) {
-    canvas.style.minHeight = newH + 'px';
-  }
+  const newH = Math.max(minH, Math.min(maxH, maxY));
+  canvas.style.minHeight = newH + 'px';
 }
 
 function renderWidgets() {
@@ -6974,7 +7022,17 @@ function renderWidgets() {
       const isVertical = (w.h || 100) > (w.w || 100);
       orientIndicator = `<div class="widget-orient-badge">${isVertical ? '↕' : '↔'}</div>`;
     }
-    el.innerHTML = `${colorDot}<div class="widget-icon">${ICONS[w.t]}</div><div class="widget-label">${esc(w.label) || w.t}</div>${orientIndicator}<div class="resize-handle"></div>`;
+    const resizeHandles = `
+      <div class="resize-handle handle-n"></div>
+      <div class="resize-handle handle-s"></div>
+      <div class="resize-handle handle-e"></div>
+      <div class="resize-handle handle-w"></div>
+      <div class="resize-handle handle-ne"></div>
+      <div class="resize-handle handle-nw"></div>
+      <div class="resize-handle handle-se"></div>
+      <div class="resize-handle handle-sw"></div>
+    `;
+    el.innerHTML = `${colorDot}<div class="widget-icon">${ICONS[w.t]}</div><div class="widget-label">${esc(w.label) || w.t}</div>${orientIndicator}${resizeHandles}`;
     layer.appendChild(el);
     
     if (!w.locked) {
@@ -7020,25 +7078,43 @@ function renderWidgets() {
           }
         }
       }).resizable({
-        edges: { right: true, bottom: true },
+        edges: { 
+          top: '.handle-n, .handle-ne, .handle-nw',
+          bottom: '.handle-s, .handle-se, .handle-sw',
+          left: '.handle-w, .handle-nw, .handle-sw',
+          right: '.handle-e, .handle-ne, .handle-se'
+        },
         modifiers: [interact.modifiers.restrictSize({ min: { width: 60, height: 60 } })],
         listeners: {
           start() { saveUndoState(); },
           move(e) {
-            w.w = state.gridSnap ? snapToGrid(e.rect.width) : e.rect.width;
-            w.h = state.gridSnap ? snapToGrid(e.rect.height) : e.rect.height;
+            // Handle position changes from top/left edges
+            let newX = w.x + (e.deltaRect.left || 0);
+            let newY = w.y + (e.deltaRect.top || 0);
+            let newW = state.gridSnap ? snapToGrid(e.rect.width) : e.rect.width;
+            let newH = state.gridSnap ? snapToGrid(e.rect.height) : e.rect.height;
             
-            // Clamp size to canvas
+            // Clamp to canvas
             const canvas = $('#canvas');
-            const maxW = (canvas?.offsetWidth || 500) - w.x - 10;
-            const maxH = (canvas?.offsetHeight || 400) - w.y - 10;
-            w.w = Math.min(w.w, maxW);
-            w.h = Math.min(w.h, maxH);
+            const canvasW = canvas?.offsetWidth || 500;
+            const canvasH = canvas?.offsetHeight || 400;
             
+            // Ensure widget stays in bounds
+            newX = Math.max(0, Math.min(canvasW - 60, newX));
+            newY = Math.max(0, Math.min(canvasH - 60, newY));
+            newW = Math.max(60, Math.min(canvasW - newX - 5, newW));
+            newH = Math.max(60, Math.min(canvasH - newY - 5, newH));
+            
+            w.x = newX;
+            w.y = newY;
+            w.w = newW;
+            w.h = newH;
+            
+            e.target.style.left = w.x + 'px';
+            e.target.style.top = w.y + 'px';
             e.target.style.width = w.w + 'px';
             e.target.style.height = w.h + 'px';
             resolveOverlaps(w);
-            autoResizeCanvas();
           },
           end() { autoResizeCanvas(); scheduleAutoSave(); }
         }
@@ -9204,11 +9280,11 @@ document.addEventListener('click', (e)=>{
       foldBtn.title = on ? 'Expand' : 'Fold';
       try{ localStorage.setItem('helperPanelFolded', on ? '1' : '0'); }catch(e){}
     }
-    // restore folded state
+    // restore folded state - default to folded
     try{
       const savedFold = localStorage.getItem('helperPanelFolded');
-      if (savedFold === '1') setFolded(true);
-    }catch(e){}
+      if (savedFold !== '0') setFolded(true); // Folded unless explicitly expanded
+    }catch(e){ setFolded(true); }
     foldBtn.onclick = () => setFolded(!panel.classList.contains('folded'));
 
     fab.onclick = showPanel;
@@ -10197,9 +10273,9 @@ document.addEventListener('click', (e)=>{
   window.addEventListener('DOMContentLoaded', ()=>{
     buildFilters();
 
-    // restore collapsed state
-    const saved = localStorage.getItem('logCardCollapsed') === '1';
-    setCollapsed(saved);
+    // restore collapsed state - default to collapsed
+    const saved = localStorage.getItem('logCardCollapsed');
+    setCollapsed(saved !== '0'); // Collapsed unless explicitly set to expanded
 
     $('logToggle')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
     $('logFab')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
