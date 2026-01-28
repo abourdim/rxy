@@ -210,7 +210,16 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* Runtime View */
-.runtime-view { align-items: center; justify-content: center; padding: 20px; padding-top: 70px; position: relative; }
+.runtime-view { 
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: flex-start; 
+  padding: 20px; 
+  padding-top: 70px; 
+  position: relative;
+  min-height: calc(100vh - 60px);
+}
 .back-to-build-btn {
   position: absolute;
   top: 12px;
@@ -359,6 +368,61 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   content: '⤡';
 }
 
+/* Zoom Controls */
+.zoom-controls {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  padding: 8px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.1);
+}
+.zoom-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zoom-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
+.zoom-btn:active { transform: scale(0.95); }
+.zoom-level {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding: 2px 4px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+}
+
+/* App viewport scaling */
+html {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+body.scaled {
+  overflow: auto;
+}
+.app-scaler {
+  transform-origin: top left;
+  transition: transform 0.15s ease;
+}
+
 /* Canvas size badge in arrange mode */
 .runtime-size-badge {
   position: absolute;
@@ -398,28 +462,83 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .fullscreen-btn:hover { border-color: var(--accent); }
 
 body.runtime-fullscreen {
-  overflow: hidden;
+  overflow: hidden !important;
+  background: #0a0a0a !important;
+}
+body.runtime-fullscreen .app {
+  transform: none !important;
 }
 body.runtime-fullscreen .app > header,
 body.runtime-fullscreen .back-to-build-btn,
 body.runtime-fullscreen .arrange-mode-btn,
-body.runtime-fullscreen #runtimeTitle,
-body.runtime-fullscreen #arrangeHint {
+body.runtime-fullscreen #arrangeHint,
+body.runtime-fullscreen .fullscreen-btn,
+body.runtime-fullscreen .builder-view,
+body.runtime-fullscreen #connectPrompt {
   display: none !important;
 }
-body.runtime-fullscreen .runtime-view {
-  padding: 0 !important;
-  padding-top: 0 !important;
+body.runtime-fullscreen main {
+  position: fixed !important;
+  inset: 0 !important;
+  overflow: hidden !important;
 }
-body.runtime-fullscreen #runtimeGrid {
+body.runtime-fullscreen .runtime-view.active {
+  position: fixed !important;
+  inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  max-width: none !important;
-  border-radius: 0 !important;
-  border: none !important;
+  padding: 60px 20px 20px 20px !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #0a0a0a !important;
+  z-index: 9998 !important;
+}
+body.runtime-fullscreen #runtimeContent {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: auto !important;
+}
+body.runtime-fullscreen #runtimeTitle {
+  position: fixed !important;
+  top: 15px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 10000 !important;
+  background: rgba(0,0,0,0.8) !important;
+  padding: 10px 25px !important;
+  border-radius: 25px !important;
+  margin: 0 !important;
+}
+body.runtime-fullscreen #runtimeGrid {
+  max-width: 95vw !important;
+  max-height: calc(100vh - 100px) !important;
+  margin: 0 auto !important;
+  border: 3px solid var(--accent) !important;
+  transform-origin: center center !important;
 }
 body.runtime-fullscreen .fullscreen-exit-btn {
   display: flex !important;
+  z-index: 10001 !important;
+}
+/* Show zoom controls in fullscreen */
+body.runtime-fullscreen .zoom-controls {
+  display: flex !important;
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 10001 !important;
+}
+/* Add fullscreen scale button */
+body.runtime-fullscreen .zoom-controls .zoom-fit-btn {
+  background: var(--accent) !important;
+  color: #000 !important;
 }
 .fullscreen-exit-btn {
   display: none;
@@ -678,38 +797,6 @@ body.theme-forest { --bg: #1a2f1a; --surface: #243524; --card: #2d4a2d; --accent
 }
 .fullscreen-btn.visible { display: flex; align-items: center; justify-content: center; }
 .fullscreen-btn:hover { background: var(--surface); border-color: var(--accent); transform: scale(1.1); }
-
-/* Fullscreen Mode */
-body.fullscreen-mode {
-  overflow: hidden !important;
-}
-body.fullscreen-mode .app > header,
-body.fullscreen-mode .back-to-build-btn,
-body.fullscreen-mode .arrange-mode-btn,
-body.fullscreen-mode #runtimeTitle,
-body.fullscreen-mode .arrange-hint {
-  display: none !important;
-}
-body.fullscreen-mode .runtime-view {
-  padding: 0 !important;
-  background: #000 !important;
-}
-body.fullscreen-mode #runtimeGrid {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  max-height: none !important;
-  border-radius: 0 !important;
-  border: none !important;
-}
-body.fullscreen-mode .fullscreen-btn {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 9999;
-  background: rgba(0,0,0,0.6);
-  border-color: rgba(255,255,255,0.3);
-}
 
 /* Celebration Animation */
 .celebration-overlay {
@@ -1253,9 +1340,22 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
   background: linear-gradient(135deg, var(--green), var(--accent));
   color: #000; font-size: 1.2rem; font-weight: 800; cursor: pointer;
 }
-#runtimeContent { display: none; flex-direction: column; align-items: center; width: 100%; }
-#runtimeTitle { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
-#runtimeGrid { position: relative; background: var(--card); border: 3px solid var(--surface); border-radius: 20px; }
+#runtimeContent { 
+  display: none; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%; 
+  min-height: 400px;
+}
+#runtimeTitle { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; text-align: center; }
+#runtimeGrid { 
+  position: relative; 
+  background: var(--card); 
+  border: 3px solid var(--surface); 
+  border-radius: 20px;
+  margin: 0 auto;
+}
 
 /* Runtime Widgets */
 /* Graph (Online) */
@@ -5352,15 +5452,15 @@ function celebrate(message = '🎉 Connected!') {
 // === FULLSCREEN MODE ===
 function toggleFullscreen() {
   const btn = $('#fullscreenBtn');
-  const isFullscreen = document.body.classList.contains('fullscreen-mode');
+  const isFullscreen = document.body.classList.contains('runtime-fullscreen');
   
   if (isFullscreen) {
-    document.body.classList.remove('fullscreen-mode');
-    if (btn) btn.textContent = '⛶';
+    document.body.classList.remove('runtime-fullscreen');
+    if (btn) btn.textContent = '⛶ Fullscreen';
     if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
   } else {
-    document.body.classList.add('fullscreen-mode');
-    if (btn) btn.textContent = '✕';
+    document.body.classList.add('runtime-fullscreen');
+    if (btn) btn.textContent = '✕ Exit';
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
@@ -5369,7 +5469,7 @@ function toggleFullscreen() {
 
 // Exit fullscreen on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
+  if (e.key === 'Escape' && document.body.classList.contains('runtime-fullscreen')) {
     toggleFullscreen();
   }
 });
@@ -6152,8 +6252,8 @@ function switchTab(tab) {
     if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
     
     // Exit fullscreen mode if active
-    if (document.body.classList.contains('fullscreen-mode')) {
-      document.body.classList.remove('fullscreen-mode');
+    if (document.body.classList.contains('runtime-fullscreen')) {
+      document.body.classList.remove('runtime-fullscreen');
       if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
     }
     
@@ -7904,9 +8004,9 @@ function renderRuntime() {
   let maxX = 0, maxY = 0;
   cfg.widgets.forEach(w => { maxX = Math.max(maxX, w.x + w.w); maxY = Math.max(maxY, w.y + w.h); });
   
-  // Use saved canvas size or calculate from widgets
-  const canvasW = state.runtimeCanvasSize?.w || Math.max(400, maxX + 20);
-  const canvasH = state.runtimeCanvasSize?.h || Math.max(320, maxY + 20);
+  // Use saved canvas size or calculate from widgets - with reasonable limits
+  const canvasW = Math.min(600, state.runtimeCanvasSize?.w || Math.max(350, maxX + 20));
+  const canvasH = Math.min(700, state.runtimeCanvasSize?.h || Math.max(300, maxY + 20));
   grid.style.width = `${canvasW}px`;
   grid.style.height = `${canvasH}px`;
   grid.innerHTML = '';
@@ -10300,6 +10400,169 @@ document.addEventListener('click', (e)=>{
 })();
 </script>
 <!-- === END Unified Logs System === -->
+
+<!-- Zoom Controls -->
+<div id="zoomControls" class="zoom-controls">
+  <button class="zoom-btn" id="zoomInBtn" title="Zoom In">+</button>
+  <div class="zoom-level" id="zoomLevel">100%</div>
+  <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">−</button>
+  <button class="zoom-btn" id="zoomFitBtn" title="Fit to Screen">⊡</button>
+  <button class="zoom-btn" id="zoomResetBtn" title="Reset to 100%">1:1</button>
+</div>
+
+<script>
+(function() {
+  // Zoom functionality
+  let currentZoom = 1;
+  const minZoom = 0.5;
+  const maxZoom = 3;
+  const zoomStep = 0.15;
+  
+  const zoomLevel = document.getElementById('zoomLevel');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const zoomFitBtn = document.getElementById('zoomFitBtn');
+  const zoomResetBtn = document.getElementById('zoomResetBtn');
+  
+  function getZoomTarget() {
+    // In fullscreen mode, zoom the runtime grid
+    if (document.body.classList.contains('runtime-fullscreen')) {
+      return document.getElementById('runtimeGrid');
+    }
+    // Otherwise zoom the app
+    return document.querySelector('.app');
+  }
+  
+  function applyZoom(zoom) {
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, zoom));
+    
+    const target = getZoomTarget();
+    if (target) {
+      target.style.transform = `scale(${currentZoom})`;
+      target.style.transformOrigin = 'center center';
+    }
+    
+    // Update display
+    if (zoomLevel) {
+      zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+    }
+    
+    // Save preference
+    try { localStorage.setItem('app_zoom', currentZoom); } catch(e) {}
+  }
+  
+  function zoomIn() {
+    applyZoom(currentZoom + zoomStep);
+  }
+  
+  function zoomOut() {
+    applyZoom(currentZoom - zoomStep);
+  }
+  
+  function zoomFit() {
+    // Fit the runtime grid to screen
+    const grid = document.getElementById('runtimeGrid');
+    if (!grid) return;
+    
+    // Reset zoom first to get actual size
+    grid.style.transform = '';
+    
+    const gridW = grid.offsetWidth;
+    const gridH = grid.offsetHeight;
+    const availW = window.innerWidth - 80;
+    const availH = window.innerHeight - 120;
+    
+    const fitZoom = Math.min(availW / gridW, availH / gridH, 2);
+    applyZoom(fitZoom);
+  }
+  
+  function zoomReset() {
+    applyZoom(1);
+  }
+  
+  // Event listeners
+  if (zoomInBtn) zoomInBtn.onclick = zoomIn;
+  if (zoomOutBtn) zoomOutBtn.onclick = zoomOut;
+  if (zoomFitBtn) zoomFitBtn.onclick = zoomFit;
+  if (zoomResetBtn) zoomResetBtn.onclick = zoomReset;
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + Plus/Minus for zoom
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault();
+        zoomIn();
+      } else if (e.key === '-') {
+        e.preventDefault();
+        zoomOut();
+      } else if (e.key === '0') {
+        e.preventDefault();
+        zoomReset();
+      }
+    }
+  });
+  
+  // Mouse wheel zoom with Ctrl
+  document.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        zoomIn();
+      } else {
+        zoomOut();
+      }
+    }
+  }, { passive: false });
+  
+  // Pinch zoom for touch devices
+  let lastTouchDistance = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDistance = Math.sqrt(dx * dx + dy * dy);
+    }
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (lastTouchDistance > 0) {
+        const delta = (distance - lastTouchDistance) / 200;
+        applyZoom(currentZoom + delta);
+      }
+      
+      lastTouchDistance = distance;
+    }
+  }, { passive: true });
+  
+  document.addEventListener('touchend', () => {
+    lastTouchDistance = 0;
+  }, { passive: true });
+  
+  // Load saved zoom
+  try {
+    const savedZoom = localStorage.getItem('app_zoom');
+    if (savedZoom) {
+      applyZoom(parseFloat(savedZoom));
+    }
+  } catch(e) {}
+  
+  // Expose for other scripts
+  window.appZoom = {
+    zoomIn,
+    zoomOut,
+    zoomFit,
+    zoomReset,
+    getZoom: () => currentZoom,
+    setZoom: applyZoom
+  };
+})();
+</script>
 
 </body>
 </html>
