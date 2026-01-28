@@ -210,8 +210,8 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* Runtime View */
+/* Runtime View - only shows when .active class is present */
 .runtime-view { 
-  display: flex;
   flex-direction: column;
   align-items: center; 
   justify-content: flex-start; 
@@ -219,6 +219,10 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   padding-top: 70px; 
   position: relative;
   min-height: calc(100vh - 60px);
+}
+/* Ensure runtime view is hidden when not active */
+.runtime-view:not(.active) {
+  display: none !important;
 }
 .back-to-build-btn {
   position: absolute;
@@ -245,22 +249,29 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 }
 
 /* Arrange Mode Button */
-.arrange-mode-btn {
+/* Runtime top buttons container */
+.runtime-top-btns {
   position: absolute;
   top: 12px;
   right: 12px;
-  padding: 12px 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  z-index: 10;
+}
+.arrange-mode-btn {
+  position: static;
+  padding: 8px 14px;
   border: none;
-  border-radius: 30px;
+  border-radius: 20px;
   background: var(--card);
   color: var(--text);
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
-  z-index: 10;
   border: 2px solid var(--text-dim);
-  display: none; /* Hidden by default, shown when connected */
+  display: none;
 }
 .arrange-mode-btn.visible {
   display: block;
@@ -371,26 +382,26 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 /* Zoom Controls */
 .zoom-controls {
   position: fixed;
-  bottom: 80px;
+  bottom: 60px;
   right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  z-index: 1000;
-  background: rgba(0,0,0,0.7);
-  padding: 8px;
-  border-radius: 16px;
+  gap: 5px;
+  z-index: 10000;
+  background: rgba(0,0,0,0.85);
+  padding: 6px;
+  border-radius: 14px;
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid var(--accent);
 }
 .zoom-btn {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--card);
   color: var(--text);
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -402,12 +413,12 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .zoom-btn:active { transform: scale(0.95); }
 .zoom-level {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-dim);
-  padding: 2px 4px;
+  padding: 2px;
   background: rgba(0,0,0,0.3);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 /* App viewport scaling */
@@ -443,23 +454,21 @@ body.scaled {
 
 /* === FULLSCREEN MODE === */
 .fullscreen-btn {
-  position: absolute;
-  top: 12px;
-  right: 140px;
-  padding: 10px 16px;
+  position: static;
+  padding: 8px 14px;
   border: none;
-  border-radius: 30px;
+  border-radius: 20px;
   background: var(--card);
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  z-index: 10;
   border: 2px solid var(--text-dim);
   display: none;
+  transition: all 0.2s;
 }
 .fullscreen-btn.visible { display: block; }
-.fullscreen-btn:hover { border-color: var(--accent); }
+.fullscreen-btn:hover { border-color: var(--accent); background: var(--surface); }
 
 body.runtime-fullscreen {
   overflow: hidden !important;
@@ -1361,40 +1370,42 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
 /* Graph (Online) */
 .rt-graph-wrap{
   width: 100%; height: 100%;
-  display:flex; flex-direction:column; gap:8px;
-  padding: 12px;
-  border-radius: 20px;
+  display:flex; flex-direction:column; gap:6px;
+  padding: 10px;
+  border-radius: 16px;
   background: linear-gradient(145deg, rgba(0,180,216,0.15), rgba(179,136,255,0.15));
-  border: 3px solid rgba(0,212,255,0.4);
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.2), 0 0 20px rgba(0,212,255,0.1);
+  border: 2px solid rgba(0,212,255,0.4);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+  overflow: hidden;
 }
 .rt-graph-head{ 
   display:flex; justify-content:space-between; align-items: center;
-  font-weight:800; font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--accent); 
-  text-shadow: 0 0 10px rgba(0,212,255,0.5);
+  font-weight:800; font-size: clamp(0.75rem, 1.8vw, 0.95rem); color: var(--accent); 
+  flex-shrink: 0;
 }
-.rt-graph-head::before { content: '📊 '; }
-.rt-graph-sub{ display:flex; gap:8px; flex-wrap:wrap; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--text); font-weight:700; }
-.rt-graph-dot{ width: 14px; height:14px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:6px; box-shadow: 0 0 12px currentColor; animation: dotPulse 2s ease-in-out infinite; }
-@keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.rt-graph-head::before { content: '📈 '; }
+.rt-graph-sub{ display:flex; gap:6px; flex-wrap:wrap; font-size: clamp(0.6rem, 1.3vw, 0.75rem); color: var(--text); font-weight:700; flex-shrink: 0; }
+.rt-graph-dot{ width: 10px; height:10px; border-radius:999px; display:inline-block; vertical-align:middle; margin-right:4px; box-shadow: 0 0 8px currentColor; }
 .rt-graph-canvas{
-  width: 100%; flex:1;
-  border-radius: 14px;
+  width: 100%; 
+  flex: 1;
+  min-height: 60px;
+  max-height: 100%;
+  border-radius: 10px;
   background: rgba(0,0,0,0.25);
-  border: 2px solid rgba(0,212,255,0.3);
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,212,255,0.2);
 }
 .rt-graph-wrap.model-grid{
-  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(179,136,255,0.15));
-  border-color: rgba(0,212,255,0.5);
+  background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(179,136,255,0.12));
+  border-color: rgba(0,212,255,0.4);
 }
 .rt-graph-wrap.model-dark{
-  background: linear-gradient(145deg, rgba(0,0,0,0.3), rgba(20,30,50,0.4));
-  border-color: rgba(100,150,255,0.3);
+  background: linear-gradient(145deg, rgba(0,0,0,0.25), rgba(20,30,50,0.3));
+  border-color: rgba(100,150,255,0.25);
 }
 .rt-graph-wrap.model-min{
   background: transparent;
-  border: 2px solid rgba(0,212,255,0.3);
+  border: 1px solid rgba(0,212,255,0.25);
 }
 
 /* Gauge */
@@ -1460,75 +1471,103 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
 }
 .rt-button .icon { font-size: clamp(1.5rem, 5vw, 3rem); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
-.rt-slider-wrap { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 8px; }
-.rt-slider-info { display: flex; justify-content: space-between; font-weight: 700; font-size: clamp(0.8rem, 2vw, 1rem); }
-.rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider-wrap { 
+  width: 100%; height: 100%; 
+  display: flex; flex-direction: column; 
+  justify-content: space-between; align-items: center;
+  padding: 8px 10px;
+  position: relative;
+}
+.rt-slider-label {
+  font-weight: 700; 
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem); 
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.rt-slider-info { 
+  display: none;
+}
 .rt-slider-val { 
   background: linear-gradient(135deg, var(--accent), var(--purple));
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 5px 14px;
+  border-radius: 14px;
   color: #000;
   font-weight: 800;
-  min-width: 45px;
+  font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+  min-width: 50px;
   text-align: center;
+  box-shadow: 0 3px 10px rgba(0,212,255,0.4);
+  margin-top: 6px;
 }
 .rt-slider { 
-  width: 100%; height: 22px; border-radius: 999px; 
-  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff); 
+  width: 100%; 
+  height: 20px; 
+  border-radius: 10px; 
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c); 
+  background-size: 300% 100%;
+  animation: slider-gradient 5s ease infinite;
   -webkit-appearance: none; 
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
-  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+@keyframes slider-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 .rt-slider::-webkit-slider-thumb { 
-  width: 40px; height: 40px; -webkit-appearance: none; 
-  border-radius: 50%; 
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #f0f0f0 50%, #ddd 100%); 
-  border: 4px solid var(--accent);
+  width: 34px; height: 34px; -webkit-appearance: none; 
+  border-radius: 8px; 
+  background: linear-gradient(145deg, #ffffff, #e6e6e6); 
+  border: 3px solid var(--accent);
   cursor: pointer; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.8), 0 0 15px rgba(0,212,255,0.3);
-  transition: transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 12px rgba(0,212,255,0.4);
+  transition: all 0.15s ease;
 }
-.rt-slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 25px rgba(0,212,255,0.5); }
-.rt-slider::-webkit-slider-thumb:active { transform: scale(0.95); background: radial-gradient(circle at 30% 30%, var(--accent) 0%, #0099cc 100%); }
+.rt-slider::-webkit-slider-thumb:hover { 
+  transform: scale(1.15) rotate(5deg); 
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,212,255,0.6); 
+}
+.rt-slider::-webkit-slider-thumb:active { 
+  transform: scale(0.95); 
+  background: linear-gradient(145deg, var(--accent), #0099cc); 
+}
 .rt-slider::-moz-range-thumb { 
-  width: 40px; height: 40px; border-radius: 50%; 
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #f0f0f0 50%, #ddd 100%); 
-  border: 4px solid var(--accent);
+  width: 34px; height: 34px; 
+  border-radius: 8px; 
+  background: linear-gradient(145deg, #ffffff, #e6e6e6); 
+  border: 3px solid var(--accent);
   cursor: pointer;
 }
 
 /* Vertical slider support */
 .rt-slider-wrap.vertical {
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 10px;
-}
-.rt-slider-wrap.vertical .rt-slider-info {
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
+  justify-content: space-between;
+  padding: 8px;
 }
-.rt-slider-wrap.vertical .rt-slider-info span:first-child::before { content: '🎚️ '; }
+.rt-slider-wrap.vertical .rt-slider-label {
+  margin-bottom: 2px;
+}
 .rt-slider-wrap.vertical .rt-slider-val {
-  writing-mode: horizontal-tb;
-  transform: rotate(180deg);
+  margin-top: 2px;
 }
 .rt-slider-wrap.vertical .rt-slider {
-  width: 22px;
+  width: 24px;
   height: 100%;
-  min-height: 80px;
+  min-height: 60px;
+  flex: 1;
   writing-mode: vertical-lr;
   direction: rtl;
-  background: linear-gradient(0deg, #ff6b6b 0%, #feca57 25%, #48dbfb 50%, #ff9ff3 75%, #54a0ff 100%);
+  background: linear-gradient(to top, #667eea, #764ba2, #f093fb, #f5576c);
 }
 .rt-slider-wrap.vertical .rt-slider::-webkit-slider-thumb {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 }
 
 .rt-toggle-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
@@ -4094,8 +4133,10 @@ aside.widget-properties {
 
     <div class="view runtime-view">
       <button id="backToBuildBtn" class="back-to-build-btn">← Back to Build</button>
-      <button id="arrangeModeBtn" class="arrange-mode-btn">📐 Arrange</button>
-      <button id="fullscreenBtn" class="fullscreen-btn">⛶ Fullscreen</button>
+      <div class="runtime-top-btns">
+        <button id="arrangeModeBtn" class="arrange-mode-btn">📐 Arrange</button>
+        <button id="fullscreenBtn" class="fullscreen-btn">⛶ Fullscreen</button>
+      </div>
       <button id="fullscreenExitBtn" class="fullscreen-exit-btn">✕</button>
       <div id="quickActionsMenu" class="quick-actions-menu">
         <button class="quick-action-btn" data-action="duplicate">📋 Duplicate</button>
@@ -6218,34 +6259,14 @@ function setupSwipeGestures() {
 function switchTab(tab) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   $$('.view').forEach(v => v.classList.remove('active'));
-  $(`.${tab === 'builder' ? 'builder-view' : 'runtime-view'}`).classList.add('active');
   
+  const builderView = $('.builder-view');
+  const runtimeView = $('.runtime-view');
   const fullscreenBtn = $('#fullscreenBtn');
   
-  if (tab === 'runtime') {
-    startDemoSim();
-    
-    // If connected via BLE, runtime is already set up
-    if (state.ble.connected) {
-      // Already handled by updateBleUI
-    }
-    // If we have a config (from demo), show it
-    else if (state.config && state.config.widgets && state.config.widgets.length > 0) {
-      $('#connectPrompt').style.display = 'none';
-      $('#runtimeContent').style.display = 'flex';
-      const arrangeBtn = $('#arrangeModeBtn');
-      if (arrangeBtn) arrangeBtn.classList.add('visible');
-      if (fullscreenBtn) fullscreenBtn.classList.add('visible');
-    }
-    // Otherwise show connect prompt for kids
-    else {
-      $('#connectPrompt').style.display = 'block';
-      $('#runtimeContent').style.display = 'none';
-      const arrangeBtn = $('#arrangeModeBtn');
-      if (arrangeBtn) arrangeBtn.classList.remove('visible');
-      if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
-    }
-  } else {
+  if (tab === 'builder') {
+    builderView.classList.add('active');
+    runtimeView.classList.remove('active');
     stopDemoSim();
     
     // Hide fullscreen button
@@ -6272,6 +6293,32 @@ function switchTab(tab) {
       
       // Sync any changes made
       syncRuntimeToBuild();
+    }
+  } else {
+    // Runtime tab
+    builderView.classList.remove('active');
+    runtimeView.classList.add('active');
+    startDemoSim();
+    
+    // If connected via BLE, runtime is already set up
+    if (state.ble.connected) {
+      // Already handled by updateBleUI
+    }
+    // If we have a config (from demo), show it
+    else if (state.config && state.config.widgets && state.config.widgets.length > 0) {
+      $('#connectPrompt').style.display = 'none';
+      $('#runtimeContent').style.display = 'flex';
+      const arrangeBtn = $('#arrangeModeBtn');
+      if (arrangeBtn) arrangeBtn.classList.add('visible');
+      if (fullscreenBtn) fullscreenBtn.classList.add('visible');
+    }
+    // Otherwise show connect prompt for kids
+    else {
+      $('#connectPrompt').style.display = 'block';
+      $('#runtimeContent').style.display = 'none';
+      const arrangeBtn = $('#arrangeModeBtn');
+      if (arrangeBtn) arrangeBtn.classList.remove('visible');
+      if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
     }
   }
 }
@@ -8381,8 +8428,9 @@ function createRuntimeWidget(w) {
       const isVertical = (w.h || 100) > (w.w || 100);
       const orientClass = isVertical ? ' vertical' : '';
       return `<div class="rt-slider-wrap${orientClass}">
-        <div class="rt-slider-info"><span>${label}</span><span class="rt-slider-val">${esc(String(clamped))}</span></div>
+        <div class="rt-slider-label">${label}</div>
         <input type="range" class="rt-slider model-${m}" min="${min}" max="${max}" step="${step}" value="${clamped}"${isVertical ? ' orient="vertical"' : ''}>
+        <div class="rt-slider-val">${esc(String(clamped))}</div>
       </div>`;
     }
 
@@ -8597,13 +8645,16 @@ function bindRuntimeWidget(el, w) {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const dx = clientX - centerX;
-        const dy = clientY - centerY;
+        const dy = -(clientY - centerY); // Invert Y so up is positive
         const maxDist = Math.min(rect.width, rect.height) / 2 - 10;
         const rawAngle = Math.atan2(dy, dx) * 180 / Math.PI;
         const distance = Math.min(maxDist, Math.hypot(dx, dy));
         currentDist = Math.round((distance / maxDist) * 100);
+        // Normalize angle: 0=right, 90=up, 180=left, 270=down
         currentAngle = Math.round(((rawAngle + 360) % 360));
-        stick.style.transform = `translate(${Math.cos(rawAngle * Math.PI / 180) * distance}px, ${Math.sin(rawAngle * Math.PI / 180) * distance}px)`;
+        // Visual position uses screen coordinates (Y not inverted)
+        const visualDy = clientY - centerY;
+        stick.style.transform = `translate(${(dx / Math.hypot(dx, visualDy || 1)) * distance}px, ${(visualDy / Math.hypot(dx, visualDy || 1)) * distance}px)`;
         // Don't send during drag - only on release
       };
       const resetJoystick = () => {
@@ -10038,22 +10089,28 @@ document.addEventListener('click', (e)=>{
 #logCard{
   position: fixed;
   left: 10px;
-  right: 10px;
+  right: 80px;
   bottom: 10px;
-  z-index: 99990;
-  border-radius: 16px;
+  z-index: 900;
+  border-radius: 14px;
   border: 2px solid rgba(255,255,255,0.12);
-  background: rgba(10,18,44,0.78);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+  background: rgba(10,18,44,0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   width: auto;
-  max-height: 42vh;
+  max-height: 40vh;
   pointer-events: auto;
 }
-#logCard.collapsed{ max-height: 44px !important; }
+#logCard.collapsed{ 
+  max-height: 36px !important; 
+  left: auto;
+  right: 80px;
+  width: auto;
+  min-width: 80px;
+}
 
 #logHead{
   display:flex;
