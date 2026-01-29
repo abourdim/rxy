@@ -1442,6 +1442,7 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
   border: 3px solid var(--surface); 
   border-radius: 20px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 /* Runtime Widgets */
@@ -8742,8 +8743,8 @@ function renderRuntime() {
   cfg.widgets.forEach(w => { maxX = Math.max(maxX, w.x + w.w); maxY = Math.max(maxY, w.y + w.h); });
   
   // Use saved canvas size or calculate from widgets - with reasonable limits
-  const canvasW = Math.min(600, state.runtimeCanvasSize?.w || Math.max(350, maxX + 20));
-  const canvasH = Math.min(700, state.runtimeCanvasSize?.h || Math.max(300, maxY + 20));
+  const canvasW = state.runtimeCanvasSize?.w || Math.max(350, maxX + 20);
+  const canvasH = state.runtimeCanvasSize?.h || Math.max(300, maxY + 20);
   grid.style.width = `${canvasW}px`;
   grid.style.height = `${canvasH}px`;
   grid.innerHTML = '';
