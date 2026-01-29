@@ -91,8 +91,28 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .btn-template { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; }
 .btn-delete { background: var(--red); color: #fff; }
 
-/* Widgets Palette Card */
-.palette-card {
+/* Builder layout */
+.builder-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.builder-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.builder-header:empty { display: none; }
+.builder-view .canvas { max-width: 100%; }
+.canvas-wrap { min-width: 0; }
+
+/* Collapsible cards */
+.palette-card,
+.collapsible-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -100,10 +120,10 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   background: var(--surface);
   border: 2px solid var(--card);
   border-radius: 18px;
-  order: 2;
   min-height: 0;
 }
-.palette-card-toggle {
+.palette-card-toggle,
+.collapsible-card-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -119,12 +139,18 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   cursor: pointer;
   transition: 0.2s;
 }
-.palette-card-toggle:hover { border-color: var(--accent); }
-.palette-card-title { display: flex; align-items: center; gap: 6px; }
-.palette-card-chevron { transition: transform 0.2s ease; }
-.palette-card.collapsed .palette-card-body { display: none; }
-.palette-card.collapsed .palette-card-chevron { transform: rotate(-90deg); }
-.palette-card-body { min-height: 0; }
+.palette-card-toggle:hover,
+.collapsible-card-toggle:hover { border-color: var(--accent); }
+.palette-card-title,
+.collapsible-card-title { display: flex; align-items: center; gap: 6px; }
+.palette-card-chevron,
+.collapsible-card-chevron { transition: transform 0.2s ease; }
+.palette-card.collapsed .palette-card-body,
+.collapsible-card.collapsed .collapsible-card-body { display: none; }
+.palette-card.collapsed .palette-card-chevron,
+.collapsible-card.collapsed .collapsible-card-chevron { transform: rotate(-90deg); }
+.palette-card-body,
+.collapsible-card-body { min-height: 0; overflow-y: auto; max-height: clamp(200px, 45vh, 560px); -webkit-overflow-scrolling: touch; }
 
 /* Palette - Bottom on mobile */
 .palette {
@@ -2014,10 +2040,9 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
 
 /* Responsive */
 @media (min-width: 768px) {
-  .builder-view { flex-direction: row; }
-  .palette-card { order: 0; height: 100%; }
-  .palette-card-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 4px; -webkit-overflow-scrolling: touch; }
-  .canvas-wrap { order: 0; }
+  .builder-main { flex-direction: row; }
+  .builder-side { flex: 0 0 clamp(260px, 28vw, 360px); }
+  .palette-card { order: 0; }
 }
 @media (max-width: 500px) {
   .logo { font-size: 1rem; }
@@ -2057,6 +2082,13 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
   .props-close-btn { display: flex; align-items: center; justify-content: center; }
 }
 .props-empty{ color: var(--text-dim); font-weight: 600; font-size: 0.9rem; }
+.props-title-actions { display: flex; gap: 6px; align-items: center; }
+.props-collapse-btn { display: flex; align-items: center; justify-content: center; }
+.props-panel.collapsed #propsEmpty,
+.props-panel.collapsed #propsForm { display: none !important; }
+@media (max-width: 600px) {
+  .props-collapse-btn { display: none; }
+}
 
 .props-form label{
   display:block;
@@ -2079,6 +2111,10 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
 .props-form input:focus, .props-form select:focus{
   outline: none;
   border-color: var(--accent);
+}
+
+@media (min-width: 768px) {
+  #propsPanel { max-height: clamp(240px, 45vh, 560px); overflow-y: auto; }
 }
 
 /* Size & Orientation controls */
@@ -4145,60 +4181,77 @@ aside.widget-properties {
     <div class="view builder-view active">
       <div class="builder-header">
         <input type="text" id="titleInput" class="title-input" placeholder="🏷️ Name your remote..." maxlength="25">
-        <div class="action-card">
-          <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
-<button class="header-btn btn-code" id="exportJsonBtn">📦 Export</button>
-<button class="header-btn btn-code" id="importJsonBtn">📂 Import</button>
-        <button class="header-btn btn-template" id="templateBtn">🎨 Templates</button>
-        <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
-        <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
-        </div>
       </div>
-      <div class="canvas-wrap">
-        <div class="build-toolbar">
-          <button class="build-toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↩️</button>
-          <button class="build-toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>↪️</button>
-          <button class="build-toolbar-btn auto-arrange-btn" id="autoArrangeBtn" title="Auto-arrange widgets">✨ Tidy</button>
-          <button class="build-toolbar-btn magic-btn" id="magicBtn" title="Magic styling!">🪄 Magic</button>
-          <div class="theme-selector">
-            <div class="theme-dot active" data-theme="dark" title="Dark"></div>
-            <div class="theme-dot" data-theme="ocean" title="Ocean"></div>
-            <div class="theme-dot" data-theme="space" title="Space"></div>
-            <div class="theme-dot" data-theme="candy" title="Candy"></div>
-            <div class="theme-dot" data-theme="forest" title="Forest"></div>
+      <div class="builder-main">
+        <div class="canvas-wrap">
+          <div class="build-toolbar">
+            <button class="build-toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↩️</button>
+            <button class="build-toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>↪️</button>
+            <button class="build-toolbar-btn auto-arrange-btn" id="autoArrangeBtn" title="Auto-arrange widgets">✨ Tidy</button>
+            <button class="build-toolbar-btn magic-btn" id="magicBtn" title="Magic styling!">🪄 Magic</button>
+            <div class="theme-selector">
+              <div class="theme-dot active" data-theme="dark" title="Dark"></div>
+              <div class="theme-dot" data-theme="ocean" title="Ocean"></div>
+              <div class="theme-dot" data-theme="space" title="Space"></div>
+              <div class="theme-dot" data-theme="candy" title="Candy"></div>
+              <div class="theme-dot" data-theme="forest" title="Forest"></div>
+            </div>
           </div>
+          <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it! • 📱 Shake phone for surprise!</div>
+          <div id="canvas" class="canvas"><div id="widgetsLayer"></div></div>
         </div>
-        <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it! • 📱 Shake phone for surprise!</div>
-        <div id="canvas" class="canvas"><div id="widgetsLayer"></div></div>
-      </div>
 
-      <div id="propsPanel" class="props-panel">
-        <div class="props-title">🛠️ Widget Properties <button id="propsPanelClose" class="props-close-btn">✕</button></div>
-        <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
-        <div id="propsForm" class="props-form" style="display:none;"></div>
-      </div>
-
-      <div class="palette-card" id="paletteCard">
-        <button class="palette-card-toggle" id="paletteToggle" type="button" aria-expanded="true" aria-controls="paletteBody">
-          <span class="palette-card-title">🧩 Widgets</span>
-          <span class="palette-card-chevron">▾</span>
-        </button>
-        <div class="palette-card-body" id="paletteBody">
-          <div class="palette">
-            <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
-            <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
-            <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
-            <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
-            <div class="palette-item" data-type="dpad"><div class="palette-icon">✛</div><div class="palette-name">D-Pad</div></div>
-            <div class="palette-item" data-type="xypad"><div class="palette-icon">📍</div><div class="palette-name">XY Pad</div></div>
-            <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
-            <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
-            <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
-            <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
-            <div class="palette-item" data-type="battery"><div class="palette-icon">🔋</div><div class="palette-name">Battery</div></div>
-            <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
+        <aside class="builder-side">
+          <div class="collapsible-card" id="actionsCard">
+            <button class="collapsible-card-toggle" id="actionsToggle" type="button" aria-expanded="true" aria-controls="actionsBody">
+              <span class="collapsible-card-title">🎮 Actions</span>
+              <span class="collapsible-card-chevron">▾</span>
+            </button>
+            <div class="collapsible-card-body action-card" id="actionsBody">
+              <button class="header-btn btn-demo" id="demoBtn">🎮 Try All Widgets!</button>
+              <button class="header-btn btn-code" id="exportJsonBtn">📦 Export</button>
+              <button class="header-btn btn-code" id="importJsonBtn">📂 Import</button>
+              <button class="header-btn btn-template" id="templateBtn">🎨 Templates</button>
+              <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
+              <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
+            </div>
           </div>
-        </div>
+
+          <div id="propsPanel" class="props-panel props-card">
+            <div class="props-title">
+              🛠️ Widget Properties
+              <div class="props-title-actions">
+                <button id="propsCollapseBtn" class="props-close-btn props-collapse-btn" type="button" title="Collapse">–</button>
+                <button id="propsPanelClose" class="props-close-btn" type="button">✕</button>
+              </div>
+            </div>
+            <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
+            <div id="propsForm" class="props-form" style="display:none;"></div>
+          </div>
+
+          <div class="palette-card collapsible-card" id="paletteCard">
+            <button class="palette-card-toggle collapsible-card-toggle" id="paletteToggle" type="button" aria-expanded="true" aria-controls="paletteBody">
+              <span class="palette-card-title collapsible-card-title">🧩 Widgets</span>
+              <span class="palette-card-chevron collapsible-card-chevron">▾</span>
+            </button>
+            <div class="palette-card-body collapsible-card-body" id="paletteBody">
+              <div class="palette">
+                <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
+                <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
+                <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
+                <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
+                <div class="palette-item" data-type="dpad"><div class="palette-icon">✛</div><div class="palette-name">D-Pad</div></div>
+                <div class="palette-item" data-type="xypad"><div class="palette-icon">📍</div><div class="palette-name">XY Pad</div></div>
+                <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
+                <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
+                <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
+                <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
+                <div class="palette-item" data-type="battery"><div class="palette-icon">🔋</div><div class="palette-name">Battery</div></div>
+                <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
 
@@ -5650,6 +5703,11 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
 // keep controls at top-right
   try{ moveBuildPlayNameTopRight(); }catch(e){}
 
+  const builderHeader = document.querySelector('.builder-header');
+  if (builderHeader && builderHeader.children.length === 0) {
+    builderHeader.style.display = 'none';
+  }
+
   state._allowLoadingOverlay = false;
   if (typeof hideLoading === 'function') hideLoading();
   
@@ -5695,24 +5753,53 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
     };
   });
 
-  // Palette card collapse
-  const paletteCard = $('#paletteCard');
-  const paletteToggle = $('#paletteToggle');
-  const paletteBody = $('#paletteBody');
-  if (paletteCard && paletteToggle && paletteBody) {
-    const setPaletteCollapsed = (collapsed) => {
-      paletteCard.classList.toggle('collapsed', collapsed);
-      paletteToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-      paletteBody.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+  // Collapsible cards
+  function setupCollapsibleCard(cardSel, toggleSel, bodySel, storageKey, opts = {}) {
+    const card = $(cardSel);
+    const toggle = $(toggleSel);
+    const body = $(bodySel);
+    if (!card || !toggle || !body) return;
+
+    const setCollapsed = (collapsed) => {
+      card.classList.toggle('collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      body.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+    };
+
+    let collapsed = !!opts.defaultCollapsed;
+    try{
+      const saved = localStorage.getItem(storageKey);
+      if (saved !== null) collapsed = saved === '1';
+    }catch(e){}
+    setCollapsed(collapsed);
+
+    toggle.onclick = () => {
+      if (opts.disableOnMobile && window.innerWidth <= 600) return;
+      const next = !card.classList.contains('collapsed');
+      setCollapsed(next);
+      try{ localStorage.setItem(storageKey, next ? '1' : '0'); }catch(e){}
+    };
+  }
+
+  setupCollapsibleCard('#actionsCard', '#actionsToggle', '#actionsBody', 'actionsCollapsed');
+  setupCollapsibleCard('#paletteCard', '#paletteToggle', '#paletteBody', 'paletteCollapsed');
+
+  // Properties panel collapse (desktop)
+  const propsCollapseBtn = $('#propsCollapseBtn');
+  if (propsPanel && propsCollapseBtn) {
+    const setPropsCollapsed = (collapsed) => {
+      propsPanel.classList.toggle('collapsed', collapsed);
+      propsCollapseBtn.textContent = collapsed ? '+' : '–';
+      propsCollapseBtn.title = collapsed ? 'Expand' : 'Collapse';
     };
     try{
-      const saved = localStorage.getItem('paletteCollapsed');
-      if (saved !== null) setPaletteCollapsed(saved === '1');
+      const saved = localStorage.getItem('propsCollapsed');
+      if (saved !== null) setPropsCollapsed(saved === '1');
     }catch(e){}
-    paletteToggle.onclick = () => {
-      const collapsed = !paletteCard.classList.contains('collapsed');
-      setPaletteCollapsed(collapsed);
-      try{ localStorage.setItem('paletteCollapsed', collapsed ? '1' : '0'); }catch(e){}
+    propsCollapseBtn.onclick = () => {
+      const next = !propsPanel.classList.contains('collapsed');
+      setPropsCollapsed(next);
+      try{ localStorage.setItem('propsCollapsed', next ? '1' : '0'); }catch(e){}
     };
   }
   
