@@ -91,11 +91,46 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .btn-template { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; }
 .btn-delete { background: var(--red); color: #fff; }
 
+/* Widgets Palette Card */
+.palette-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--surface);
+  border: 2px solid var(--card);
+  border-radius: 18px;
+  order: 2;
+  min-height: 0;
+}
+.palette-card-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 0.85rem;
+  min-height: 44px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.palette-card-toggle:hover { border-color: var(--accent); }
+.palette-card-title { display: flex; align-items: center; gap: 6px; }
+.palette-card-chevron { transition: transform 0.2s ease; }
+.palette-card.collapsed .palette-card-body { display: none; }
+.palette-card.collapsed .palette-card-chevron { transform: rotate(-90deg); }
+.palette-card-body { min-height: 0; }
+
 /* Palette - Bottom on mobile */
 .palette {
-  display: flex; gap: 8px; padding: 10px;
-  background: var(--surface); border-top: 2px solid var(--card);
-  overflow-x: auto; order: 2;
+  display: flex; gap: 8px; padding: 2px;
+  background: transparent; border: none;
+  overflow-x: auto;
 }
 .palette-item {
   flex-shrink: 0; display: flex; flex-direction: column;
@@ -1976,7 +2011,9 @@ body.theme-sunset .canvas { background: linear-gradient(135deg, #6a0572, #ab0a78
 /* Responsive */
 @media (min-width: 768px) {
   .builder-view { flex-direction: row; }
-  .palette { flex-direction: column;  border-top: none; border-right: 2px solid var(--card); order: 0; overflow-y: auto; overflow-x: visible; }
+  .palette-card { order: 0; height: 100%; }
+  .palette-card-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 4px; -webkit-overflow-scrolling: touch; }
+  .palette { flex-direction: column; overflow: visible; padding: 2px; }
   .canvas-wrap { order: 0; }
   .palette-item { width: 100%; min-width: unset; }
 }
@@ -4139,19 +4176,27 @@ aside.widget-properties {
         <div id="propsForm" class="props-form" style="display:none;"></div>
       </div>
 
-      <div class="palette">
-        <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
-        <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
-        <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
-        <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
-        <div class="palette-item" data-type="dpad"><div class="palette-icon">✛</div><div class="palette-name">D-Pad</div></div>
-        <div class="palette-item" data-type="xypad"><div class="palette-icon">📍</div><div class="palette-name">XY Pad</div></div>
-        <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
-        <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
-        <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
-        <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
-        <div class="palette-item" data-type="battery"><div class="palette-icon">🔋</div><div class="palette-name">Battery</div></div>
-        <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
+      <div class="palette-card" id="paletteCard">
+        <button class="palette-card-toggle" id="paletteToggle" type="button" aria-expanded="true" aria-controls="paletteBody">
+          <span class="palette-card-title">🧩 Widgets</span>
+          <span class="palette-card-chevron">▾</span>
+        </button>
+        <div class="palette-card-body" id="paletteBody">
+          <div class="palette">
+            <div class="palette-item" data-type="button"><div class="palette-icon">👆</div><div class="palette-name">Button</div></div>
+            <div class="palette-item" data-type="slider"><div class="palette-icon">🎚️</div><div class="palette-name">Slider</div></div>
+            <div class="palette-item" data-type="toggle"><div class="palette-icon">🔘</div><div class="palette-name">Switch</div></div>
+            <div class="palette-item" data-type="joystick"><div class="palette-icon">🕹️</div><div class="palette-name">Joystick</div></div>
+            <div class="palette-item" data-type="dpad"><div class="palette-icon">✛</div><div class="palette-name">D-Pad</div></div>
+            <div class="palette-item" data-type="xypad"><div class="palette-icon">📍</div><div class="palette-name">XY Pad</div></div>
+            <div class="palette-item" data-type="led"><div class="palette-icon">💡</div><div class="palette-name">Light</div></div>
+            <div class="palette-item" data-type="label"><div class="palette-icon">🏷️</div><div class="palette-name">Label</div></div>
+            <div class="palette-item" data-type="gauge"><div class="palette-icon">🧭</div><div class="palette-name">Gauge</div></div>
+            <div class="palette-item" data-type="graph"><div class="palette-icon">📈</div><div class="palette-name">Graph</div></div>
+            <div class="palette-item" data-type="battery"><div class="palette-icon">🔋</div><div class="palette-name">Battery</div></div>
+            <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -5647,6 +5692,27 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
       toast(`✅ ${ICONS[state.selectedType]} selected! Tap canvas to place`, 'success');
     };
   });
+
+  // Palette card collapse
+  const paletteCard = $('#paletteCard');
+  const paletteToggle = $('#paletteToggle');
+  const paletteBody = $('#paletteBody');
+  if (paletteCard && paletteToggle && paletteBody) {
+    const setPaletteCollapsed = (collapsed) => {
+      paletteCard.classList.toggle('collapsed', collapsed);
+      paletteToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      paletteBody.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+    };
+    try{
+      const saved = localStorage.getItem('paletteCollapsed');
+      if (saved !== null) setPaletteCollapsed(saved === '1');
+    }catch(e){}
+    paletteToggle.onclick = () => {
+      const collapsed = !paletteCard.classList.contains('collapsed');
+      setPaletteCollapsed(collapsed);
+      try{ localStorage.setItem('paletteCollapsed', collapsed ? '1' : '0'); }catch(e){}
+    };
+  }
   
   // Canvas - tap to place + selection box
   const canvas = $('#canvas');
@@ -9900,7 +9966,7 @@ document.addEventListener('click', (e)=>{
       if (el.closest && el.closest('.helper-panel')) return true;
       if (el.closest && el.closest('.modal, .modal-bg, .template-modal')) return true;
       // if it's a control, it's "not empty"
-      if (el.closest && el.closest('button, a, input, select, textarea, .palette, .props-panel, .hero-header, header')) return true;
+      if (el.closest && el.closest('button, a, input, select, textarea, .palette, .palette-card, .props-panel, .hero-header, header')) return true;
       return false;
     }
     function isGoodEmpty(el){
@@ -9914,7 +9980,7 @@ document.addEventListener('click', (e)=>{
     function pickFabSide(){
       const y = Math.max(80, window.innerHeight - 70);
       // candidate LEFT: either after left sidebar (if any) or 18px
-      const leftBlock = document.querySelector('.left-panel, .sidebar-left, .side-left, .menu-left, .builder-sidebar, .palette');
+      const leftBlock = document.querySelector('.left-panel, .sidebar-left, .side-left, .menu-left, .builder-sidebar, .palette-card, .palette');
       const leftX = leftBlock ? Math.ceil(leftBlock.getBoundingClientRect().right) + 14 : 18;
 
       // sample a few points in the icon area
