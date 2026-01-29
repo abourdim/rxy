@@ -61,7 +61,7 @@ header {
   color: var(--red); font-weight: 700; cursor: pointer;
 }
 .ble-btn.connected { border-color: var(--green); color: var(--green); }
-.ble-dot {  height: 12px; border-radius: 50%; background: currentColor; }
+.ble-dot { width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
 
 /* Main Content */
 main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -75,7 +75,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   flex-wrap: wrap;
 }
 .title-input {
-  flex: 1; min- padding: 12px 16px;
+  flex: 1; min-width: 200px; padding: 12px 16px;
   background: var(--card); border: 2px solid transparent;
   border-radius: 16px; color: var(--text); font-size: 1rem; font-weight: 600;
 }
@@ -102,7 +102,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   align-items: center; gap: 6px; padding: 12px 16px;
   background: var(--card); border: 3px solid transparent;
   border-radius: 16px; cursor: pointer; transition: 0.2s;
-  min-
+  min-width: 80px;
 }
 .palette-item:hover, .palette-item.selected { border-color: var(--accent); transform: scale(1.05); }
 .palette-item.selected { background: linear-gradient(135deg, var(--accent), var(--purple)); }
@@ -251,13 +251,17 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 /* Arrange Mode Button */
 /* Runtime top buttons container */
 .runtime-top-btns {
-  position: absolute;
+  position: fixed;
   top: 12px;
   right: 12px;
   display: flex;
   flex-direction: row;
   gap: 8px;
-  z-index: 10;
+  z-index: 9999;
+  pointer-events: none;
+}
+.runtime-top-btns > * {
+  pointer-events: auto;
 }
 .arrange-mode-btn {
   position: static;
@@ -393,6 +397,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   border-radius: 14px;
   backdrop-filter: blur(10px);
   border: 2px solid var(--accent);
+  pointer-events: auto;
 }
 .zoom-btn {
   width: 38px;
@@ -557,18 +562,26 @@ body.runtime-fullscreen .zoom-controls .zoom-fit-btn {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(255,82,82,0.85);
   border: 2px solid rgba(255,255,255,0.3);
   color: #fff;
   font-size: 1.5rem;
+  font-weight: 900;
   cursor: pointer;
-  z-index: 9999;
+  z-index: 10001;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(255,82,82,0.5);
 }
 .fullscreen-exit-btn:hover {
-  background: rgba(255,82,82,0.8);
+  background: rgba(255,82,82,1);
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(255,82,82,0.7);
+}
+.fullscreen-exit-btn:active {
+  transform: scale(0.95);
 }
 
 /* === UNDO/REDO BUTTONS === */
@@ -5493,17 +5506,42 @@ function celebrate(message = '🎉 Connected!') {
 // === FULLSCREEN MODE ===
 function toggleFullscreen() {
   const btn = $('#fullscreenBtn');
+  const exitBtn = $('#fullscreenExitBtn');
   const isFullscreen = document.body.classList.contains('runtime-fullscreen');
   
   if (isFullscreen) {
+    // Exit fullscreen
     document.body.classList.remove('runtime-fullscreen');
-    if (btn) btn.textContent = '⛶ Fullscreen';
-    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    if (btn) {
+      btn.textContent = '⛶ Fullscreen';
+      btn.style.display = 'block';
+    }
+    if (exitBtn) exitBtn.style.display = 'none';
+    
+    // Exit native fullscreen API
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      }
+    }
   } else {
+    // Enter fullscreen
     document.body.classList.add('runtime-fullscreen');
-    if (btn) btn.textContent = '✕ Exit';
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    if (btn) btn.style.display = 'none';
+    if (exitBtn) exitBtn.style.display = 'flex';
+    
+    // Request native fullscreen API
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch(() => {});
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
     }
   }
 }
@@ -5511,6 +5549,23 @@ function toggleFullscreen() {
 // Exit fullscreen on Escape
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.body.classList.contains('runtime-fullscreen')) {
+    toggleFullscreen();
+  }
+});
+
+// Handle native fullscreen API changes (e.g., ESC key pressed)
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && document.body.classList.contains('runtime-fullscreen')) {
+    toggleFullscreen();
+  }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement && document.body.classList.contains('runtime-fullscreen')) {
+    toggleFullscreen();
+  }
+});
+document.addEventListener('mozfullscreenchange', () => {
+  if (!document.mozFullScreenElement && document.body.classList.contains('runtime-fullscreen')) {
     toggleFullscreen();
   }
 });
@@ -10412,7 +10467,7 @@ document.addEventListener('click', (e)=>{
     warn:(...a)=>push('warn',fmt(a)),
     err:(...a)=>push('error',fmt(a)),
     clear:()=>{ items.length=0; updateCount(); renderSoon(true); },
-    exportTxt, exportJson, toggle, open:()=>setCollapsed(False)
+    exportTxt, exportJson, toggle, open:()=>setCollapsed(false)
   };
 
   // Silence DevTools console completely, but capture into logs:
@@ -10482,11 +10537,16 @@ document.addEventListener('click', (e)=>{
   const zoomResetBtn = document.getElementById('zoomResetBtn');
   
   function getZoomTarget() {
-    // In fullscreen mode, zoom the runtime grid
+    // In fullscreen mode, zoom the runtime grid only
     if (document.body.classList.contains('runtime-fullscreen')) {
       return document.getElementById('runtimeGrid');
     }
-    // Otherwise zoom the app
+    // In normal runtime view, still zoom the grid
+    const runtimeView = document.querySelector('.runtime-view');
+    if (runtimeView && runtimeView.classList.contains('active')) {
+      return document.getElementById('runtimeGrid');
+    }
+    // Otherwise zoom the app (builder mode)
     return document.querySelector('.app');
   }
   
