@@ -5396,16 +5396,18 @@ function modelOptionsForType(t){
   }
 }
 
-// Simple BLE throttle - only tracks last message per widget
+// BLE Write Queue - ensures only ONE GATT operation at a time
+// This prevents "GATT operation failed" errors from concurrent writes
 const bleSend = {
-  lastMsg: {},        // Last message per widget ID
-  lastSendTime: 0,    // Global last send timestamp
-  minInterval: 150,   // Minimum 150ms between ANY sends
-  timer: null,        // Pending send timer
-  pendingMsg: null    // Message waiting to be sent
+  isWriting: false,     // Lock: true while a write is in progress
+  pendingMsg: null,     // Latest message waiting to be sent (replaces previous)
+  minInterval: 200,     // Minimum ms between writes for BLE stability
+  lastSendTime: 0,      // Timestamp of last successful send
+  retryCount: 0,        // Track consecutive failures
+  maxRetries: 3         // Max retries before giving up on a message
 };
 
-// The actual low-level BLE write
+// The actual low-level BLE write - MUST be awaited and serialized
 async function bleWrite(msg) {
   if (!state.ble.writeChar || !state.ble.device?.gatt?.connected) {
     console.log('[BLE] Not connected, skipping:', msg);
@@ -5415,7 +5417,7 @@ async function bleWrite(msg) {
   try {
     const data = encoder.encode(msg + '\n');
     
-    // Try writeValueWithoutResponse first (faster, no ACK wait)
+    // Use writeValueWithoutResponse (faster, but still must be serialized!)
     if (state.ble.writeChar.writeValueWithoutResponse) {
       await state.ble.writeChar.writeValueWithoutResponse(data);
     } else {
@@ -5423,18 +5425,65 @@ async function bleWrite(msg) {
     }
     
     console.log('[BLE] Sent:', msg);
+    bleSend.retryCount = 0; // Reset on success
     return true;
   } catch (err) {
     console.error('[BLE] Write failed:', err.message);
-    // Don't immediately disconnect - might be transient
+    
+    // Check if it's a disconnect error
     if (err.message?.includes('disconnected') || err.message?.includes('GATT Server')) {
       onDisconnect();
+      return false;
+    }
+    
+    // For GATT operation errors, we can retry
+    bleSend.retryCount++;
+    if (bleSend.retryCount >= bleSend.maxRetries) {
+      console.warn('[BLE] Max retries reached, dropping message');
+      bleSend.retryCount = 0;
     }
     return false;
   }
 }
 
-// Throttled send function
+// Process the write queue - ensures serialized GATT operations
+async function processWriteQueue() {
+  // If already writing, exit - the current write will pick up pending
+  if (bleSend.isWriting) return;
+  
+  // Nothing to send
+  if (!bleSend.pendingMsg) return;
+  
+  // Check minimum interval
+  const now = Date.now();
+  const timeSinceLastSend = now - bleSend.lastSendTime;
+  if (timeSinceLastSend < bleSend.minInterval) {
+    // Schedule next attempt
+    setTimeout(processWriteQueue, bleSend.minInterval - timeSinceLastSend + 5);
+    return;
+  }
+  
+  // Lock, grab message, clear pending
+  bleSend.isWriting = true;
+  const msg = bleSend.pendingMsg;
+  bleSend.pendingMsg = null;
+  
+  try {
+    await bleWrite(msg);
+    bleSend.lastSendTime = Date.now();
+  } finally {
+    // Always unlock
+    bleSend.isWriting = false;
+    
+    // If new message arrived while we were writing, process it
+    if (bleSend.pendingMsg) {
+      // Small delay to respect minimum interval
+      setTimeout(processWriteQueue, bleSend.minInterval);
+    }
+  }
+}
+
+// Public send function - queues message and triggers processing
 function send(msg) {
   if (!state.ble.connected) return;
   
@@ -5442,31 +5491,11 @@ function send(msg) {
   msg = String(msg || '').replace(/[\r\n]+/g, '').trim();
   if (!msg) return;
   
-  const now = Date.now();
-  const timeSinceLastSend = now - bleSend.lastSendTime;
+  // Always update pending (latest value wins for continuous controls like joystick)
+  bleSend.pendingMsg = msg;
   
-  // If enough time has passed, send immediately
-  if (timeSinceLastSend >= bleSend.minInterval) {
-    bleSend.lastSendTime = now;
-    bleWrite(msg);
-  } else {
-    // Otherwise, queue this message (replaces any pending)
-    bleSend.pendingMsg = msg;
-    
-    // Schedule send if not already scheduled
-    if (!bleSend.timer) {
-      const delay = bleSend.minInterval - timeSinceLastSend + 10;
-      bleSend.timer = setTimeout(() => {
-        bleSend.timer = null;
-        if (bleSend.pendingMsg) {
-          const toSend = bleSend.pendingMsg;
-          bleSend.pendingMsg = null;
-          bleSend.lastSendTime = Date.now();
-          bleWrite(toSend);
-        }
-      }, delay);
-    }
-  }
+  // Trigger queue processing (will respect lock and interval)
+  processWriteQueue();
 }
 
 // One-click Demo - creates full showcase with all widgets
@@ -9328,6 +9357,7 @@ function bindRuntimeWidget(el, w) {
       let isDown = false;
       let currentAngle = 0;
       let currentDist = 0;
+      let resetTimer = null; // Debounce timer for reset
       const handleMove = e => {
         if (!isDown) return;
         const rect = base.getBoundingClientRect();
@@ -9351,18 +9381,35 @@ function bindRuntimeWidget(el, w) {
       const resetJoystick = () => {
         if (!isDown) return;
         isDown = false;
-        // Send final position before reset
-        if (currentDist > 5) {
-          send(`SET ${w.id} ${currentAngle} ${currentDist}`);
-        }
+        // Clear any pending reset timer
+        if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+        // Send final position before reset (only if moved significantly)
+        const finalAngle = currentAngle;
+        const finalDist = currentDist;
         stick.style.transform = '';
         currentAngle = 0;
         currentDist = 0;
-        // Small delay then send center
-        setTimeout(() => send(`SET ${w.id} 0 0`), 100);
+        // Single combined send: final position then center, with proper delay
+        if (finalDist > 5) {
+          send(`SET ${w.id} ${finalAngle} ${finalDist}`);
+          // Wait longer than BLE minInterval before sending center
+          resetTimer = setTimeout(() => {
+            resetTimer = null;
+            send(`SET ${w.id} 0 0`);
+          }, 200);
+        } else {
+          // Just send center if no significant movement
+          send(`SET ${w.id} 0 0`);
+        }
       };
-      base.onmousedown = () => { isDown = true; };
-      base.ontouchstart = e => { e.preventDefault(); isDown = true; };
+      const startJoystick = (e) => {
+        if (e.type === 'touchstart') e.preventDefault();
+        if (isDown) return; // Prevent multiple starts
+        isDown = true;
+        if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+      };
+      base.onmousedown = startJoystick;
+      base.ontouchstart = startJoystick;
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('touchmove', handleMove, { passive: false });
       document.addEventListener('mouseup', resetJoystick);
