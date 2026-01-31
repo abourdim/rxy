@@ -182,7 +182,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .canvas {
   flex: 1; position: relative; background: var(--card);
   border: 3px dashed var(--text-dim); border-radius: 20px;
-  overflow: hidden; min-height: 300px; max-height: 500px;
+  overflow: hidden; min-height: 300px;
   width: 100%; max-width: 550px;
 }
 #widgetsLayer { position: absolute; inset: 0; overflow: visible; }
@@ -4215,6 +4215,7 @@ aside.widget-properties {
               <button class="header-btn btn-template" id="templateBtn">🎨 Templates</button>
               <button class="header-btn btn-code" id="codeBtn">📄 Code</button>
               <button class="header-btn btn-delete" id="deleteBtn">🗑️</button>
+              <button class="header-btn btn-delete" id="clearCacheBtn">🧹 Clear Cache</button>
             </div>
           </div>
 
@@ -6027,6 +6028,13 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
   if (typeof hideLoadOverlay==='function') hideLoadOverlay();
   $('#codeBtn').onclick = showCode;
   $('#deleteBtn').onclick = deleteSelected;
+  $('#clearCacheBtn').onclick = () => {
+    if(confirm('Clear all cached data (localStorage)? This will reset settings and saved layouts.')){
+      try{ localStorage.clear(); }catch(e){}
+      alert('Cache cleared. Reloading...');
+      setTimeout(()=>location.reload(), 300);
+    }
+  };
 
   // JSON Export / Import + Language
   const jsonIn = $('#jsonFileInput');
@@ -6191,6 +6199,7 @@ function celebrate(message = '🎉 Connected!') {
 function toggleFullscreen() {
   const btn = $('#fullscreenBtn');
   const exitBtn = $('#fullscreenExitBtn');
+  const grid = $('#runtimeGrid');
   const isFullscreen = document.body.classList.contains('runtime-fullscreen');
   
   if (isFullscreen) {
@@ -6198,9 +6207,15 @@ function toggleFullscreen() {
     document.body.classList.remove('runtime-fullscreen');
     if (btn) {
       btn.textContent = '⛶ Fullscreen';
-      btn.style.display = 'block';
+      btn.classList.add('visible');
+      btn.style.display = '';
     }
     if (exitBtn) exitBtn.style.display = 'none';
+    
+    // Reset zoom
+    if (grid) {
+      grid.style.transform = '';
+    }
     
     // Exit native fullscreen API
     if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
@@ -6215,7 +6230,10 @@ function toggleFullscreen() {
   } else {
     // Enter fullscreen
     document.body.classList.add('runtime-fullscreen');
-    if (btn) btn.style.display = 'none';
+    if (btn) {
+      btn.classList.remove('visible');
+      btn.style.display = 'none';
+    }
     if (exitBtn) exitBtn.style.display = 'flex';
     
     // Request native fullscreen API
@@ -6227,6 +6245,11 @@ function toggleFullscreen() {
     } else if (elem.mozRequestFullScreen) {
       elem.mozRequestFullScreen();
     }
+    
+    // Apply zoom to fit
+    setTimeout(() => {
+      zoomToFitScreen();
+    }, 150);
   }
 }
 
@@ -7050,6 +7073,11 @@ function switchTab(tab) {
       const arrangeBtn = $('#arrangeModeBtn');
       if (arrangeBtn) arrangeBtn.classList.add('visible');
       if (fullscreenBtn) fullscreenBtn.classList.add('visible');
+      
+      // Auto-enter fullscreen and zoom to fit
+      setTimeout(() => {
+        enterFullscreenAndFit();
+      }, 100);
     }
     // Otherwise show connect prompt for kids
     else {
@@ -7060,6 +7088,60 @@ function switchTab(tab) {
       if (fullscreenBtn) fullscreenBtn.classList.remove('visible');
     }
   }
+}
+
+// Auto-enter fullscreen and zoom to fit the runtime grid
+function enterFullscreenAndFit() {
+  const btn = $('#fullscreenBtn');
+  const exitBtn = $('#fullscreenExitBtn');
+  const grid = $('#runtimeGrid');
+  
+  if (!grid) return;
+  
+  // Enter fullscreen mode
+  document.body.classList.add('runtime-fullscreen');
+  if (btn) {
+    btn.classList.remove('visible');
+    btn.style.display = 'none';
+  }
+  if (exitBtn) exitBtn.style.display = 'flex';
+  
+  // Request native fullscreen API
+  const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen().catch(() => {});
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen();
+  }
+  
+  // Calculate and apply zoom to fit
+  setTimeout(() => {
+    zoomToFitScreen();
+  }, 150);
+}
+
+// Calculate zoom to make runtime grid fill the screen
+function zoomToFitScreen() {
+  const grid = $('#runtimeGrid');
+  if (!grid) return;
+  
+  const gridW = grid.offsetWidth;
+  const gridH = grid.offsetHeight;
+  
+  // Available screen space (with some padding)
+  const availW = window.innerWidth * 0.92;
+  const availH = window.innerHeight * 0.88;
+  
+  // Calculate scale to fit
+  const scaleX = availW / gridW;
+  const scaleY = availH / gridH;
+  const scale = Math.min(scaleX, scaleY, 2.5); // Cap at 2.5x max
+  
+  // Apply zoom transform
+  grid.style.transform = `scale(${scale})`;
+  grid.style.transformOrigin = 'center center';
 }
 
 // Collision detection helpers
@@ -7867,15 +7949,17 @@ function autoResizeCanvas() {
   // Calculate needed size based on widget positions
   let maxX = 0, maxY = 0;
   state.widgets.forEach(w => {
-    maxX = Math.max(maxX, w.x + w.w + 15);
-    maxY = Math.max(maxY, w.y + w.h + 15);
+    maxX = Math.max(maxX, w.x + w.w + 20);
+    maxY = Math.max(maxY, w.y + w.h + 20);
   });
   
-  // Strict limits
-  const minH = 280;
-  const maxH = 500;
+  // Minimum size, no maximum - let it grow as needed
+  const minW = 400;
+  const minH = 300;
   
-  const newH = Math.max(minH, Math.min(maxH, maxY));
+  const newW = Math.max(minW, maxX);
+  const newH = Math.max(minH, maxY);
+  canvas.style.minWidth = newW + 'px';
   canvas.style.minHeight = newH + 'px';
 }
 
