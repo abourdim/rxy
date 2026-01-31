@@ -2490,7 +2490,6 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
 }
 
 
-}
 
 
 /* Canvas toolbar (Build/Play + Name) centered above canvas */
@@ -3347,7 +3346,6 @@ aside.widget-properties {
 }
 
 
-}
 
 
 /* Canvas toolbar (Build/Play + Name) centered above canvas */
@@ -3800,7 +3798,6 @@ aside.widget-properties {
 }
 
 
-}
 
 
 /* Canvas toolbar (Build/Play + Name) centered above canvas */
@@ -3914,10 +3911,6 @@ aside.widget-properties {
   }
 }
 
-</style>
-
-
-<style>
 
 /* === Helper Tools Panel (draggable + collapsible, mobile friendly) === */
 .helper-panel{
@@ -4084,6 +4077,23 @@ aside.widget-properties {
   overflow-x: hidden;
 }
 
+/* ensure inner content can scroll */
+#widgetProperties > * {
+  min-height: max-content;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #widgetProperties,
+  .widget-properties-panel,
+  .widget-properties,
+  .properties-panel,
+  .right-sidebar,
+  aside.widget-properties {
+    height: calc(100vh - 100px) !important;
+  }
+}
+
 /* ---- Logs UI ---- */
 #logCard{
   position: fixed;
@@ -4208,7 +4218,6 @@ aside.widget-properties {
 
 /* Give canvas room so it isn't covered by logs */
 .canvas-wrap{ padding-bottom: 160px; }
-</style>
 /* === FORCE LOGS TO RIGHT SIDEBAR === */
 #logCard{
   left: auto !important;
@@ -4283,4 +4292,3 @@ aside.widget-properties {
 /* Keep LOGS tab clean */
 #logTab{ box-shadow:none !important; }
 
-</style>
