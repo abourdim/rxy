@@ -619,7 +619,7 @@ const I18N = {
     hint: "👆 Tap a widget below, then tap the board to place it!",
     propsTitle: "🛠️ Widget Properties",
     propsEmpty: "Select a widget to edit it.",
-    connect: "Connect", connected: "Connected",
+    connect: "Tap to Connect!", connected: "Connected! 🎉",
     runtimeConnectText: "Connect your micro:bit!",
     runtimeConnectBtn: "🔗 Connect",
     toastExport: "📦 Exported JSON!",
@@ -635,7 +635,7 @@ const I18N = {
     hint: "👆 Choisis un widget, puis tape sur le tableau pour le placer !",
     propsTitle: "🛠️ Propriétés",
     propsEmpty: "Sélectionne un widget pour l’éditer.",
-    connect: "Connecter", connected: "Connecté",
+    connect: "Connecter!", connected: "Connecté! 🎉",
     runtimeConnectText: "Connecte ton micro:bit !",
     runtimeConnectBtn: "🔗 Connecter",
     toastExport: "📦 JSON exporté !",
@@ -651,7 +651,7 @@ const I18N = {
     hint: "👆 اختر أداة، ثم اضغط على اللوحة لوضعها!",
     propsTitle: "🛠️ خصائص الأداة",
     propsEmpty: "اختر أداة لتعديلها.",
-    connect: "اتصال", connected: "متصل",
+    connect: "اضغط للاتصال!", connected: "متصل! 🎉",
     runtimeConnectText: "اتصل بالـ micro:bit!",
     runtimeConnectBtn: "🔗 اتصال",
     toastExport: "📦 تم التصدير!",
@@ -1374,14 +1374,77 @@ function generateDemoCode(cfg) {
 
   let labelList = labels.map(w => `//   sendValue("${w.id}", "Hello!")  // Update ${w.label || 'label'}`).join('\n');
 
-  return `// ${cfg.title} - micro:bit Remote
-// Copy this to MakeCode: https://makecode.microbit.org
-// Then flash it to your micro:bit!
+  // Calculate stats
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const cfgSize = b64.length;
+  const nbChunks = Math.ceil(cfgSize / 18);
+  const totalWidgets = cfg.widgets.length;
+  
+  // Count widget types
+  const inputWidgets = buttons.length + sliders.length + toggles.length + joysticks.length + dpads.length + xypads.length;
+  const outputWidgets = leds.length + labels.length + gauges.length + graphs.length + batteries.length;
+
+  // Build header
+  const header = `/**
+ * ╔════════════════════════════════════════════════════════════════╗
+ * ║                    🎮 MICRO:BIT REMOTE 🎮                      ║
+ * ║                                                                ║
+ * ║   Powered by Workshop-DIY.org                                  ║
+ * ║   Build your own Bluetooth remote controller!                  ║
+ * ╚════════════════════════════════════════════════════════════════╝
+ * 
+ * 📋 PROJECT: ${cfg.title}
+ * 📅 Generated: ${dateStr} at ${timeStr}
+ * 
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │ 📊 CONFIGURATION STATS                                         │
+ * ├─────────────────────────────────────────────────────────────────┤
+ * │  • Config size: ${String(cfgSize).padEnd(6)} bytes (Base64 encoded)            │
+ * │  • Chunks: ${String(nbChunks).padEnd(10)} (18 bytes each for BLE transfer)    │
+ * │  • Total widgets: ${String(totalWidgets).padEnd(4)}                                       │
+ * │    ├─ Input:  ${String(inputWidgets).padEnd(4)} (buttons, sliders, toggles, etc.)       │
+ * │    └─ Output: ${String(outputWidgets).padEnd(4)} (LEDs, labels, gauges, graphs)         │
+ * └─────────────────────────────────────────────────────────────────┘
+ * 
+ * 🔧 WIDGET BREAKDOWN:
+ *    Buttons: ${buttons.length}  |  Sliders: ${sliders.length}  |  Toggles: ${toggles.length}
+ *    Joysticks: ${joysticks.length}  |  D-Pads: ${dpads.length}  |  XY Pads: ${xypads.length}
+ *    LEDs: ${leds.length}  |  Labels: ${labels.length}  |  Gauges: ${gauges.length}
+ *    Graphs: ${graphs.length}  |  Batteries: ${batteries.length}  |  Timers: ${timers.length}
+ * 
+ * 🚀 HOW TO USE:
+ *    1. Copy this entire code
+ *    2. Go to https://makecode.microbit.org
+ *    3. Create new project → Switch to JavaScript mode
+ *    4. Paste this code → Download to micro:bit
+ *    5. Open the app and connect!
+ * 
+ * 💡 TIPS:
+ *    • Edit handleWidget() to customize behavior
+ *    • Use sendValue() to update LEDs, labels, gauges
+ *    • Check serial monitor for debug output
+ * 
+ * 🌐 More info: https://workshop-diy.org
+ */
+
+`;
+
+  return header + `// ═══════════════════════════════════════════════════════════════
+// 🔌 BLUETOOTH SETUP
+// ═══════════════════════════════════════════════════════════════
 
 bluetooth.startUartService()
 let cfgSent = false
 let blinkState = false
+
+// 📦 Remote layout config (Base64 encoded, ${cfgSize} bytes, ${nbChunks} chunks)
 const CFG = "${b64}"
+
+// ═══════════════════════════════════════════════════════════════
+// 📡 BLUETOOTH COMMUNICATION
+// ═══════════════════════════════════════════════════════════════
 
 // This sends the remote layout to the app
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function() {
@@ -1404,7 +1467,10 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function() {
     }
 })
 
-// HANDLE YOUR WIDGETS HERE!
+// ═══════════════════════════════════════════════════════════════
+// 🎮 WIDGET HANDLERS - CUSTOMIZE YOUR BEHAVIOR HERE!
+// ═══════════════════════════════════════════════════════════════
+
 function handleWidget(id: string, val: string) {
     serial.writeLine(id + " = " + val)
     
@@ -1423,15 +1489,25 @@ ${xypadCode || '    // No XY Pads in this remote'}
 ${timerCode || '    // No timers in this remote'}
 }
 
-// Send values TO the app (for LEDs and Labels)
+// ═══════════════════════════════════════════════════════════════
+// 📤 SEND VALUES TO APP (LEDs, Labels, Gauges, Graphs)
+// ═══════════════════════════════════════════════════════════════
+
 function sendValue(id: string, val: string) {
     if (cfgSent) bluetooth.uartWriteLine("UPD " + id + " " + val)
 }
 
+// ═══════════════════════════════════════════════════════════════
+// 🚀 STARTUP
+// ═══════════════════════════════════════════════════════════════
+
 // Show we are ready!
 basic.showIcon(IconNames.Heart)
 
-// BLINK THE APP LEDs! This runs forever in background
+// ═══════════════════════════════════════════════════════════════
+// 🔄 MAIN LOOP - Demo animations (customize or remove!)
+// ═══════════════════════════════════════════════════════════════
+
 basic.forever(function() {
     if (cfgSent) {
         blinkState = !blinkState
@@ -1446,7 +1522,10 @@ basic.forever(function() {
     basic.pause(200)
 })
 
-// BONUS: Use micro:bit buttons too!
+// ═══════════════════════════════════════════════════════════════
+// 🔘 MICRO:BIT BUTTONS - Use hardware buttons too!
+// ═══════════════════════════════════════════════════════════════
+
 input.onButtonPressed(Button.A, function() {
     basic.showString("A")
     ${leds.length > 0 ? `sendValue("${leds[0].id}", "1")` : '// Add an LED to control it here!'}
@@ -1454,7 +1533,20 @@ input.onButtonPressed(Button.A, function() {
 input.onButtonPressed(Button.B, function() {
     basic.showString("B")
     ${leds.length > 0 ? `sendValue("${leds[0].id}", "0")` : '// Add an LED to control it here!'}
-})`;
+})
+
+// ═══════════════════════════════════════════════════════════════
+// 🎉 END OF CODE - Have fun building!
+// ═══════════════════════════════════════════════════════════════
+// 
+// 💡 IDEAS TO TRY:
+//    • Add motors: pins.servoWritePin(AnalogPin.P0, angle)
+//    • Add sounds: music.playTone(Note.C, music.beat(BeatFraction.Whole))
+//    • Add NeoPixels: neopixel.create(DigitalPin.P1, 8, NeoPixelMode.RGB)
+//    • Read sensors: input.temperature(), input.lightLevel()
+//
+// 🌐 Share your projects: https://workshop-diy.org
+// ═══════════════════════════════════════════════════════════════`;
 }
 
 function init() {
