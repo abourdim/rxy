@@ -566,7 +566,7 @@ body.runtime-fullscreen .runtime-view.active {
   inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  padding: 60px 20px 20px 20px !important;
+  padding: 50px 10px 10px 10px !important;
   margin: 0 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -596,8 +596,8 @@ body.runtime-fullscreen #runtimeTitle {
   margin: 0 !important;
 }
 body.runtime-fullscreen #runtimeGrid {
-  max-width: 95vw !important;
-  max-height: calc(100vh - 20px) !important;
+  max-width: 98vw !important;
+  max-height: calc(100vh - 60px) !important;
   margin: 0 auto !important;
   border: 3px solid var(--accent) !important;
   transform-origin: center center !important;
@@ -6210,7 +6210,6 @@ function toggleFullscreen() {
       btn.classList.add('visible');
       btn.style.display = '';
     }
-    if (exitBtn) exitBtn.style.display = 'none';
     
     // Reset zoom
     if (grid) {
@@ -6234,7 +6233,6 @@ function toggleFullscreen() {
       btn.classList.remove('visible');
       btn.style.display = 'none';
     }
-    if (exitBtn) exitBtn.style.display = 'flex';
     
     // Request native fullscreen API
     const elem = document.documentElement;
@@ -7062,9 +7060,9 @@ function switchTab(tab) {
     runtimeView.classList.add('active');
     startDemoSim();
     
-    // If connected via BLE, runtime is already set up
+    // If connected via BLE, auto-enter fullscreen
     if (state.ble.connected) {
-      // Already handled by updateBleUI
+      setTimeout(() => enterFullscreenAndFit(), 150);
     }
     // If we have a config (from demo), show it
     else if (state.config && state.config.widgets && state.config.widgets.length > 0) {
@@ -7104,7 +7102,6 @@ function enterFullscreenAndFit() {
     btn.classList.remove('visible');
     btn.style.display = 'none';
   }
-  if (exitBtn) exitBtn.style.display = 'flex';
   
   // Request native fullscreen API
   const elem = document.documentElement;
@@ -7130,14 +7127,14 @@ function zoomToFitScreen() {
   const gridW = grid.offsetWidth;
   const gridH = grid.offsetHeight;
   
-  // Available screen space (with some padding)
-  const availW = window.innerWidth * 0.92;
-  const availH = window.innerHeight * 0.88;
+  // Available screen space - maximize fill
+  const availW = window.innerWidth * 0.96;
+  const availH = window.innerHeight * 0.94;
   
   // Calculate scale to fit
   const scaleX = availW / gridW;
   const scaleY = availH / gridH;
-  const scale = Math.min(scaleX, scaleY, 2.5); // Cap at 2.5x max
+  const scale = Math.min(scaleX, scaleY, 3); // Cap at 3x max
   
   // Apply zoom transform
   grid.style.transform = `scale(${scale})`;
@@ -8784,6 +8781,12 @@ function updateBleUI() {
     if (!state._celebrated) {
       state._celebrated = true;
       celebrate('🎉 Connected!');
+    }
+    
+    // Auto-enter fullscreen if in play tab
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab && activeTab.dataset.tab === 'runtime') {
+      setTimeout(() => enterFullscreenAndFit(), 150);
     }
   } else {
     btn.classList.remove('connected');
