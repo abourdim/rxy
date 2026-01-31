@@ -2716,6 +2716,13 @@ function switchTab(tab) {
     // Runtime tab
     builderView.classList.remove('active');
     runtimeView.classList.add('active');
+    
+    // IMPORTANT: Build config from current widgets and render before starting demo
+    if (state.widgets && state.widgets.length > 0) {
+      state.config = { title: $('#titleInput')?.value || 'My Remote', widgets: state.widgets };
+      renderRuntime();
+    }
+    
     startDemoSim();
     
     // If connected via BLE, auto-enter fullscreen
@@ -5609,9 +5616,9 @@ function updateGaugeWidget(w, valStr){
 
 function updateRuntimeWidget(id, val) {
   console.log('[UI] Updating widget:', id, 'to', val);
-  const el = $(`.rt-widget[data-id="${id}"]`);
+  const el = document.querySelector(`.rt-widget[data-id="${id}"]`);
   if (!el || !state.config) {
-    console.log('[UI] Widget not found or no config');
+    console.log('[UI] Widget not found or no config. Element:', el, 'Config:', !!state.config);
     return;
   }
   const w = state.config.widgets.find(x => x.id === id);
