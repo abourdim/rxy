@@ -14,10 +14,12 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; touch-action: manipulation; font-family: 'Segoe UI', system-ui, sans-serif; }
+html, body { height: 100%; overflow: auto; touch-action: manipulation; font-family: 'Segoe UI', system-ui, sans-serif; }
 body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: var(--text); }
 
-.app { display: flex; flex-direction: column; height: 100dvh; }
+.app { display: flex; flex-direction: column; height: 100dvh; 
+  overflow: auto;
+}
 
 /* Header */
 header {
@@ -159,7 +161,7 @@ main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .palette-name { font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
 
 /* Canvas */
-.canvas-wrap { flex: 1; padding: 10px; overflow: hidden; order: 1; display: flex; flex-direction: column; }
+.canvas-wrap { flex: 1; padding: 10px; overflow: auto; order: 1; display: flex; flex-direction: column; }
 .canvas-hint { text-align: center; padding: 8px; color: var(--text-dim); font-size: 0.85rem; }
 .canvas-hint span { color: var(--accent); font-weight: 700; }
 .canvas {
@@ -2207,7 +2209,7 @@ body.rtl .modal-code { direction: ltr; } /* code stays LTR */
   background: rgba(255,255,255,.05);
   border: 1px solid rgba(255,255,255,.08);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-  overflow:hidden;
+  overflow: visible;
 }
 .hero-logo svg{
   
@@ -4292,3 +4294,283 @@ aside.widget-properties {
 /* Keep LOGS tab clean */
 #logTab{ box-shadow:none !important; }
 
+/* =========================
+   FUN ANIMATED LOGO 😄
+   ========================= */
+
+.hero-logo.fun-logo{
+  width: 90px;
+  cursor: pointer;
+  transform-origin: center;
+  animation: logo-pop-in 0.8s cubic-bezier(.17,.89,.32,1.49);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* If using external SVG file */
+.hero-logo.fun-logo .logo-img{
+  width: 90px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25));
+  animation: logo-breathe 3s ease-in-out infinite;
+}
+
+/* Keep inline svg compatible too */
+.hero-logo.fun-logo svg{
+  width: 90px;
+  height: auto;
+  display: block;
+  animation: logo-breathe 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25));
+}
+
+/* Hover = silly wiggle */
+.hero-logo.fun-logo:hover{
+  animation: logo-wiggle 0.6s ease-in-out infinite;
+}
+
+/* Click = cartoon bounce */
+.hero-logo.fun-logo:active{
+  animation: logo-boing 0.35s ease;
+}
+
+/* Extra silly modes 😜 */
+.hero-logo.fun-logo.spin{ animation: logo-spin 0.8s ease-in-out; }
+.hero-logo.fun-logo.shake{ animation: logo-shake 0.4s linear; }
+.hero-logo.fun-logo.flip{ animation: logo-flip 0.6s ease-in-out; }
+
+/* ---------- Animations ---------- */
+@keyframes logo-pop-in{
+  0%{ transform: scale(0) rotate(-20deg); opacity: 0; }
+  80%{ transform: scale(1.1) rotate(5deg); }
+  100%{ transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes logo-breathe{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.04); }
+}
+
+@keyframes logo-wiggle{
+  0%{ transform: rotate(0deg); }
+  25%{ transform: rotate(6deg); }
+  50%{ transform: rotate(-6deg); }
+  75%{ transform: rotate(4deg); }
+  100%{ transform: rotate(0deg); }
+}
+
+@keyframes logo-boing{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(0.85); }
+  100%{ transform: scale(1.1); }
+}
+
+@keyframes logo-spin{ to{ transform: rotate(360deg); } }
+
+@keyframes logo-shake{
+  0%,100%{ transform: translateX(0); }
+  25%{ transform: translateX(-6px); }
+  75%{ transform: translateX(6px); }
+}
+
+@keyframes logo-flip{
+  0%{ transform: rotateY(0); }
+  100%{ transform: rotateY(360deg); }
+}
+
+/* =========================
+   LOGO DISPLAY FIX ✅
+   ========================= */
+.hero-logo.fun-logo{
+  height: 56px;          /* keep header height */
+  width: 96px;           /* give it a predictable width */
+}
+.hero-logo.fun-logo .logo-img{
+  height: 54px;
+  width: auto;
+}
+.hero-logo.fun-logo .logo-img + svg{
+  display: none;         /* avoid stacking; image shows by default */
+}
+/* If image fails to load, JS will remove it and SVG will show */
+
+/* =========================
+   LOGO SIZE OVERRIDE (v3) ✅
+   ========================= */
+/* Keep header clean on all zoom levels */
+.hero-logo.fun-logo{
+  width: 64px !important;
+  height: 44px !important;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+.hero-logo.fun-logo .logo-img,
+.hero-logo.fun-logo svg{
+  width: 64px !important;
+  height: 44px !important;
+  max-width: 64px !important;
+  max-height: 44px !important;
+}
+/* Prevent the logo from covering UI when zoomed */
+.hero-header .hero-inner{
+  flex-wrap: wrap;
+}
+.hero-left{
+  max-width: 100%;
+}
+
+/* =========================
+   ZOOM SCROLL FIX (runtime) ✅
+   ========================= */
+main {
+  overflow: auto !important;
+}
+
+.runtime-view.active {
+  overflow: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 70px 20px 20px 20px !important;
+}
+
+#runtimeGrid {
+  max-width: none !important;
+}
+
+/* =========================
+   LOGO HARD CLAMP (v5) ✅
+   ========================= */
+.hero-logo,
+.hero-logo.fun-logo{
+  max-width: 48px !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  overflow: visible !important;
+  flex: 0 0 48px !important;
+}
+
+.hero-logo img,
+.hero-logo svg{
+  width: 48px !important;
+  height: 32px !important;
+  max-width: 48px !important;
+  max-height: 32px !important;
+  object-fit: contain !important;
+}
+
+/* =========================
+   LOGO ULTRA CLAMP (v6) 🧷
+   ========================= */
+.hero-logo,
+.hero-logo.fun-logo{
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  overflow: hidden !important;
+  flex: 0 0 32px !important;
+}
+
+/* Kill any scale animation effect on size */
+.hero-logo *,
+.hero-logo.fun-logo *{
+  max-width: 32px !important;
+  max-height: 24px !important;
+  transform: none !important;
+}
+
+.hero-logo img,
+.hero-logo svg{
+  width: 32px !important;
+  height: 24px !important;
+  object-fit: contain !important;
+}
+
+/* =========================
+   LOGO MICRO MODE (v7) 🔬
+   ========================= */
+.hero-logo,
+.hero-logo.fun-logo{
+  width: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  flex: 0 0 20px !important;
+  overflow: hidden !important;
+}
+
+.hero-logo img,
+.hero-logo svg{
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain !important;
+}
+
+/* Hide text-style logo if any */
+.hero-logo text{
+  display: none !important;
+}
+
+/* =========================
+   LOGO NORMAL (v8) ✅
+   ========================= */
+/* Restore a normal, readable logo without clipping */
+.hero-logo,
+.hero-logo.fun-logo{
+  width: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  flex: 0 0 72px !important;
+  overflow: visible !important;
+}
+
+/* Show full SVG/image properly */
+.hero-logo img,
+.hero-logo svg{
+  width: 72px !important;
+  height: 48px !important;
+  max-width: 72px !important;
+  max-height: 48px !important;
+  object-fit: contain !important;
+  transform: none; /* base state */
+}
+
+/* Unhide SVG text if it was hidden earlier */
+.hero-logo text{
+  display: inline !important;
+}
+
+/* Keep animations fun but NOT enlarging much */
+.hero-logo.fun-logo svg,
+.hero-logo.fun-logo .logo-img{
+  animation: logo-breathe-soft 3.2s ease-in-out infinite !important;
+}
+
+@keyframes logo-breathe-soft{
+  0%,100%{ transform: scale(1); }
+  50%{ transform: scale(1.02); }
+}
+
+/* Wiggle rotate only (no scale) */
+.hero-logo.fun-logo:hover{
+  animation: logo-wiggle 0.6s ease-in-out infinite !important;
+}
+
+/* Make sure header can wrap at high zoom so nothing gets pushed off-screen */
+.hero-header .hero-inner{
+  flex-wrap: wrap;
+  row-gap: 6px;
+}

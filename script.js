@@ -7076,3 +7076,19 @@ document.addEventListener('click', (e)=>{
   const obs=new MutationObserver(()=>{ bindOnce(); });
   obs.observe(document.documentElement, {childList:true, subtree:true});
 })();
+
+// 🎉 Fun random logo reactions
+document.addEventListener('DOMContentLoaded', () => {
+  const logo = document.querySelector('.hero-logo.fun-logo');
+  if (!logo) return;
+
+  const effects = ['spin', 'shake', 'flip'];
+
+  logo.addEventListener('dblclick', () => {
+    const effect = effects[Math.floor(Math.random() * effects.length)];
+    logo.classList.remove('spin', 'shake', 'flip');
+    // force reflow to restart animation
+    void logo.offsetWidth;
+    logo.classList.add(effect);
+  });
+});
