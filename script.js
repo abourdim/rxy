@@ -1200,27 +1200,43 @@ function send(msg) {
   processWriteQueue();
 }
 
-// One-click Demo - creates full showcase with all widgets
+// One-click Demo - creates full showcase with ALL widgets
 function showDemo() {
-  // Create a demo with ALL widget types
+  // Create a demo with ALL 12 widget types - complete showcase!
   state.widgets = [
+    // Row 1: Buttons + Sliders
     { id: 'btn_jump', t: 'button', x: 20, y: 20, w: 100, h: 100, label: 'Jump!', model:'neo' },
     { id: 'btn_fire', t: 'button', x: 140, y: 20, w: 100, h: 100, label: 'Fire!', model:'glass' },
-    { id: 'slider_speed', t: 'slider', x: 260, y: 20, w: 90, h: 180, label: 'Speed', model:'track', min:0, max:100, step:1 },
-    { id: 'slider_power', t: 'slider', x: 370, y: 20, w: 90, h: 180, label: 'Power', model:'neon', min:0, max:100, step:1 },
-    { id: 'toggle_turbo', t: 'toggle', x: 20, y: 140, w: 100, h: 100, label: 'Turbo', model:'pill' },
-    { id: 'toggle_shield', t: 'toggle', x: 140, y: 140, w: 100, h: 100, label: 'Shield', model:'icon' },
-    { id: 'joy_move', t: 'joystick', x: 20, y: 260, w: 140, h: 140, label: 'Move', model:'ring' },
-    { id: 'led_status', t: 'led', x: 180, y: 260, w: 100, h: 100, label: 'Status', model:'dot', colorOn:'#00e676', colorOff:'#1b2a3a' },
-    { id: 'led_alert', t: 'led', x: 300, y: 260, w: 100, h: 100, label: 'Alert', model:'ring', colorOn:'#ff5252', colorOff:'#1b2a3a' },
-    { id: 'label_score', t: 'label', x: 180, y: 380, w: 220, h: 50, label: 'Score: 0', model:'chip' },
+    { id: 'slider_speed', t: 'slider', x: 260, y: 20, w: 80, h: 160, label: 'Speed', model:'track', min:0, max:100, step:1 },
+    { id: 'slider_power', t: 'slider', x: 360, y: 20, w: 80, h: 160, label: 'Power', model:'neon', min:0, max:100, step:1 },
+    
+    // Row 2: Toggles + LEDs
+    { id: 'toggle_turbo', t: 'toggle', x: 20, y: 140, w: 100, h: 80, label: 'Turbo', model:'pill' },
+    { id: 'toggle_shield', t: 'toggle', x: 140, y: 140, w: 100, h: 80, label: 'Shield', model:'icon' },
+    { id: 'led_status', t: 'led', x: 260, y: 200, w: 70, h: 70, label: 'Status', model:'dot', colorOn:'#00e676', colorOff:'#1b2a3a' },
+    { id: 'led_alert', t: 'led', x: 350, y: 200, w: 70, h: 70, label: 'Alert', model:'ring', colorOn:'#ff5252', colorOff:'#1b2a3a' },
+    
+    // Row 3: Joystick + D-Pad side by side
+    { id: 'joy_move', t: 'joystick', x: 20, y: 240, w: 140, h: 140, label: 'Move', model:'ring' },
+    { id: 'dpad_nav', t: 'dpad', x: 180, y: 240, w: 140, h: 140, label: 'Navigate', model:'classic' },
+    
+    // Row 3: Label
+    { id: 'label_score', t: 'label', x: 340, y: 290, w: 180, h: 50, label: 'Score: 0', model:'chip' },
+    
+    // Row 4: XY Pad + Battery + Timer
+    { id: 'xypad_aim', t: 'xypad', x: 20, y: 400, w: 140, h: 140, label: 'Aim', model:'grid' },
+    { id: 'battery_level', t: 'battery', x: 180, y: 400, w: 70, h: 100, label: 'Power', model:'vertical' },
+    { id: 'timer_game', t: 'timer', x: 270, y: 400, w: 120, h: 70, label: 'Game Time', model:'digital', autoStart: false },
 
-    { id: 'gauge_temp', t: 'gauge', x: 20, y: 430, w: 150, h: 170, label: 'Temp', min: 0, max: 50, units: '°C', decimals: 1, model:'classic' },
-    { id: 'gauge_level', t: 'gauge', x: 190, y: 430, w: 150, h: 170, label: 'Level', min: 0, max: 100, units: '%', decimals: 0, model:'neon' },
-    { id: 'graph_env', t: 'graph', x: 20, y: 610, w: 370, h: 170, label: 'Online Graph', series: 2, windowSec: 30, autoScale: true, model:'grid' }
+    // Row 5: Gauges
+    { id: 'gauge_temp', t: 'gauge', x: 20, y: 560, w: 140, h: 160, label: 'Temp', min: 0, max: 50, units: '°C', decimals: 1, model:'classic' },
+    { id: 'gauge_level', t: 'gauge', x: 180, y: 560, w: 140, h: 160, label: 'Level', min: 0, max: 100, units: '%', decimals: 0, model:'neon' },
+    
+    // Row 6: Graph
+    { id: 'graph_env', t: 'graph', x: 20, y: 740, w: 420, h: 150, label: 'Live Data', series: 2, windowSec: 30, autoScale: true, model:'grid' }
   ];
   state.widgets = state.widgets.map(applyWidgetDefaults);
-  state.nextId = 20;
+  state.nextId = 30;
   state.selected = null;
   $('#titleInput').value = 'Super Demo Remote';
   renderWidgets();
@@ -1250,7 +1266,7 @@ function showDemo() {
   $('#modalCode').textContent = generateDemoCode(cfg);
   $('#modalBg').classList.add('show');
   
-  toast('Demo loaded with ALL widgets!', 'success');
+  toast('Demo loaded with ALL 12 widgets!', 'success');
 }
 
 function generateDemoCode(cfg) {
@@ -1269,6 +1285,7 @@ function generateDemoCode(cfg) {
   const labels = cfg.widgets.filter(w => w.t === 'label');
   const gauges = cfg.widgets.filter(w => w.t === 'gauge');
   const graphs = cfg.widgets.filter(w => w.t === 'graph');
+  const batteries = cfg.widgets.filter(w => w.t === 'battery');
   
   // Generate handler code for each widget
   let buttonCode = buttons.map(w => `    // Button: ${w.label || w.id}
@@ -1314,11 +1331,23 @@ function generateDemoCode(cfg) {
         let parts = val.split(" ")
         let dir = parts[0]
         let pressed = parts[1] == "1"
+        serial.writeLine("DPAD dir=[" + dir + "] pressed=" + pressed)
         if (pressed) {
-            if (dir == "up") basic.showArrow(ArrowNames.North)
-            else if (dir == "down") basic.showArrow(ArrowNames.South)
-            else if (dir == "left") basic.showArrow(ArrowNames.West)
-            else if (dir == "right") basic.showArrow(ArrowNames.East)
+            basic.clearScreen()
+            if (dir == "up") {
+                basic.showArrow(ArrowNames.North)
+            } else if (dir == "down") {
+                basic.showArrow(ArrowNames.South)
+            } else if (dir == "left") {
+                basic.showArrow(ArrowNames.West)
+            } else if (dir == "right") {
+                basic.showArrow(ArrowNames.East)
+            } else {
+                serial.writeLine("DPAD unknown dir: [" + dir + "]")
+                basic.showString(dir.charAt(0))
+            }
+        } else {
+            basic.clearScreen()
         }
     }`).join('\n');
 
@@ -1412,6 +1441,7 @@ basic.forever(function() {
         let t = input.runningTime()
         ${gauges.length > 0 ? gauges.map((g,i)=>`sendValue("${g.id}", "" + (Math.round((Math.sin((t/1000)+${i}) + 1) * 25)))`).join("\n        ") : "// No gauges to update"}
         ${graphs.length > 0 ? graphs.map((g,i)=>`sendValue("${g.id}", "" + (Math.round((Math.sin((t/900)+${i}) + 1) * 50)) + "," + (Math.round((Math.cos((t/1100)+${i}) + 1) * 50)))`).join("\n        ") : "// No graphs to update"}
+        ${batteries.length > 0 ? batteries.map((b,i)=>`sendValue("${b.id}", "" + (Math.round((Math.sin((t/2000)+${i}) + 1) * 50)))`).join("\n        ") : "// No batteries to update"}
     }
     basic.pause(200)
 })
@@ -4561,7 +4591,10 @@ function processLine(line) {
 function renderRuntime() {
   if (!state.config) return;
   const cfg = state.config;
-  $('#runtimeTitle').textContent = cfg.title || 'My Remote';
+  // Add "Powered by Workshop-Diy" branding
+  const title = cfg.title || 'My Remote';
+  const titleEl = $('#runtimeTitle');
+  titleEl.innerHTML = `${title} <span class="powered-by">Powered by Workshop-Diy</span>`;
   const grid = $('#runtimeGrid');
   let maxX = 0, maxY = 0;
   cfg.widgets.forEach(w => { maxX = Math.max(maxX, w.x + w.w); maxY = Math.max(maxY, w.y + w.h); });
@@ -5042,13 +5075,13 @@ function createRuntimeWidget(w) {
     case 'dpad': {
       return `<div class="rt-dpad">
         <div></div>
-        <button class="dpad-btn" data-dir="up">▲</button>
+        <button class="dpad-btn" data-dir="up" type="button">&#9650;</button>
         <div></div>
-        <button class="dpad-btn" data-dir="left">◀</button>
-        <div class="dpad-btn dpad-center"></div>
-        <button class="dpad-btn" data-dir="right">▶</button>
+        <button class="dpad-btn" data-dir="left" type="button">&#9664;</button>
+        <div class="dpad-center"></div>
+        <button class="dpad-btn" data-dir="right" type="button">&#9654;</button>
         <div></div>
-        <button class="dpad-btn" data-dir="down">▼</button>
+        <button class="dpad-btn" data-dir="down" type="button">&#9660;</button>
         <div></div>
       </div>`;
     }
@@ -5212,31 +5245,58 @@ function bindRuntimeWidget(el, w) {
       break;
     
     case 'dpad':
-      el.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
+      const dpadBtns = el.querySelectorAll('.dpad-btn[data-dir]');
+      console.log('[DPAD] Found buttons:', dpadBtns.length, Array.from(dpadBtns).map(b => b.dataset.dir));
+      dpadBtns.forEach(btn => {
         const dir = btn.dataset.dir;
+        console.log('[DPAD] Binding button:', dir, btn);
         let dpadPressed = false;
         let releaseTimer = null;
+        
         const press = e => { 
           e.preventDefault();
+          e.stopPropagation();
           if (dpadPressed) return;
           dpadPressed = true;
           clearTimeout(releaseTimer);
           btn.classList.add('active');
           beepClick();
+          console.log('[DPAD] Pressed:', dir);
           send(`SET ${w.id} ${dir} 1`); 
         };
-        const release = () => {
+        
+        const release = e => {
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
           if (!dpadPressed) return;
           btn.classList.remove('active');
           // Debounce release to avoid rapid press/release
           clearTimeout(releaseTimer);
           releaseTimer = setTimeout(() => {
             dpadPressed = false;
+            console.log('[DPAD] Released:', dir);
             send(`SET ${w.id} ${dir} 0`);
           }, 100);
         };
-        btn.onmousedown = btn.ontouchstart = press;
-        btn.onmouseup = btn.onmouseleave = btn.ontouchend = release;
+        
+        // Use addEventListener for better compatibility
+        btn.addEventListener('mousedown', press, { passive: false });
+        btn.addEventListener('touchstart', press, { passive: false });
+        btn.addEventListener('mouseup', release, { passive: false });
+        btn.addEventListener('touchend', release, { passive: false });
+        btn.addEventListener('touchcancel', release, { passive: false });
+        
+        // Only release on mouseleave if the button is pressed (mouse left the button while down)
+        btn.addEventListener('mouseleave', e => {
+          if (dpadPressed && e.buttons === 0) {
+            release(e);
+          }
+        }, { passive: false });
+        
+        // EXTRA: Also add onclick as fallback
+        btn.onclick = press;
       });
       break;
     
@@ -5547,11 +5607,20 @@ function stopDemoSim(){
 
 function startDemoSim(){
   stopDemoSim();
+  
+  // Check for any demo widgets
   const hasGraph = !!document.querySelector('.rt-widget[data-id="graph_env"] [data-role="graphCanvas"]');
   const hasGauge = !!document.querySelector('.rt-widget[data-id="gauge_temp"] .rt-gauge-wrap');
-  if (!hasGraph && !hasGauge) return;
+  const hasBattery = !!document.querySelector('.rt-widget[data-id="battery_level"]');
+  const hasTimer = !!document.querySelector('.rt-widget[data-id="timer_game"]');
+  const hasLed = !!document.querySelector('.rt-widget[data-id="led_status"]');
+  
+  if (!hasGraph && !hasGauge && !hasBattery && !hasTimer && !hasLed) return;
 
   let t0 = Date.now();
+  let ledBlinkState = false;
+  let timerSeconds = 0;
+  
   state._demoTimer = setInterval(() => {
     const t = (Date.now() - t0) / 1000;
 
@@ -5572,12 +5641,39 @@ function startDemoSim(){
     state.values['graph_env'] = csv;
     updateRuntimeWidget('graph_env', csv);
 
+    // Update score label
     const scoreEl = state.config?.widgets?.find(x => x.id === 'label_score');
     if (scoreEl){
       const sc = Math.floor((t * 3) % 999);
       const txt = `Score: ${sc}`;
       state.values['label_score'] = txt;
       updateRuntimeWidget('label_score', txt);
+    }
+    
+    // Animate battery level (cycles between 10-100%)
+    if (hasBattery) {
+      const batteryLevel = Math.floor(50 + 45 * Math.sin(t / 8));
+      state.values['battery_level'] = batteryLevel.toString();
+      updateRuntimeWidget('battery_level', batteryLevel.toString());
+    }
+    
+    // Animate timer (counts up)
+    if (hasTimer) {
+      timerSeconds = Math.floor(t);
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      const timerStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      state.values['timer_game'] = timerStr;
+      updateRuntimeWidget('timer_game', timerStr);
+    }
+    
+    // Blink LEDs alternately
+    if (hasLed) {
+      ledBlinkState = !ledBlinkState;
+      state.values['led_status'] = ledBlinkState ? '1' : '0';
+      state.values['led_alert'] = ledBlinkState ? '0' : '1';
+      updateRuntimeWidget('led_status', state.values['led_status']);
+      updateRuntimeWidget('led_alert', state.values['led_alert']);
     }
   }, 400); // Slower updates for smoother appearance
 }
