@@ -606,6 +606,30 @@ body.runtime-fullscreen .fullscreen-exit-btn {
   display: flex !important;
   z-index: 10001 !important;
 }
+.fullscreen-version {
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  z-index: 10000;
+}
+body.runtime-fullscreen .fullscreen-version {
+  display: block;
+}
+.global-version {
+  position: fixed;
+  bottom: 8px;
+  left: 8px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  z-index: 9999;
+  pointer-events: none;
+}
+body.runtime-fullscreen .global-version {
+  display: none;
+}
 /* Show zoom controls in fullscreen */
 body.runtime-fullscreen .zoom-controls {
   display: flex !important;
@@ -2998,6 +3022,11 @@ aside.widget-properties {
     max-width: 1500px !important;
   }
 }
+.version-tag{
+  font-size: 10px;
+  color: rgba(255,255,255,.35);
+  margin-left: 8px;
+}
 
 </style>
 
@@ -4132,6 +4161,7 @@ aside.widget-properties {
       <div class="hero-titles">
         <div class="hero-title">MICRO:BIT REMOTE STUDIO</div>
         <div class="hero-subtitle">Build fun remotes • Connect • Play • Learn</div>
+        <span class="version-tag">v1.0</span>
         <div class="tabs hero-tabs">
           <button class="tab active" data-tab="builder">✏️ Build</button>
           <button class="tab" data-tab="runtime">▶️ Play</button>
@@ -4264,6 +4294,7 @@ aside.widget-properties {
         <button id="fullscreenBtn" class="fullscreen-btn">⛶ Fullscreen</button>
       </div>
       <button id="fullscreenExitBtn" class="fullscreen-exit-btn">✕</button>
+      <span class="fullscreen-version">v1.0</span>
       <div id="quickActionsMenu" class="quick-actions-menu">
         <button class="quick-action-btn" data-action="duplicate">📋 Duplicate</button>
         <button class="quick-action-btn" data-action="color">🎨 Random Color</button>
@@ -7127,14 +7158,14 @@ function zoomToFitScreen() {
   const gridW = grid.offsetWidth;
   const gridH = grid.offsetHeight;
   
-  // Available screen space - maximize fill
-  const availW = window.innerWidth * 0.96;
-  const availH = window.innerHeight * 0.94;
+  // Available screen space
+  const availW = window.innerWidth * 0.88;
+  const availH = window.innerHeight * 0.82;
   
   // Calculate scale to fit
   const scaleX = availW / gridW;
   const scaleY = availH / gridH;
-  const scale = Math.min(scaleX, scaleY, 3); // Cap at 3x max
+  const scale = Math.min(scaleX, scaleY, 1.8); // Cap at 1.8x max
   
   // Apply zoom transform
   grid.style.transform = `scale(${scale})`;
@@ -11693,5 +11724,6 @@ document.addEventListener('click', (e)=>{
 })();
 </script>
 
+<span class="global-version">v1.0</span>
 </body>
 </html>
