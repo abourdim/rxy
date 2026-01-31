@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>micro:bit Remote</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js">
 document.addEventListener('click', (e)=>{
   const btn = e.target && e.target.closest ? e.target.closest('[data-tab]') : null;
   if (!btn) return;
@@ -598,7 +597,7 @@ body.runtime-fullscreen #runtimeTitle {
 }
 body.runtime-fullscreen #runtimeGrid {
   max-width: 95vw !important;
-  max-height: calc(100vh - 100px) !important;
+  max-height: calc(100vh - 20px) !important;
   margin: 0 auto !important;
   border: 3px solid var(--accent) !important;
   transform-origin: center center !important;
@@ -4832,14 +4831,20 @@ function makeCanvasResizable(){
   dz.style.maxWidth = 'none';
   dz.style.overflow = 'hidden';
 
-  // Add resizer handle + size badge
-  const handle = document.createElement('div');
-  handle.className = 'canvas-resizer';
+  // Add resizer handles + size badge
+  const handleXY = document.createElement('div');
+  handleXY.className = 'canvas-resizer canvas-resizer-xy';
+  const handleE = document.createElement('div');
+  handleE.className = 'canvas-resizer canvas-resizer-e';
+  const handleS = document.createElement('div');
+  handleS.className = 'canvas-resizer canvas-resizer-s';
   const badge = document.createElement('div');
   badge.className = 'canvas-size-badge';
   badge.textContent = '';
   wrap.appendChild(badge);
-  wrap.appendChild(handle);
+  wrap.appendChild(handleE);
+  wrap.appendChild(handleS);
+  wrap.appendChild(handleXY);
 
   function updateBadge(){
     const r = wrap.getBoundingClientRect();
@@ -4848,6 +4853,7 @@ function makeCanvasResizable(){
   updateBadge();
 
   let dragging = false;
+  let dragMode = 'xy';
   let startX=0, startY=0, startW=0, startH=0;
 
   const onMove = (e) => {
@@ -4861,10 +4867,15 @@ function makeCanvasResizable(){
     const maxW = Math.max(360, window.innerWidth - 60);
     const maxH = Math.max(360, window.innerHeight - 180);
 
-    const newW = Math.max(minW, Math.min(maxW, startW + dx));
-    const newH = Math.max(minH, Math.min(maxH, startH + dy));
+    let targetW = startW;
+    let targetH = startH;
+    if (dragMode === 'x') targetW = startW + dx;
+    else if (dragMode === 'y') targetH = startH + dy;
+    else { targetW = startW + dx; targetH = startH + dy; }
 
-    wrap.style.width = newW + 'px';
+    const newW = Math.max(minW, Math.min(maxW, targetW));
+    const newH = Math.max(minH, Math.min(maxH, targetH));
+wrap.style.width = newW + 'px';
     wrap.style.height = newH + 'px';
     updateBadge();
   };
@@ -4884,23 +4895,31 @@ function makeCanvasResizable(){
     window.removeEventListener('touchend', onUp);
   };
 
-  const onDown = (e) => {
+  const onDown = (mode, e) => {
     e.preventDefault();
     dragging = true;
+    dragMode = mode || 'xy';
     const r = wrap.getBoundingClientRect();
     startW = r.width; startH = r.height;
     startX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
     startY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
     document.body.style.userSelect = 'none';
-    document.body.style.cursor = 'nwse-resize';
+    document.body.style.cursor = (mode==='x' ? 'ew-resize' : mode==='y' ? 'ns-resize' : 'nwse-resize');
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     window.addEventListener('touchmove', onMove, {passive:false});
     window.addEventListener('touchend', onUp);
   };
 
-  handle.addEventListener('mousedown', onDown);
-  handle.addEventListener('touchstart', onDown, {passive:false});
+  const bindHandle = (el, mode) => {
+    el.addEventListener('pointerdown', (e)=>onDown(mode,e), {passive:false});
+    el.addEventListener('mousedown', (e)=>onDown(mode,e), {passive:false});
+    el.addEventListener('touchstart', (e)=>onDown(mode,e), {passive:false});
+  };
+
+  bindHandle(handleXY, 'xy');
+  bindHandle(handleE, 'x');
+  bindHandle(handleS, 'y');
 
   // Update badge if window resized
   window.addEventListener('resize', ()=>updateBadge());
@@ -5792,7 +5811,7 @@ try{ placeToolbarWhereHintWas(); }catch(e){}
     if (!card || !toggle || !body) return;
 
     const setCollapsed = (collapsed) => {
-      if(typeof setCollapsedUI==='function'){ setCollapsedUI(); } else { card.classList.toggle('collapsed', collapsed); }
+      card.classList.toggle('collapsed', collapsed);
       toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
       body.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
     };
@@ -10827,12 +10846,10 @@ document.addEventListener('click', (e)=>{
 /* ---- Logs UI ---- */
 #logCard{
   position: fixed;
-  top: calc(var(--headerH, 90px) + 10px);
-  right: 10px;
+  left: 10px;
+  right: 80px;
   bottom: 10px;
-  left: auto;
   z-index: 900;
-  width: min(380px, 38vw);
   border-radius: 14px;
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(10,18,44,0.92);
@@ -10841,17 +10858,16 @@ document.addEventListener('click', (e)=>{
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: none;
+  width: auto;
+  max-height: 40vh;
   pointer-events: auto;
 }
 #logCard.collapsed{ 
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
-  height: auto;
-  max-height: 36px !important;
+  max-height: 36px !important; 
+  left: auto;
+  right: 80px;
   width: auto;
-  min-width: 90px;
+  min-width: 80px;
 }
 
 #logHead{
@@ -10970,42 +10986,7 @@ document.addEventListener('click', (e)=>{
 }
 
 /* Give canvas room so it isn't covered by logs */
-.canvas-wrap{ padding-right: 420px; }
-
-/* === Logs: collapsed = tab only (no horizontal toolbar) === */
-#logCard.collapsed{
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: auto !important;
-  max-height: none !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  overflow: visible !important;
-}
-
-#logCard.collapsed .logTop,
-#logCard.collapsed .logBody,
-#logCard.collapsed .logBottom{
-  display: none !important;
-}
-
-/* Keep only the vertical tab visible */
-#logCard.collapsed #logTab{
-  display: flex !important;
-}
-
-/* Make the tab sit nicely on the right edge */
-#logTab{
-  position: fixed !important;
-  right: 10px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  z-index: 950 !important;
-}
-
+.canvas-wrap{ padding-bottom: 160px; }
 </style>
 
 <div id="logFab" title="Logs (Ctrl+Shift+L)">🧾</div>
@@ -11029,7 +11010,7 @@ document.addEventListener('click', (e)=>{
 (function(){
   const DEFAULT_FILTERS = { ble:true, ok:true, warn:true, error:true, info:true, debug:false, log:true };
   let filters = {...DEFAULT_FILTERS};
-  let collapsed = (localStorage.getItem('logsCollapsed') ?? 'true') === 'true';
+  let collapsed = true;
   const MAX_ITEMS = 1500;
   const items = [];
   const $ = (id)=>document.getElementById(id);
@@ -11107,32 +11088,14 @@ document.addEventListener('click', (e)=>{
     const canvasWrap=document.querySelector('.canvas-wrap');
     const resizableWrap=document.getElementById('resizableWrap');
     if(!card) return;
-    const w=Math.ceil(card.getBoundingClientRect().width||0);
-    if(canvasWrap){
-      // Reserve space on the right so widgets/canvas are never covered by the logs drawer
-      const pad = collapsed ? 0 : Math.min(480, Math.max(0, w + 18));
-      canvasWrap.style.paddingRight = pad + 'px';
-      canvasWrap.style.paddingBottom = ''; // clear any previous bottom padding
-    }
+    const h=card.getBoundingClientRect().height||0;
+    if(canvasWrap) canvasWrap.style.paddingBottom=(h+14)+'px';
     if(resizableWrap){
-      // When logs are on the right, we don't need to shrink height; just keep it inside viewport.
       const top=resizableWrap.getBoundingClientRect().top||0;
-      const maxH=Math.max(320, Math.floor(window.innerHeight - top - 24));
+      const maxH=Math.max(320, Math.floor(window.innerHeight - top - h - 24));
       resizableWrap.style.maxHeight=maxH+'px';
     }
-    }
-
-  function setCollapsedUI(){
-    const card=$('logCard');
-    if(!card) return;
-    card.classList.toggle('collapsed', !!collapsed);
-    try{ localStorage.setItem('logsCollapsed', String(!!collapsed)); }catch(e){}
-    // When collapsed, ensure we don't reserve right padding
-    adjustLayout();
   }
-
-  // Apply initial state
-  setCollapsedUI();
 
   // Filters UI
   function buildFilters(){
@@ -11184,7 +11147,7 @@ document.addEventListener('click', (e)=>{
   function setCollapsed(next){
     collapsed = next;
     const card=$('logCard'), t=$('logToggle');
-    if(card) if(typeof setCollapsedUI==='function'){ setCollapsedUI(); } else { card.classList.toggle('collapsed', collapsed); }
+    if(card) card.classList.toggle('collapsed', collapsed);
     if(t){
       t.textContent = collapsed ? '▸' : '▾';
       t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
@@ -11418,6 +11381,245 @@ document.addEventListener('click', (e)=>{
     getZoom: () => currentZoom,
     setZoom: applyZoom
   };
+})();
+</script>
+
+
+<style id="logsRightOverride">
+/* === FORCE LOGS TO RIGHT SIDEBAR === */
+#logCard{
+  left: auto !important;
+  right: 10px !important;
+  bottom: 10px !important;
+  top: auto !important;
+
+  width: var(--logsW, 380px) !important;
+  height: var(--logsH, 420px) !important;
+
+  max-width: min(960px, 70vw) !important;
+  min-width: 260px !important;
+
+  max-height: calc(100vh - 140px) !important;
+  min-height: 220px !important;
+
+  transform: none !important;
+  overflow: hidden !important;
+}
+
+/* Keep the vertical tab on the right */
+#logTab{
+  position: fixed !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 950 !important;
+}
+#logCard:not(.collapsed) + #logTab,
+#logCard:not(.collapsed) ~ #logTab{ display:none !important; }
+
+/* Collapsed = only tab */
+#logCard.collapsed{
+  width: 0 !important; height: 0 !important; padding:0 !important; border:none !important;
+  background: transparent !important; box-shadow:none !important; overflow:hidden !important;
+}
+#logCard.collapsed *{ display:none !important; }
+
+/* Resize handles */
+#logResizeHandleX, #logResizeHandleY, #logResizeHandleXY{
+  position:absolute;
+  z-index: 5000;
+  touch-action: none;
+}
+#logResizeHandleX{
+  left:0; top:0; bottom:0; width: 18px;
+  cursor: ew-resize;
+  background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0));
+}
+#logResizeHandleY{
+  left:0; right:0; bottom:0; height: 14px;
+  cursor: ns-resize;
+  background: linear-gradient(0deg, rgba(255,255,255,0.12), rgba(255,255,255,0));
+}
+#logResizeHandleXY{
+  right:0; bottom:0; width: 18px; height: 18px;
+  cursor: nwse-resize;
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.16), rgba(255,255,255,0));
+}
+#logCard.collapsed #logResizeHandleX,
+#logCard.collapsed #logResizeHandleY,
+#logCard.collapsed #logResizeHandleXY{ display:none !important; }
+
+
+/* v21: When collapsed, logs have zero footprint */
+#logCard.collapsed{
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  pointer-events: none !important;
+}
+/* Keep LOGS tab clean */
+#logTab{ box-shadow:none !important; }
+
+</style>
+
+<script>
+(function(){
+  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+  function applyWH(w,h){
+    const card=document.getElementById('logCard'); if(!card) return;
+    const W=clamp(Math.floor(w||380), 260, 960);
+    const H=clamp(Math.floor(h||420), 220, Math.floor(window.innerHeight-20));
+    card.style.setProperty('--logsW', W+'px');
+    card.style.setProperty('--logsH', H+'px');
+    card.style.setProperty('width', W+'px', 'important');
+    card.style.setProperty('height', H+'px', 'important');
+    card.style.width=W+'px'; card.style.height=H+'px';
+    try{ localStorage.setItem('logsWidth', String(W)); localStorage.setItem('logsHeight', String(H)); }catch(e){}
+    try{
+      const pad = card.classList.contains('collapsed') ? 0 : Math.min(740, W + 18);
+      const canvasWrap=document.querySelector('.canvas-wrap');
+      if(canvasWrap){ canvasWrap.style.paddingRight = pad+'px'; canvasWrap.style.paddingBottom=''; }
+    }catch(e){}
+  }
+  function ensure(){
+    const card=document.getElementById('logCard'); if(!card) return false;
+    // Add handles
+    if(!document.getElementById('logResizeHandleX')){
+      const hx=document.createElement('div'); hx.id='logResizeHandleX'; card.appendChild(hx);
+      const hy=document.createElement('div'); hy.id='logResizeHandleY'; card.appendChild(hy);
+      const hxy=document.createElement('div'); hxy.id='logResizeHandleXY'; card.appendChild(hxy);
+    }
+    // Apply saved
+    try{
+      const sw=parseInt(localStorage.getItem('logsWidth')||'380',10);
+      const sh=parseInt(localStorage.getItem('logsHeight')||'420',10);
+      applyWH(Number.isNaN(sw)?380:sw, Number.isNaN(sh)?420:sh);
+    }catch(e){ applyWH(380,420); }
+    if(card.__resizerBound) return true;
+    card.__resizerBound=true;
+
+    function cx(e){ if(e.touches&&e.touches[0]) return e.touches[0].clientX; if(e.changedTouches&&e.changedTouches[0]) return e.changedTouches[0].clientX; return e.clientX; }
+    function cy(e){ if(e.touches&&e.touches[0]) return e.touches[0].clientY; if(e.changedTouches&&e.changedTouches[0]) return e.changedTouches[0].clientY; return e.clientY; }
+
+    const hx=document.getElementById('logResizeHandleX');
+    const hy=document.getElementById('logResizeHandleY');
+    const hxy=document.getElementById('logResizeHandleXY');
+
+    let mode=null, startX=0, startY=0, startW=0, startH=0;
+
+    function down(m,e){
+      if(card.classList.contains('collapsed')) return;
+      mode=m;
+      startX=cx(e); startY=cy(e);
+      const r=card.getBoundingClientRect();
+      startW=r.width; startH=r.height;
+      document.body.style.userSelect='none';
+      document.body.style.cursor = (m==='x'?'ew-resize':m==='y'?'ns-resize':'nwse-resize');
+      e.preventDefault?.();
+    }
+    function move(e){
+      if(!mode) return;
+      const dx=cx(e)-startX;
+      const dy=cy(e)-startY;
+      // left-edge drag for X => width increases when moving left (negative dx)
+      let W=startW, H=startH;
+      if(mode==='x') W = startW - dx;
+      if(mode==='y') H = startH + dy; // bottom edge
+      if(mode==='xy'){ W = startW - dx; H = startH + dy; }
+      applyWH(W,H);
+      e.preventDefault?.();
+    }
+    function up(){
+      if(!mode) return;
+      mode=null;
+      document.body.style.userSelect='';
+      document.body.style.cursor='';
+    }
+
+    // Bind events
+    function bindHandle(el,m){
+      el.addEventListener('pointerdown', down.bind(null,m), {passive:false});
+      el.addEventListener('mousedown', down.bind(null,m), {passive:false});
+      el.addEventListener('touchstart', down.bind(null,m), {passive:false});
+    }
+    bindHandle(hx,'x'); bindHandle(hy,'y'); bindHandle(hxy,'xy');
+
+    window.addEventListener('pointermove', move, {passive:false});
+    window.addEventListener('pointerup', up, {passive:true});
+    window.addEventListener('pointercancel', up, {passive:true});
+    window.addEventListener('mousemove', move, {passive:false});
+    window.addEventListener('mouseup', up, {passive:true});
+    window.addEventListener('touchmove', move, {passive:false});
+    window.addEventListener('touchend', up, {passive:true});
+    window.addEventListener('touchcancel', up, {passive:true});
+
+    return true;
+  }
+
+  let tries=0;
+  const timer=setInterval(()=>{ if(ensure() || ++tries>140) clearInterval(timer); }, 150);
+  const obs=new MutationObserver(()=>{ ensure(); });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
+
+<script>
+/* v21: Only the right-side LOGS tab toggles collapse/expand */
+(function(){
+  function $(sel, root=document){ return root.querySelector(sel); }
+  function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+
+  function bindOnce(){
+    const card = document.getElementById('logCard');
+    const tab  = document.getElementById('logTab');
+    if(!card || !tab) return false;
+
+    // Hide/remove any extra toggle controls in the header, but keep action buttons (Clear/TXT/JSON).
+    const head = card.querySelector('#logHead') || card.querySelector('.logTop') || card;
+    const actions = head.querySelector('#logActions') || head; // safe fallback
+
+    // Any buttons inside head that are NOT inside #logActions are treated as toggles/UI chrome -> hide them.
+    $all('button', head).forEach(btn=>{
+      if(actions && actions.contains(btn)) return; // keep Clear/TXT/JSON etc.
+      // keep nothing else in header
+      btn.style.display = 'none';
+      btn.disabled = true;
+      btn.setAttribute('aria-hidden','true');
+    });
+
+    // Also disable click toggles on title area if any (some builds make LOGS title clickable)
+    const title = head.querySelector('#logTitle') || head.querySelector('.logTitle');
+    if(title){
+      title.style.pointerEvents = 'none';
+    }
+
+    // Make sure tab toggles collapsed state
+    if(!tab.__onlyToggleBound){
+      tab.__onlyToggleBound = true;
+      tab.addEventListener('click', ()=>{
+        card.classList.toggle('collapsed');
+        try{ localStorage.setItem('logsCollapsed', String(card.classList.contains('collapsed'))); }catch(e){}
+        // When expanding: re-enable pointer events automatically via CSS (not collapsed).
+        try{ if(typeof window.__adjustLogsLayout==='function') window.__adjustLogsLayout(); }catch(e){}
+      });
+    }
+
+    // Ensure card reflects saved collapsed state
+    try{
+      const saved = (localStorage.getItem('logsCollapsed') ?? 'true') === 'true';
+      card.classList.toggle('collapsed', saved);
+    }catch(e){}
+
+    return true;
+  }
+
+  let tries=0;
+  const t=setInterval(()=>{
+    if(bindOnce() || ++tries>200) clearInterval(t);
+  }, 100);
+
+  const obs=new MutationObserver(()=>{ bindOnce(); });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
 })();
 </script>
 
