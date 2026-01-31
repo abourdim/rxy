@@ -4218,18 +4218,6 @@ aside.widget-properties {
             </div>
           </div>
 
-          <div id="propsPanel" class="props-panel props-card">
-            <div class="props-title">
-              🛠️ Widget Properties
-              <div class="props-title-actions">
-                <button id="propsCollapseBtn" class="props-close-btn props-collapse-btn" type="button" title="Collapse">–</button>
-                <button id="propsPanelClose" class="props-close-btn" type="button">✕</button>
-              </div>
-            </div>
-            <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
-            <div id="propsForm" class="props-form" style="display:none;"></div>
-          </div>
-
           <div class="palette-card collapsible-card" id="paletteCard">
             <button class="palette-card-toggle collapsible-card-toggle" id="paletteToggle" type="button" aria-expanded="true" aria-controls="paletteBody">
               <span class="palette-card-title collapsible-card-title">🧩 Widgets</span>
@@ -4251,6 +4239,18 @@ aside.widget-properties {
                 <div class="palette-item" data-type="timer"><div class="palette-icon">⏱️</div><div class="palette-name">Timer</div></div>
               </div>
             </div>
+          </div>
+
+          <div id="propsPanel" class="props-panel props-card">
+            <div class="props-title">
+              🛠️ Widget Properties
+              <div class="props-title-actions">
+                <button id="propsCollapseBtn" class="props-close-btn props-collapse-btn" type="button" title="Collapse">–</button>
+                <button id="propsPanelClose" class="props-close-btn" type="button">✕</button>
+              </div>
+            </div>
+            <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
+            <div id="propsForm" class="props-form" style="display:none;"></div>
           </div>
         </aside>
       </div>
@@ -5489,8 +5489,10 @@ async function processWriteQueue() {
   bleSend.pendingMsg = null;
   
   try {
-    await bleWrite(msg);
-    bleSend.lastSendTime = Date.now();
+    const success = await bleWrite(msg);
+    if (success) {
+      bleSend.lastSendTime = Date.now();
+    }
   } finally {
     // Always unlock
     bleSend.isWriting = false;
@@ -9416,7 +9418,7 @@ function bindRuntimeWidget(el, w) {
           resetTimer = setTimeout(() => {
             resetTimer = null;
             send(`SET ${w.id} 0 0`);
-          }, 200);
+          }, 250);
         } else {
           // Just send center if no significant movement
           send(`SET ${w.id} 0 0`);
@@ -10945,26 +10947,6 @@ document.addEventListener('click', (e)=>{
 .log-line.dir-rx{ color: rgba(96,239,255,0.96); }
 .log-line.dir-tx{ color: rgba(255,145,0,0.96); }
 
-/* FAB bottom-right */
-#logFab{
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 99999;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #000;
-  font-weight: 950;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  user-select:none;
-}
-
 /* Right edge tab (always reachable) */
 #logTab{
   position: fixed;
@@ -10989,7 +10971,6 @@ document.addEventListener('click', (e)=>{
 .canvas-wrap{ padding-bottom: 160px; }
 </style>
 
-<div id="logFab" title="Logs (Ctrl+Shift+L)">🧾</div>
 <div id="logTab" title="Logs (Ctrl+Shift+L)">LOGS</div>
 
 <div id="logCard" class="collapsed" aria-live="polite">
@@ -11153,7 +11134,10 @@ document.addEventListener('click', (e)=>{
       t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     }
     try{ localStorage.setItem('logCardCollapsed', collapsed ? '1':'0'); }catch(e){}
-    renderSoon(true);
+    // When expanding, force immediate render after DOM updates
+    if (!collapsed) {
+      setTimeout(() => { render(); adjustLayout(); }, 10);
+    }
     adjustLayout();
   }
   function toggle(){ setCollapsed(!collapsed); }
@@ -11193,7 +11177,6 @@ document.addEventListener('click', (e)=>{
     setCollapsed(saved !== '0'); // Collapsed unless explicitly set to expanded
 
     $('logToggle')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
-    $('logFab')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
     $('logTab')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); }, {passive:false});
 
     $('logClear')?.addEventListener('click', ()=>window.APPLOG.clear());
