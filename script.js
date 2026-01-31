@@ -1,5 +1,26 @@
 window.__ovl = window.__ovl || { t:null };
 
+// EARLY ZOOM VALIDATION - prevents tiny render on page load
+(function() {
+  try {
+    // Check for reset parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset_zoom') === '1' || urlParams.get('reset') === '1') {
+      localStorage.removeItem('app_zoom');
+    }
+    
+    // Validate saved zoom immediately
+    const savedZoom = localStorage.getItem('app_zoom');
+    if (savedZoom) {
+      const z = parseFloat(savedZoom);
+      if (isNaN(z) || z < 0.5 || z > 3) {
+        console.warn('[Zoom] Invalid saved zoom detected on load:', savedZoom, '- removing');
+        localStorage.removeItem('app_zoom');
+      }
+    }
+  } catch(e) {}
+})();
+
 const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 const UART_RX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -6797,8 +6818,15 @@ document.addEventListener('click', (e)=>{
     
     const target = getZoomTarget();
     if (target) {
+      // Use top left origin for consistent cross-browser behavior
+      // Center origin can cause layout shifts in some browsers
       target.style.transform = `scale(${currentZoom})`;
-      target.style.transformOrigin = 'center center';
+      target.style.transformOrigin = 'top left';
+      
+      // For the app container, adjust body scroll if needed
+      if (target.classList.contains('app') || target.classList.contains('app-scaler')) {
+        document.body.classList.toggle('scaled', currentZoom !== 1);
+      }
     }
     
     // Update display
@@ -6806,8 +6834,10 @@ document.addEventListener('click', (e)=>{
       zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
     }
     
-    // Save preference
-    try { localStorage.setItem('app_zoom', currentZoom); } catch(e) {}
+    // Save preference (only if valid)
+    if (currentZoom >= 0.5 && currentZoom <= 3) {
+      try { localStorage.setItem('app_zoom', currentZoom); } catch(e) {}
+    }
   }
   
   function zoomIn() {
@@ -6903,13 +6933,36 @@ document.addEventListener('click', (e)=>{
     lastTouchDistance = 0;
   }, { passive: true });
   
-  // Load saved zoom
+  // Load saved zoom (with validation)
   try {
+    // Check for reset parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset_zoom') === '1' || urlParams.get('reset') === '1') {
+      localStorage.removeItem('app_zoom');
+      console.log('[Zoom] Reset via URL parameter');
+      // Clean URL
+      if (window.history.replaceState) {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, '', cleanUrl);
+      }
+    }
+    
     const savedZoom = localStorage.getItem('app_zoom');
     if (savedZoom) {
-      applyZoom(parseFloat(savedZoom));
+      const parsed = parseFloat(savedZoom);
+      // Validate zoom is in reasonable range (0.5 to 3)
+      if (!isNaN(parsed) && parsed >= 0.5 && parsed <= 3) {
+        applyZoom(parsed);
+      } else {
+        // Invalid zoom value - remove it and use default
+        console.warn('[Zoom] Invalid saved zoom:', savedZoom, '- resetting to 1');
+        localStorage.removeItem('app_zoom');
+        applyZoom(1);
+      }
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('[Zoom] Error loading saved zoom:', e);
+  }
   
   // Expose for other scripts
   window.appZoom = {

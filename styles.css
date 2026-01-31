@@ -487,6 +487,13 @@ body.scaled {
 .app-scaler {
   transform-origin: top left;
   transition: transform 0.15s ease;
+  /* Prevent transform from being applied initially in case of bad saved state */
+  will-change: transform;
+}
+
+/* Ensure app renders at full size by default */
+.app.app-scaler:not([style*="transform"]) {
+  transform: scale(1) !important;
 }
 
 /* Canvas size badge in arrange mode */
