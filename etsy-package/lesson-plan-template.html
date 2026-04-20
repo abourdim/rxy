@@ -78,7 +78,7 @@
 <!-- PAGE 1: Template -->
 <div class="page">
   <div class="header">
-    <div class="header-logo"><span>µP</span></div>
+    <div class="header-logo"><span>rxy</span></div>
     <div class="header-text">
       <h1>Micro:bit Remote Builder Lesson Plan</h1>
       <span>45-Minute STEM Lesson Planner &bull; v1.0.0</span>
@@ -104,10 +104,10 @@
     <li>USB cable or battery pack</li>
     <li>Laptop / tablet with Chrome or Edge (Bluetooth enabled)</li>
     <li>Micro:bit Remote Builder opened via <code>index.html</code></li>
-    <li>Firmware flashed from <code>makecode.ts</code></li>
-    <li>Servo(s) on pins P1 / P2 (optional)</li>
-    <li>Printed Quick-Start Card &amp; Shortcuts sheet</li>
-    <li>Theme chosen: ________________</li>
+    <li>makecode.microbit.org open in a second browser tab (JavaScript mode)</li>
+    <li>A target to control: robot, car, light — or just the micro:bit itself</li>
+    <li>Printed Quick-Start Card &amp; Widget Cheat Sheet</li>
+    <li>Theme chosen: ________________ (neo / glass / neon)</li>
   </ul>
 
   <div class="section"><div class="dot"></div> Lesson Timeline (45 min)</div>
@@ -115,7 +115,7 @@
     <div class="trow thead">
       <div class="tcol-time">Time</div>
       <div class="tcol-act">Activity</div>
-      <div class="tcol-tool">Playground Tab</div>
+      <div class="tcol-tool">Builder Tab</div>
       <div class="tcol-notes">Notes</div>
     </div>
     <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
@@ -129,9 +129,9 @@
 
   <div class="section"><div class="dot"></div> Wrap-up</div>
   <ul class="checklist">
-    <li>Stop streaming (Space)</li>
-    <li>Save session JSON from Graph tab</li>
-    <li>Students share one observation</li>
+    <li>Disconnect BLE, power down boards</li>
+    <li>Export each team's remote design with 📦 Export (JSON)</li>
+    <li>Students share one design decision they made</li>
     <li>Exit-ticket question</li>
   </ul>
 
@@ -147,50 +147,50 @@
 <!-- PAGE 2: Sample lesson -->
 <div class="page">
   <div class="header">
-    <div class="header-logo"><span>µP</span></div>
+    <div class="header-logo"><span>rxy</span></div>
     <div class="header-text">
-      <h1>Sample Lesson: Hot or Not? The Sensor Detective</h1>
+      <h1>Sample Lesson: Build a 2-Button Robot Remote</h1>
       <span>Ready-to-teach 45-minute example</span>
     </div>
   </div>
 
   <div class="field-row">
-    <div class="field"><label>Lesson Title</label><div class="input"><span class="sample">Hot or Not? The Sensor Detective</span></div></div>
+    <div class="field"><label>Lesson Title</label><div class="input"><span class="sample">Build a 2-Button Robot Remote</span></div></div>
     <div class="field" style="width:30%;flex:none;"><label>Duration</label><div class="input"><span class="sample">45 minutes</span></div></div>
   </div>
   <div class="field-row">
     <div class="field"><label>Grade / Age Group</label><div class="input"><span class="sample">Ages 9&ndash;14</span></div></div>
-    <div class="field"><label>Subject</label><div class="input"><span class="sample">STEM / Physics / Data Literacy</span></div></div>
+    <div class="field"><label>Subject</label><div class="input"><span class="sample">STEM / Design / Intro to BLE</span></div></div>
   </div>
 
   <div class="section"><div class="dot"></div> Learning Objectives</div>
-  <div class="field"><div class="input input-tall"><span class="sample">1. Pair a micro:bit V2 over Web Bluetooth.<br>2. Read temperature, light, and sound sensors.<br>3. Graph a measurement over time and identify trends.<br>4. Explain a physical cause for an observed spike.</span></div></div>
+  <div class="field"><div class="input input-tall"><span class="sample">1. Design a touch remote by dragging widgets onto a canvas.<br>2. Generate MakeCode and flash it to a BBC micro:bit.<br>3. Pair a phone / laptop to the board over Bluetooth Low Energy (BLE).<br>4. Explain the SET / UPD text protocol in their own words.</span></div></div>
 
   <div class="section"><div class="dot"></div> Lesson Timeline</div>
   <div class="timeline">
     <div class="trow thead">
       <div class="tcol-time">Time</div>
       <div class="tcol-act">Activity</div>
-      <div class="tcol-tool">Playground</div>
+      <div class="tcol-tool">Builder Tab</div>
       <div class="tcol-notes">Notes</div>
     </div>
-    <div class="trow"><div class="tcol-time"><span class="sample">0&ndash;5</span></div><div class="tcol-act"><span class="sample">Hook: "Can your micro:bit feel a hand on its face?"</span></div><div class="tcol-tool"><span class="sample">LEDs tab</span></div><div class="tcol-notes"><span class="sample">Show heart preset</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">5&ndash;10</span></div><div class="tcol-act"><span class="sample">Flash firmware &amp; pair board</span></div><div class="tcol-tool"><span class="sample">Connect btn</span></div><div class="tcol-notes"><span class="sample">Help with BLE prompts</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">10&ndash;18</span></div><div class="tcol-act"><span class="sample">Tour the Sensors tab &mdash; name each reading</span></div><div class="tcol-tool"><span class="sample">Sensors (2)</span></div><div class="tcol-notes"><span class="sample">Pause with Space</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">18&ndash;28</span></div><div class="tcol-act"><span class="sample">Investigate: cover light sensor, cup hands around board</span></div><div class="tcol-tool"><span class="sample">Graph (5)</span></div><div class="tcol-notes"><span class="sample">Press R to record</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">28&ndash;35</span></div><div class="tcol-act"><span class="sample">Annotate spikes on the graph</span></div><div class="tcol-tool"><span class="sample">Graph + K</span></div><div class="tcol-notes"><span class="sample">Timestamp notes</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">35&ndash;40</span></div><div class="tcol-act"><span class="sample">Export session JSON, open in next class</span></div><div class="tcol-tool"><span class="sample">Graph &rarr; Export</span></div><div class="tcol-notes"><span class="sample">Save to shared folder</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">40&ndash;45</span></div><div class="tcol-act"><span class="sample">Share one finding + exit ticket</span></div><div class="tcol-tool"><span class="sample">&mdash;</span></div><div class="tcol-notes"><span class="sample">Peer applause</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">0&ndash;5</span></div><div class="tcol-act"><span class="sample">Hook: "Can you control a robot with a phone — without writing a line of code?"</span></div><div class="tcol-tool"><span class="sample">🎮 Demo</span></div><div class="tcol-notes"><span class="sample">Wow-moment first</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">5&ndash;12</span></div><div class="tcol-act"><span class="sample">Drop 2 Buttons + 1 Label onto the canvas, rename them <code>btn_left</code>, <code>btn_right</code>, <code>lbl_status</code></span></div><div class="tcol-tool"><span class="sample">✏️ Build</span></div><div class="tcol-notes"><span class="sample">Edit Label in properties panel</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">12&ndash;18</span></div><div class="tcol-act"><span class="sample">Pick a Model (neo / glass / neon) and resize</span></div><div class="tcol-tool"><span class="sample">Properties panel</span></div><div class="tcol-notes"><span class="sample">Theme personality</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">18&ndash;25</span></div><div class="tcol-act"><span class="sample">Tap 📄 Code, copy, paste into makecode.microbit.org (JavaScript mode), download and flash</span></div><div class="tcol-tool"><span class="sample">📄 Code</span></div><div class="tcol-notes"><span class="sample">Teacher helps with .hex drag</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">25&ndash;32</span></div><div class="tcol-act"><span class="sample">Pair over BLE, watch the SET messages fly</span></div><div class="tcol-tool"><span class="sample">▶️ Play</span></div><div class="tcol-notes"><span class="sample">Reveal BLE UART</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">32&ndash;40</span></div><div class="tcol-act"><span class="sample">Drive a real target (robot / LED / motor). Board pushes text back via UPD to update the Label</span></div><div class="tcol-tool"><span class="sample">▶️ Play</span></div><div class="tcol-notes"><span class="sample">Two-way protocol</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">40&ndash;45</span></div><div class="tcol-act"><span class="sample">Export the design as JSON + exit ticket</span></div><div class="tcol-tool"><span class="sample">📦 Export</span></div><div class="tcol-notes"><span class="sample">Save to shared folder</span></div></div>
   </div>
 
   <div class="callout">
-    <h4>Playground features used in this lesson</h4>
+    <h4>Features used in this lesson</h4>
     <ul>
-      <li><span class="pill pg">BLE Connect</span> Web Bluetooth pairing with auto-reconnect</li>
-      <li><span class="pill pb">Live Sensors</span> temp, light, sound, accel, compass all at once</li>
-      <li><span class="pill py">Chart.js Graph</span> live rolling plot, fullscreen with F</li>
-      <li><span class="pill pg">Session Recording</span> press R, export as JSON for later analysis</li>
-      <li><span class="pill pb">Simulate Mode</span> great backup if a board fails mid-class</li>
+      <li><span class="pill pg">Drag &amp; Drop Canvas</span> place widgets and rename their IDs</li>
+      <li><span class="pill pb">12 Widgets</span> 7 inputs, 5 outputs — Buttons and Label here</li>
+      <li><span class="pill py">Auto MakeCode</span> JavaScript code generated on demand</li>
+      <li><span class="pill pg">BLE Pairing</span> Web Bluetooth UART, one board at a time</li>
+      <li><span class="pill pb">JSON Export / Import</span> share and remix each other's remotes</li>
     </ul>
   </div>
 
@@ -202,10 +202,10 @@
       <div class="tcol-tool">Good (2)</div>
       <div class="tcol-notes">Needs Work (1)</div>
     </div>
-    <div class="trow"><div class="tcol-time"><span class="sample">BLE pairing</span></div><div class="tcol-act"><span class="sample">Paired independently</span></div><div class="tcol-tool"><span class="sample">With 1 hint</span></div><div class="tcol-notes"><span class="sample">Needed help</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">Sensor naming</span></div><div class="tcol-act"><span class="sample">Named all 6 correctly</span></div><div class="tcol-tool"><span class="sample">4&ndash;5 correct</span></div><div class="tcol-notes"><span class="sample">&lt; 4 correct</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">Graph reading</span></div><div class="tcol-act"><span class="sample">Explained spike with cause</span></div><div class="tcol-tool"><span class="sample">Identified spike</span></div><div class="tcol-notes"><span class="sample">Missed spike</span></div></div>
-    <div class="trow"><div class="tcol-time"><span class="sample">Curiosity</span></div><div class="tcol-act"><span class="sample">Tested own hypothesis</span></div><div class="tcol-tool"><span class="sample">Followed guide</span></div><div class="tcol-notes"><span class="sample">Off-task</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">Widget layout</span></div><div class="tcol-act"><span class="sample">Thoughtful, reachable, labeled</span></div><div class="tcol-tool"><span class="sample">Functional but cluttered</span></div><div class="tcol-notes"><span class="sample">Missing labels</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">MakeCode flash</span></div><div class="tcol-act"><span class="sample">Flashed independently</span></div><div class="tcol-tool"><span class="sample">With 1 hint</span></div><div class="tcol-notes"><span class="sample">Needed help</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">BLE pairing</span></div><div class="tcol-act"><span class="sample">Paired, drove, recovered</span></div><div class="tcol-tool"><span class="sample">Paired with guidance</span></div><div class="tcol-notes"><span class="sample">Could not pair</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">Explain protocol</span></div><div class="tcol-act"><span class="sample">Explains SET &amp; UPD</span></div><div class="tcol-tool"><span class="sample">Explains one direction</span></div><div class="tcol-notes"><span class="sample">Unclear</span></div></div>
   </div>
 
   <div class="footer">

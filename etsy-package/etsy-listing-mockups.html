@@ -153,17 +153,17 @@
   <div class="led led-tl"></div><div class="led led-tr"></div><div class="led led-bl"></div><div class="led led-br"></div>
   <div class="hero">
     <div class="copy">
-      <h1>micro:bit<br>Playground</h1>
+      <h1>Micro:bit<br>Remote Builder</h1>
       <div class="sub">Build • Pair • Play — no code required</div>
-      <div class="tagline">Browser control panel for the BBC micro:bit V1 or V2.<br>No install. No account. Pair over Bluetooth and go.</div>
+      <div class="tagline">Drag, drop and design your own Bluetooth remote for the BBC micro:bit.<br>Auto-generates MakeCode. Pair over BLE. Control anything.</div>
       <div class="pills">
-        <div class="pill pg">Zero Install</div>
-        <div class="pill pb">100% Local</div>
-        <div class="pill py">Kid-Friendly</div>
+        <div class="pill pg">Drag &amp; Drop</div>
+        <div class="pill pb">12 Widgets</div>
+        <div class="pill py">No Code</div>
       </div>
     </div>
     <div class="screenshot">
-      <img src="../assets/app-screenshot.png" alt="Micro:bit Remote Builder — Sensors tab">
+      <img src="../assets/app-screenshot.png" alt="Micro:bit Remote Builder — drag-and-drop canvas">
       <div class="compat">Chrome &amp; Edge only<small>(not Safari / iPhone)</small></div>
     </div>
   </div>
@@ -173,95 +173,95 @@
   </div>
 </div>
 
-<!-- MOCKUP 2: What's in the ZIP (moved up for faster value reveal) -->
+<!-- MOCKUP 2: Builder canvas with widgets placed -->
+<div class="mockup m2">
+  <h2>Drag. Drop. Done.</h2>
+  <div class="grid">
+    <div class="cell"><div class="emoji">👆</div><h4>Button</h4><p>Press / release signal</p></div>
+    <div class="cell"><div class="emoji">🎚️</div><h4>Slider</h4><p>Min → Max value</p></div>
+    <div class="cell"><div class="emoji">🔘</div><h4>Toggle</h4><p>On / off switch</p></div>
+    <div class="cell"><div class="emoji">🕹️</div><h4>Joystick</h4><p>Angle + distance</p></div>
+    <div class="cell"><div class="emoji">✛</div><h4>D-Pad</h4><p>Up / down / left / right</p></div>
+    <div class="cell"><div class="emoji">📍</div><h4>XY Pad</h4><p>X + Y position</p></div>
+    <div class="cell"><div class="emoji">⏱️</div><h4>Timer</h4><p>Start / stop / elapsed</p></div>
+    <div class="cell"><div class="emoji">💡</div><h4>LED</h4><p>On / off indicator</p></div>
+    <div class="cell"><div class="emoji">🏷️</div><h4>Label</h4><p>Live text readout</p></div>
+    <div class="cell"><div class="emoji">🧭</div><h4>Gauge</h4><p>Dial, Min → Max</p></div>
+    <div class="cell"><div class="emoji">📈</div><h4>Graph</h4><p>Rolling live chart</p></div>
+    <div class="cell"><div class="emoji">🔋</div><h4>Battery</h4><p>0–100% level</p></div>
+    <div class="cell"><div class="emoji">✏️</div><h4>Build</h4><p>Drag-drop canvas</p></div>
+    <div class="cell"><div class="emoji">🎨</div><h4>Properties</h4><p>Label, Model, Size, Min/Max, Colors</p></div>
+    <div class="cell"><div class="emoji">📦</div><h4>Export</h4><p>Save design as JSON</p></div>
+    <div class="cell"><div class="emoji">📂</div><h4>Import</h4><p>Load saved design</p></div>
+  </div>
+</div>
+
+<!-- MOCKUP 3: MakeCode generation view -->
+<div class="mockup m3">
+  <div class="icon">📄</div>
+  <h2>MakeCode — Written For You</h2>
+  <div class="sub">Tap <strong style="color:#22c55e;">📄 Code</strong> and the builder spits out a full MakeCode program. Paste into makecode.microbit.org in JavaScript mode, hit Download, drag the .hex onto your micro:bit. Zero hand-coding.</div>
+  <div class="quotes">
+    <div class="quote">
+      <p>&ldquo;Every widget you place becomes a handler. The BLE UART plumbing is already wired. You just decide what happens when a button is pressed.&rdquo;</p>
+      <div class="who">&mdash; What the generated code does for you</div>
+    </div>
+    <div class="quote">
+      <p>&ldquo;Open makecode.microbit.org → switch to JavaScript → paste → Download → drag to micro:bit. Under 60 seconds.&rdquo;</p>
+      <div class="who">&mdash; The flash workflow</div>
+    </div>
+  </div>
+</div>
+
+<!-- MOCKUP 4: Play mode — remote controls a robot -->
+<div class="mockup m4">
+  <h2>Tap to Connect<br>Then Drive!</h2>
+  <div class="sub">Build • Pair • Play — no code required</div>
+  <div class="emojis">📡 🕹️ 🤖</div>
+  <div class="promise">
+    <div>📡 Pair BLE</div>
+    <div>🕹️ Push Joystick</div>
+    <div>🤖 Robot Moves</div>
+  </div>
+</div>
+
+<!-- MOCKUP 5: What's in the ZIP -->
 <div class="mockup m5">
   <h2>What&apos;s In The ZIP</h2>
   <div class="items">
-    <div class="item"><div class="emoji">🌐</div><div><h3>The Playground App</h3><p>Single-page web app, opens in Chrome/Edge, works offline as a PWA</p></div></div>
-    <div class="item"><div class="emoji">🤖</div><div><h3>makecode.ts Firmware</h3><p>Drop into MakeCode, flash to your micro:bit V2 &mdash; UART BLE ready</p></div></div>
-    <div class="item"><div class="emoji">🎲</div><div><h3>5 Three.js 3D Models</h3><p>micro:bit, Buggy, Robot Arm, Balance, Weather Station</p></div></div>
-    <div class="item"><div class="emoji">📖</div><div><h3>Trilingual User Guide</h3><p>guide.html in EN / FR / AR with full RTL</p></div></div>
-    <div class="item"><div class="emoji">🗺️</div><div><h3>Printable Quick-Start Card</h3><p>A4 portrait &mdash; flash, open, pair, play</p></div></div>
-    <div class="item"><div class="emoji">⌨️</div><div><h3>Shortcuts Cheat Sheet</h3><p>A4 landscape &mdash; laminate near your laptop</p></div></div>
-    <div class="item"><div class="emoji">🎨</div><div><h3>A3 Classroom Poster</h3><p>&ldquo;We Control Robots with Code!&rdquo; for the lab wall</p></div></div>
-    <div class="item"><div class="emoji">📋</div><div><h3>Lesson Plan + Sample</h3><p>45-minute ready-to-teach template with rubric</p></div></div>
-    <div class="item"><div class="emoji">⭐</div><div><h3>30 Achievement Stickers</h3><p>Printable badges: &ldquo;I Connected BLE!&rdquo; and more</p></div></div>
+    <div class="item"><div class="emoji">🌐</div><div><h3>The Remote Builder App</h3><p>Single-page web app, opens in Chrome/Edge, 100% local</p></div></div>
+    <div class="item"><div class="emoji">🎨</div><div><h3>3 Visual Themes</h3><p>neo, glass, neon — live theme switcher</p></div></div>
+    <div class="item"><div class="emoji">🎮</div><div><h3>12 Widgets Built In</h3><p>7 inputs, 5 outputs &mdash; Demo tab to try them all</p></div></div>
+    <div class="item"><div class="emoji">📄</div><div><h3>MakeCode Generator</h3><p>Auto-writes the micro:bit firmware for your layout</p></div></div>
+    <div class="item"><div class="emoji">🗺️</div><div><h3>Printable Quick-Start Card</h3><p>A4 portrait &mdash; Build, Code, Flash, Pair, Play</p></div></div>
+    <div class="item"><div class="emoji">📘</div><div><h3>Widget Cheat Sheet</h3><p>A4 landscape &mdash; top bar, palette, BLE states</p></div></div>
+    <div class="item"><div class="emoji">🖼️</div><div><h3>A3 Classroom Poster</h3><p>&ldquo;Build Your Own Remote Control!&rdquo; for the lab wall</p></div></div>
+    <div class="item"><div class="emoji">📋</div><div><h3>Lesson Plan + Sample</h3><p>45-minute &ldquo;Build a 2-Button Robot Remote&rdquo; lesson</p></div></div>
+    <div class="item"><div class="emoji">⭐</div><div><h3>30 Achievement Stickers</h3><p>&ldquo;BLE Connected&rdquo;, &ldquo;No Code Hero&rdquo; &amp; more</p></div></div>
     <div class="item"><div class="emoji">📜</div><div><h3>Classroom License</h3><p>Use across your school or organization. Lifetime for v1.x.</p></div></div>
-  </div>
-</div>
-
-<!-- MOCKUP 2: Feature grid -->
-<div class="mockup m2">
-  <h2>Everything Built In</h2>
-  <div class="grid">
-    <div class="cell"><div class="emoji">📡</div><h4>One-Click BLE</h4><p>Web Bluetooth pairing with auto-reconnect</p></div>
-    <div class="cell"><div class="emoji">💡</div><h4>5&times;5 LED Matrix</h4><p>Draw, presets, hex patterns</p></div>
-    <div class="cell"><div class="emoji">🌡️</div><h4>Live Sensors</h4><p>Temp, light, sound, accel, compass</p></div>
-    <div class="cell"><div class="emoji">⚙️</div><h4>Dual Servos</h4><p>P1 &amp; P2 with live gauges &amp; OFF</p></div>
-    <div class="cell"><div class="emoji">🎮</div><h4>GamePad</h4><p>D-pad + Fire for games &amp; robots</p></div>
-    <div class="cell"><div class="emoji">📈</div><h4>Chart.js Graph</h4><p>Live plot, fullscreen, annotate</p></div>
-    <div class="cell"><div class="emoji">🎲</div><h4>3D Board View</h4><p>5 Three.js models to explore</p></div>
-    <div class="cell"><div class="emoji">⏺</div><h4>Session Recording</h4><p>Record, replay, export JSON</p></div>
-    <div class="cell"><div class="emoji">🎨</div><h4>4 Themes</h4><p>Stealth, Neon, Arctic, Blaze</p></div>
-    <div class="cell"><div class="emoji">🌐</div><h4>EN / FR / AR</h4><p>Full RTL Arabic support</p></div>
-    <div class="cell"><div class="emoji">🎲</div><h4>Simulate Mode</h4><p>Fake data when no board is around</p></div>
-    <div class="cell"><div class="emoji">⌨️</div><h4>Keyboard Shortcuts</h4><p>Space, 1&ndash;8, P, F, K, Esc</p></div>
-    <div class="cell"><div class="emoji">📱</div><h4>Installable PWA</h4><p>Works offline after first load</p></div>
-    <div class="cell"><div class="emoji">🧙</div><h4>Beginner + Expert</h4><p>Safe mode or raw JSON bench</p></div>
-    <div class="cell"><div class="emoji">📝</div><h4>Code Snippets</h4><p>MakeCode examples built in</p></div>
-    <div class="cell"><div class="emoji">🔒</div><h4>Zero Tracking</h4><p>No accounts, no cloud, ever</p></div>
-  </div>
-</div>
-
-<!-- MOCKUP 3: Teacher pitch -->
-<div class="mockup m3">
-  <div class="icon">🍎</div>
-  <h2>Made for Teachers</h2>
-  <div class="sub">A 45-minute STEM lesson, ready to go. No install day. No student accounts. No &ldquo;miss, it froze again.&rdquo; Pair, play, graph, export. Done.</div>
-  <div class="quotes">
-    <div class="quote">
-      <p>&ldquo;Pair one micro:bit, project the graph, and the whole class sees live sensor data. It turns physics into something they can <em>touch</em>.&rdquo;</p>
-      <div class="who">&mdash; Any teacher, anywhere</div>
-    </div>
-    <div class="quote">
-      <p>&ldquo;Privacy friendly &mdash; nothing leaves the laptop. Our IT team loves that there is nothing to whitelist.&rdquo;</p>
-      <div class="who">&mdash; School IT department</div>
-    </div>
-  </div>
-</div>
-
-<!-- MOCKUP 4: Kid pitch -->
-<div class="mockup m4">
-  <h2>You Made<br>The Robot<br>Move!</h2>
-  <div class="sub">Tiny board. Big ideas. Bluetooth magic.</div>
-  <div class="emojis">🤖 💡 📡</div>
-  <div class="promise">
-    <div>Click Connect</div>
-    <div>Draw on LEDs</div>
-    <div>Spin the servo</div>
   </div>
 </div>
 
 <!-- MOCKUP 6: Themes showcase -->
 <div class="mockup m6">
-  <h2>Four Built-In Themes</h2>
-  <div class="sub">Cycle with <strong style="color:#22c55e;">T</strong> &mdash; the whole UI transforms.</div>
+  <h2>Three Visual Themes</h2>
+  <div class="sub">Swap the whole remote's look from the Properties panel &mdash; Model field.</div>
   <div class="row">
-    <div class="theme t-stealth"><h4>Stealth</h4><div class="icon">🥷</div><div class="desc">Pitch-black OLED-friendly dark mode with green accents. The default.</div></div>
-    <div class="theme t-neon"><h4>Neon</h4><div class="icon">💠</div><div class="desc">Cyberpunk cyan &amp; magenta. Dim the lights, plug in the board.</div></div>
-    <div class="theme t-arctic"><h4>Arctic</h4><div class="icon">❄️</div><div class="desc">Crisp light mode for daylight classrooms and projectors.</div></div>
-    <div class="theme t-blaze"><h4>Blaze</h4><div class="icon">🔥</div><div class="desc">Warm light theme with orange highlights &mdash; cozy and readable.</div></div>
+    <div class="theme t-stealth"><h4>neo</h4><div class="icon">🧊</div><div class="desc">Clean modern chips on a deep slate canvas. The default &mdash; great for classrooms and projectors.</div></div>
+    <div class="theme t-neon"><h4>neon</h4><div class="icon">💡</div><div class="desc">Glowing cyan accents on jet black. Dim the lights, plug in the board, take the stage.</div></div>
+    <div class="theme t-arctic"><h4>glass</h4><div class="icon">💎</div><div class="desc">Frosted translucent panels with soft edges &mdash; an elegant, tactile feel for demos.</div></div>
+    <div class="theme t-blaze"><h4>Your pick</h4><div class="icon">🎨</div><div class="desc">Mix per widget. Each widget can carry its own Model and Colors &mdash; full kit-bashing allowed.</div></div>
   </div>
 </div>
 
-<!-- MOCKUP 7: Trilingual -->
+<!-- MOCKUP 7: Classroom scene / use cases -->
 <div class="mockup m7">
-  <h2>Speaks Three Languages</h2>
-  <div class="sub">Full UI + guide in EN / FR / AR. Arabic ships with real RTL.</div>
+  <h2>One Builder, Infinite Projects</h2>
+  <div class="sub">The same 12 widgets drive anything &mdash; pick a use case, design, flash, roll.</div>
   <div class="langs">
-    <div class="lang"><div class="flag">🇬🇧</div><h3>English</h3><p>Complete interface &amp; user guide</p></div>
-    <div class="lang"><div class="flag">🇫🇷</div><h3>Français</h3><p>Interface compl&egrave;te et guide</p></div>
-    <div class="lang rtl"><div class="flag">🇩🇿</div><h3>العربية</h3><p>واجهة كاملة مع دعم الكتابة من اليمين لليسار</p></div>
+    <div class="lang"><div class="flag">🤖</div><h3>Robot Control</h3><p>Joystick + D-Pad + Slider → drive motors over BLE</p></div>
+    <div class="lang"><div class="flag">🎮</div><h3>Game Controller</h3><p>D-Pad + Buttons + Label → on-board mini games</p></div>
+    <div class="lang"><div class="flag">🏠</div><h3>Smart-Home / RC</h3><p>Toggles + Gauges + Graph → lights, RC cars, instruments</p></div>
   </div>
 </div>
 

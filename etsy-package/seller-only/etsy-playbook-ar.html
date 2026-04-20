@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Micro:bit Remote Builder — دليل Etsy في دقيقة</title>
+<title>Micro:bit Remote Builder — دليل إتسي بدقيقة واحدة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -25,43 +25,20 @@
   a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed rgba(34,197,94,.4); }
   a:hover { color: var(--accent2); border-bottom-color: var(--accent2); }
 
-  .slate {
-    background:
-      radial-gradient(ellipse at top left, rgba(34,211,238,.14), transparent 60%),
-      linear-gradient(180deg, var(--panel2), var(--panel));
-    border: 2px solid var(--border);
-    border-radius: 18px; padding: 36px 28px 28px;
-    text-align: center; margin-bottom: 22px; box-shadow: var(--shadow);
-  }
+  .slate { background: radial-gradient(ellipse at top left, rgba(34,211,238,.14), transparent 60%), linear-gradient(180deg, var(--panel2), var(--panel)); border: 2px solid var(--border); border-radius: 18px; padding: 36px 28px 28px; text-align: center; margin-bottom: 22px; box-shadow: var(--shadow); }
   .slate-clap { font-size: 56px; line-height: 1; margin-bottom: 8px; filter: drop-shadow(0 0 18px rgba(34,197,94,.5)); }
-  .slate h1 { font-family: var(--display); font-size: 2rem; letter-spacing: 1.4px; margin: 6px 0 4px; color: var(--accent); font-weight: 900; }
+  .slate h1 { font-family: var(--display); font-size: 2rem; letter-spacing: 0.8px; margin: 6px 0 4px; color: var(--accent); font-weight: 900; }
   .slate h1 span { color: var(--accent2); }
-  .slate .tag { color: var(--muted); font-size: .92rem; letter-spacing: .8px; }
-  .slate .meta { display: flex; justify-content: center; gap: 24px; margin-top: 16px; font-size: .82rem; color: var(--muted); flex-wrap: wrap; }
+  .slate .tag { color: var(--muted); font-size: .95rem; letter-spacing: .4px; }
+  .slate .meta { display: flex; justify-content: center; gap: 24px; margin-top: 16px; font-size: .88rem; color: var(--muted); flex-wrap: wrap; }
   .slate .meta b { color: var(--ink); font-weight: 700; }
 
-  .toc {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(11,18,38,.93); backdrop-filter: blur(8px);
-    border: 1px solid var(--border); border-radius: 14px;
-    padding: 8px 12px; margin-bottom: 22px;
-    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-  }
-  .toc a {
-    background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.25);
-    border-radius: 10px; padding: 6px 12px; font-size: .82rem; font-weight: 600;
-    border-bottom: none;
-  }
+  .toc { position: sticky; top: 0; z-index: 50; background: rgba(11,18,38,.93); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px; margin-bottom: 22px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .toc a { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.25); border-radius: 10px; padding: 6px 12px; font-size: .9rem; font-weight: 600; border-bottom: none; }
   .toc a:hover { background: rgba(34,197,94,.2); color: var(--accent); }
 
-  .slug {
-    font-family: var(--mono); letter-spacing: 1.3px;
-    font-size: .82rem; color: var(--accent);
-    background: linear-gradient(270deg, rgba(34,197,94,.15), transparent);
-    border-right: 4px solid var(--accent); padding: 8px 12px;
-    margin: 28px 0 14px; border-radius: 8px 0 0 8px;
-  }
-  h2 { font-family: var(--display); letter-spacing: 1px; color: var(--accent); margin: 8px 0 12px; font-size: 1.5rem; }
+  .slug { font-family: var(--mono); letter-spacing: 1.2px; font-size: .82rem; color: var(--accent); background: linear-gradient(270deg, rgba(34,197,94,.15), transparent); border-right: 4px solid var(--accent); padding: 8px 12px; margin: 28px 0 14px; border-radius: 8px 0 0 8px; }
+  h2 { font-family: var(--display); color: var(--accent); margin: 8px 0 12px; font-size: 1.5rem; }
   h3 { color: var(--ink); margin-top: 18px; font-size: 1.12rem; }
   h4 { color: var(--accent2); font-size: 1rem; margin: 14px 0 6px; font-family: var(--display); }
   p { margin: 8px 0; }
@@ -74,10 +51,10 @@
   .checklist input[type=checkbox] { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
   .checklist li.checked label { color: var(--muted); text-decoration: line-through; opacity: .65; }
   .checklist label { cursor: pointer; flex: 1; }
-  .where { color: var(--muted); font-size: .82rem; display: block; margin-top: 2px; }
+  .where { color: var(--muted); font-size: .85rem; display: block; margin-top: 2px; }
 
   .scene { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--border); border-radius: 14px; margin: 14px 0; overflow: hidden; }
-  .scene-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,.3); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: .82rem; letter-spacing: 1.3px; }
+  .scene-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,.3); border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: .82rem; letter-spacing: 1.2px; }
   .scene-time { color: var(--accent); font-weight: 700; font-size: 1.05rem; }
   .scene-phase { padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 800; }
   .phase-hook { background: rgba(245,158,11,.18); color: var(--hook); border: 1px solid rgba(245,158,11,.4); }
@@ -86,33 +63,26 @@
   .phase-cta { background: rgba(239,68,68,.18); color: var(--cta); border: 1px solid rgba(239,68,68,.4); }
   .scene-body { padding: 14px 16px; display: grid; grid-template-columns: 1fr; gap: 12px; }
   .say { background: rgba(0,0,0,.3); border-right: 3px solid var(--accent); border-radius: 10px 0 0 10px; padding: 12px 14px; }
-  .say-label { font-family: var(--mono); font-size: .72rem; letter-spacing: 1.4px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
-  .do { background: rgba(34,211,238,.08); border-right: 3px solid var(--accent2); border-radius: 10px 0 0 10px; padding: 12px 14px; font-family: var(--sans); font-size: .92rem; color: var(--ink); }
-  .do-label { font-size: .72rem; letter-spacing: 1.4px; color: var(--accent2); font-weight: 700; margin-bottom: 6px; }
+  .say-label { font-family: var(--mono); font-size: .72rem; letter-spacing: 1.2px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+  .do { background: rgba(34,211,238,.08); border-right: 3px solid var(--accent2); border-radius: 10px 0 0 10px; padding: 12px 14px; font-family: var(--sans); font-size: .9rem; color: var(--ink); }
+  .do-label { font-size: .72rem; letter-spacing: 1.2px; color: var(--accent2); font-weight: 700; margin-bottom: 6px; }
 
-  .copybox { position: relative; background: #050b18; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 12px 54px; font-family: var(--sans); font-size: .95rem; color: var(--accent); white-space: pre-wrap; margin: 8px 0; }
+  .copybox { position: relative; background: #050b18; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 12px 44px; font-family: var(--sans); font-size: .95rem; color: var(--accent); white-space: pre-wrap; margin: 8px 0; }
   .copybtn { position: absolute; top: 6px; left: 6px; background: var(--accent); color: #05140a; border: none; border-radius: 6px; padding: 4px 10px; font-size: .72rem; font-weight: 800; cursor: pointer; font-family: var(--display); letter-spacing: .5px; }
-  .copybtn:hover { background: var(--accent2); color: #03141a; }
 
   table { width: 100%; border-collapse: collapse; margin: 12px 0; }
   th, td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: right; font-size: .95rem; }
-  th { color: var(--accent2); font-family: var(--display); font-size: .82rem; letter-spacing: .8px; }
+  th { color: var(--accent2); font-family: var(--display); font-size: .85rem; letter-spacing: .6px; }
   tr:hover td { background: rgba(34,197,94,.04); }
 
-  code { background: rgba(34,197,94,.12); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: .88em; direction: ltr; display: inline-block; }
-  kbd { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: var(--mono); font-size: .82em; color: var(--accent); direction: ltr; display: inline-block; }
+  code { background: rgba(34,197,94,.12); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: .9em; direction: ltr; display: inline-block; }
 
   .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .pill { background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.3); color: var(--accent2); padding: 4px 10px; border-radius: 999px; font-size: .85rem; font-weight: 600; font-family: var(--sans); }
-
-  pre { direction: ltr; text-align: left; }
-
-  @media (max-width: 640px) { body { padding: 14px 10px; } .slate h1 { font-size: 1.5rem; } h2 { font-size: 1.2rem; } }
+  .pill { background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.3); color: var(--accent2); padding: 4px 10px; border-radius: 999px; font-size: .85rem; font-weight: 600; }
 
   .lang-strip { display: flex; justify-content: center; gap: 8px; margin: 0 0 14px; font-family: var(--mono); font-size: .78rem; }
-  .lang-strip a { background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.28); border-radius: 8px; padding: 4px 12px; color: var(--accent2); letter-spacing: 1.2px; font-weight: 700; border-bottom: 1px solid rgba(34,211,238,.28); }
+  .lang-strip a { background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.28); border-radius: 8px; padding: 4px 12px; color: var(--accent2); letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid rgba(34,211,238,.28); }
   .lang-strip a.active { background: rgba(34,197,94,.18); border-color: var(--accent); color: var(--accent); }
-  .lang-strip a:hover { background: rgba(34,211,238,.22); color: var(--accent2); }
 </style>
 </head>
 <body>
@@ -125,231 +95,242 @@
 
 <div class="slate">
   <div class="slate-clap">🎬</div>
-  <div class="tag">— دليل Etsy · الإصدار 1.0.2 —</div>
-  <h1>micro:bit <span>Playground</span></h1>
-  <div class="tag">عرض المنتج في دقيقة واحدة · مقتطفات جاهزة للنسخ</div>
-  <div class="meta"><span><b>الصيغة:</b> عمودي 9:16</span><span><b>المدة:</b> ≤ 60 ثانية</span><span><b>الهدف:</b> تحويل المتصفحين إلى مشترين</span></div>
+  <div class="tag">— دليل إتسي · v1.0.0 —</div>
+  <h1>Micro:bit <span>Remote Builder</span></h1>
+  <div class="tag">عرض الإعلان في دقيقة واحدة · نصوص جاهزة للنسخ</div>
+  <div class="meta"><span><b>التنسيق:</b> عمودي 9:16</span><span><b>المدة:</b> ≤ 60 ث</span><span><b>الهدف:</b> تحويل المتصفح إلى مشتري</span></div>
 </div>
 
 <div class="toc">
-  <a href="#preflight">✅ التحضير</a>
-  <a href="#arc">🎬 قوس 60 ثانية</a>
-  <a href="#script">📜 النص</a>
-  <a href="#listing">🛒 نص الإعلان</a>
+  <a href="#preflight">✅ قائمة التحضير</a>
+  <a href="#arc">🎬 قوس 60 ث</a>
+  <a href="#script">📜 السيناريو</a>
+  <a href="#listing">🛒 نصوص الإعلان</a>
   <a href="#tags">🏷 الوسوم</a>
   <a href="#images">📸 الصور</a>
-  <a href="#mistakes">⚠️ الأخطاء</a>
+  <a href="#mistakes">⚠️ أخطاء</a>
 </div>
 
-<!-- ═══════════ التحضير ═══════════ -->
-<div class="slug" id="preflight">قائمة التحقق قبل التصوير · مرة واحدة لكل جلسة</div>
-<h2>قبل الضغط على تسجيل</h2>
+<div class="slug" id="preflight">المرحلة — قائمة التحضير قبل التصوير</div>
+<h2>قبل الضغط على «تسجيل»</h2>
 <div class="card">
   <ul class="checklist" onclick="var li=event.target.closest('li');if(li)li.classList.toggle('checked')">
-    <li><input type="checkbox"><label>جهاز micro:bit V2 يعمل ويعرض أيقونة <kbd>X</kbd><span class="where">إن لم يكن كذلك ← أعد تحميل <code>makecode.ts</code></span></label></li>
-    <li><input type="checkbox"><label>Chrome أو Edge مفتوح، وملف <code>index.html</code> محمَّل<span class="where">Safari وFirefox وiOS لن تعمل</span></label></li>
-    <li><input type="checkbox"><label>BLE متصل — شارة الحالة <strong>خضراء</strong><span class="where">اضغط 🔗 اتصال، ثم اختر BBC micro:bit من النافذة</span></label></li>
-    <li><input type="checkbox"><label>تم اختيار السمة — <strong>Neon</strong> تبدو الأفضل أمام الكاميرا<span class="where">الرأس ← قائمة رولر الطلاء</span></label></li>
-    <li><input type="checkbox"><label>المحرِّك موصول بـ P1 (عند عرض الذراع الروبوتية أو العربة)</label></li>
-    <li><input type="checkbox"><label>علامة تبويب 3D Board مفتوحة، مع اختيار العربة أو الذراع<span class="where">علامة التبويب 6 ← قائمة النماذج</span></label></li>
-    <li><input type="checkbox"><label>الهاتف بوضع 9:16 على ترايبود، مضاء من الأمام</label></li>
-    <li><input type="checkbox"><label>المكتب مرتَّب — اللوحة وقطعة واحدة فقط في الإطار</label></li>
-    <li><input type="checkbox"><label>قراءة النص بصوت عالٍ مرة واحدة — بزمن أقل من 55 ثانية</label></li>
+    <li><input type="checkbox"><label>Chrome أو Edge مفتوح على <code>index.html</code><span class="where">Safari و Firefox و iOS لن تعمل</span></label></li>
+    <li><input type="checkbox"><label>لسان ✏️ Build بلوحة فارغة<span class="where">نحكي قصة إبداع — نبدأ من الصفر</span></label></li>
+    <li><input type="checkbox"><label>makecode.microbit.org مفتوح في لسان آخر، وضع JavaScript<span class="where">جاهز للصق الكود المُولّد</span></label></li>
+    <li><input type="checkbox"><label>لوحة micro:bit موصولة بـ USB على المكتب<span class="where">سنقوم ببرمجتها أمام الكاميرا</span></label></li>
+    <li><input type="checkbox"><label>هدف مرئي في الإطار (روبوت صغير / سيارة RC / مصباح LED)<span class="where">شيء يتحرك عند ضغط الزر</span></label></li>
+    <li><input type="checkbox"><label>المظهر المختار — <strong>neon</strong> هو الأفضل أمام الكاميرا<span class="where">لوحة الخصائص ← حقل Model</span></label></li>
+    <li><input type="checkbox"><label>الهاتف بوضع 9:16 على حامل، إضاءة من الأمام</label></li>
+    <li><input type="checkbox"><label>المكتب فارغ — فقط الحاسوب واللوحة والهدف</label></li>
+    <li><input type="checkbox"><label>قراءة النص بصوت عالٍ مرة واحدة — توقيت أقل من 55 ثانية</label></li>
   </ul>
 </div>
 
-<!-- ═══════════ القوس ═══════════ -->
-<div class="slug" id="arc">قوس الستين ثانية</div>
+<div class="slug" id="arc">المرحلة — قوس الـ 60 ثانية</div>
 <h2>البنية</h2>
 <div class="card">
-  <pre style="color:var(--accent2);font-family:var(--mono);font-size:.9rem;line-height:1.7;margin:0">
- 0–3 s   HOOK        «Watch what this micro:bit does in 60 seconds.»
- 3–10 s  CONTEXT     Board on-screen, X icon → status turns green.
-10–35 s  DEMO        Tilt → 3D model follows. Press A → LED heart. Servo swings.
-35–50 s  PAYOFF      Zoom on live graph + 3D model mirroring real board.
-50–55 s  CTA         «Full kit in my shop — link below.»
-55–60 s  END FRAME   Logo + handle frozen for the loop preview.</pre>
+  <pre style="color:var(--accent2);font-family:var(--mono);font-size:.92rem;line-height:1.8;margin:0;direction:ltr;text-align:left">
+ 0–3 s    HOOK     «اِبنِ جهاز التحكم البلوتوث في 60 ث. بدون برمجة.»
+ 3–12 s   BUILD    سحب: Joystick + زرّان + Label على اللوحة.
+12–25 s   CODE     📄 Code ← نسخ ← لصق في makecode ← فلاش.
+25–40 s   PAIR     ▶️ Play ← 📡 اضغط للاتصال ← اختيار اللوحة.
+40–52 s   PAYOFF   دفع الـ joystick ← الروبوت يتحرك. زر ← ضوء.
+52–57 s   CTA      «الحزمة الكاملة في متجري — الرابط بالأسفل.»
+57–60 s   END      الشعار والوسم متجمدان لإطار الحلقة.</pre>
 </div>
 
-<!-- ═══════════ النص ═══════════ -->
-<div class="slug" id="script">النص مشهدًا مشهدًا</div>
-<h2>القالب: «الـ micro:bit يصبح ساحة لعب»</h2>
+<div class="slug" id="script">المرحلة — السيناريو مشهداً مشهداً</div>
+<h2>القالب: «اِبنِ • اقْرن • العَب — بدون برمجة»</h2>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">الخطاف</span></div>
+  <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">الخطّاف</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«جهاز micro:bit لديك هو ساحة لعب. بدون تثبيت، بدون حساب — فقط متصفح.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>أمسك اللوحة في الإطار. لقطة مقربة لأيقونة X تنبض على شبكة LED.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«اِبنِ جهاز تحكم بلوتوث خاص بك لـ micro:bit في 60 ثانية. بدون سطر واحد من الكود.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>افتتاحية باردة على لوحة Build الفارغة. المؤشر يحوم فوق لوحة الودجت.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:03–00:10</span><span class="scene-phase phase-demo">السياق</span></div>
+  <div class="scene-head"><span class="scene-time">00:03–00:12</span><span class="scene-phase phase-demo">البناء</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«افتح الصفحة، اضغط اتصال — وهذا كل شيء. حساسات مباشرة، LED مباشر، محركات مباشرة.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>تسجيل شاشة: اضغط على <strong>🔗 الاتصال بـ micro:bit</strong>، اختر اللوحة، شارة الحالة تصبح خضراء.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«اسحب joystick. ضع زرَّين. أضف label. انتهينا.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>اسحب من اللوحة: 🕹️ Joystick، 👆 Button × 2، 🏷️ Label. رتّبها بأناقة.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:10–00:25</span><span class="scene-phase phase-demo">العرض · الحساسات + 3D</span></div>
+  <div class="scene-head"><span class="scene-time">00:12–00:25</span><span class="scene-phase phase-demo">الكود</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«أملها — فيميل النموذج ثلاثي الأبعاد على الشاشة أيضًا. المس الشعار — فيستجيب.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>علامة التبويب <kbd>6</kbd> ← 3D Board. أمل اللوحة الحقيقية ← فيتبعها النموذج الافتراضي. اليد تحمل micro:bit بجانب الشاشة للانقسام.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«اضغط Code. الصق في MakeCode. ارفع الملف. ثلاث عشرة ثانية من دون كتابة حرف.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>نقر 📄 Code ← يظهر كود MakeCode مُولَّد. Cmd-C ← لسان آخر ← لصق في makecode.microbit.org (JavaScript). Download ← اسحب ملف .hex إلى محرك micro:bit.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">العرض · المحركات + يد التحكم</span></div>
+  <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">الاقتران</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«حرّك محركًا من المتصفح. قُد روبوتًا بيد التحكم.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>علامة التبويب <kbd>3</kbd> ← اسحب منزلقة Servo 1، فيتحرك المحرك الفعلي. علامة التبويب <kbd>4</kbd> ← اضغط على ⬆ ← يُضاء سهم LED.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«انتقل إلى Play. اضغط للاتصال. اختر micro:bit الخاص بك.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>انقر ▶️ Play ← زر كبير 📡 Tap to Connect ← قائمة المتصفح ← BBC micro:bit ← اختيار. الشارة تتحول إلى الأخضر.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:40–00:50</span><span class="scene-phase phase-payoff">المكافأة · المخطط</span></div>
+  <div class="scene-head"><span class="scene-time">00:40–00:52</span><span class="scene-phase phase-payoff">العائد · القيادة</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«سجّل، أعِد التشغيل، صدِّر CSV. إنه مختبر علوم كامل داخل علامة تبويب.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>علامة التبويب <kbd>5</kbd> ← 🎲 محاكاة ← يرقص المخطط الحي. زُم على أزرار التسجيل/CSV.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«ادفع الـ joystick للأمام — الروبوت يتحرك. زر — الضوء يشتعل. كل ذلك عبر Bluetooth.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>الإبهام يدفع الـ joystick ← قطع إلى الهدف الذي يتحرك. ضغط زر ← LED مضاء على الهدف. احتفظ باللقطة ثانيتين للمتعة.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:50–00:60</span><span class="scene-phase phase-cta">CTA + إطار الختام</span></div>
+  <div class="scene-head"><span class="scene-time">00:52–00:60</span><span class="scene-phase phase-cta">نداء + نهاية</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div>«طقم كامل، تحديثات مدى الحياة — الرابط في الوصف. أيها المعلمون، اذكروني عند استخدامه.»</div>
-    <div class="do"><div class="do-label">🎬 افعل</div>انتقل إلى طبقة الشعار + المعرّف. ثبّت 3 ثوانٍ بلا حركة — لتصبح إطار التكرار.</div>
+    <div class="say"><div class="say-label">🎙 قُل</div>«اِبنِ • اقْرن • العَب — بدون برمجة. الحزمة الكاملة في متجري، الرابط بالأسفل.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>طبقة الشعار + الحساب + الشعار النصي. تجميد 3 ثواني لإطار الحلقة.</div>
   </div>
 </div>
 
-<!-- ═══════════ نص الإعلان ═══════════ -->
-<div class="slug" id="listing">نص إعلان جاهز للنسخ</div>
-<h2>عنوان Etsy (140 حرفًا كحد أقصى)</h2>
-<div class="copybox">Micro:bit Remote Builder — لوحة تحكم BLE للمعلمين والأطفال · حساسات · محركات · مخطط حي · نماذج 3D · بلا تثبيت · Chrome / Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+<div class="slug" id="listing">المرحلة — نصوص إعلان جاهزة للنسخ</div>
 
-<h2>الوصف المختصر (أول 160 حرفًا — تظهر في البحث)</h2>
-<div class="copybox">لوحة تحكم BLE داخل المتصفح للوحة BBC micro:bit V1 or V2. حساسات ومحركات ومخططات حية ونماذج ثلاثية الأبعاد ويد تحكم — كلها من Chrome. بلا تثبيت وبلا حساب.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+<h2>الشعار / نداء العمل</h2>
+<div class="copybox">Micro:bit Remote Builder — اِبنِ • اقْرن • العَب — بدون برمجة. اسحب، أفلِت، وتحكم في micro:bit من هاتفك عبر Bluetooth.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+
+<h2>شارات الميزات</h2>
+<div class="pills">
+  <span class="pill">سحب وإفلات</span>
+  <span class="pill">12 ودجت</span>
+  <span class="pill">MakeCode</span>
+  <span class="pill">Bluetooth</span>
+  <span class="pill">بدون برمجة</span>
+  <span class="pill">micro:bit</span>
+</div>
+
+<h2>عنوان Etsy (140 حرفاً كحد أقصى)</h2>
+<div class="copybox">Micro:bit Remote Builder — بانٍ جهاز التحكم بلوتوث بالسحب والإفلات لـ BBC micro:bit · 12 ودجت · MakeCode تلقائي · بدون برمجة · Chrome / Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+
+<h2>الوصف المختصر (أول 160 حرفاً — تظهر في البحث)</h2>
+<div class="copybox">بانٍ جهاز تحكم بلوتوث بالسحب والإفلات لـ BBC micro:bit V1 أو V2. 12 ودجت، MakeCode مُولَّد، اقتران BLE. بدون برمجة.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
 
 <h2>الوصف الكامل</h2>
-<div class="copybox">🎮 Micro:bit Remote Builder — لوحة تحكم BLE تعمل داخل المتصفح للوحة BBC micro:bit V1 or V2.
+<div class="copybox">🎮 Micro:bit Remote Builder — صمّم أجهزة تحكم Bluetooth لـ BBC micro:bit بدون كتابة سطر كود واحد.
 
-افتح ملف HTML واحدًا في Chrome أو Edge، واقترن عبر Bluetooth، وافتح 8 علامات تبويب من المرح التعليمي (STEM) التفاعلي — بلا تثبيت، بلا حساب، بلا خادم خلفي، بلا تتبع.
+اسحب ودجتات على لوحة. اضغط Code. الصق في makecode.microbit.org. ارفع الملف. اقترن. العب. هاتفك أو حاسوبك اللوحي أو حاسوبك يصبح جهاز تحكم لاسلكياً مباشراً.
 
-ما ستحصل عليه
-• 🎛 شبكة LED + أيقونات جاهزة + نص متحرك
-• 📡 حساسات مباشرة: الحرارة، الإضاءة، الصوت، مقياس التسارع، البوصلة، اللمس
-• ⚙️ محركان (P1 + P2) مع منزلقات ومؤشرات وضبط وأزرار إيقاف
-• 🎮 يد تحكم D-pad للروبوتات والألعاب
-• 📈 مخطط حي (Chart.js) — تسجيل وإعادة تشغيل وتعليقات وتصدير PNG + CSV
-• 🎲 5 نماذج ثلاثية الأبعاد تفاعلية (Three.js): micro:bit، العربة، الذراع، التوازن، الطقس
-• 🎨 4 سمات (Stealth · Neon · Arctic · Blaze) + 3 لغات (EN · FR · AR مع دعم RTL كامل)
-• 📱 PWA — قابل للتثبيت ويعمل بدون إنترنت
-• 👶 وضع المبتدئ + 🧙 وضع الخبير
+ما الذي ستحصل عليه
+• ✏️ لوحة Build بالسحب والإفلات
+• 🎮 12 ودجت — 7 مدخلات + 5 مخرجات
+    مدخلات: زر · مُنزلق · مفتاح · Joystick · لوحة اتجاهات · لوحة XY · مؤقّت
+    مخرجات: LED · Label · Gauge · Graph · Battery
+• 🎨 خصائص لكل ودجت: Label, Model, Size, Min/Max, Colors
+• 📄 MakeCode مُولَّد تلقائياً — يُلصق ويُرفع
+• 📡 اقتران BLE UART بنقرة واحدة (بروتوكول نصي SET / UPD)
+• 📦 تصدير/استيراد JSON للتصاميم
+• 🎨 3 مظاهر بصرية: neo · glass · neon
+• 🎮 لسان Demo لتجربة كل ودجت بدون لوحة
 
-محتويات التنزيل
-• index.html — التطبيق الكامل
-• makecode.ts — برنامج micro:bit الثابت (تُحمَّل مرة واحدة من MakeCode)
-• SETUP.md — بداية سريعة في 5 دقائق
-• docs/ — دليل مصور، ومرجع سريع، وأسئلة شائعة، ودليل Etsy
-• LICENSE — رخصة مستخدم وحيد للاستخدام الشخصي / الصفي
+محتوى التحميل
+• index.html — تطبيق البانِي
+• script.js — سحب-إفلات + BLE + مُولّد MakeCode
+• styles.css — نظام بصري ثلاثي المظاهر
+• README.md — دليل كامل مع مرجع الودجتات وأمثلة MakeCode
+• etsy-package/ — مطبوعات (Quick-Start، Cheat Sheet، Poster، Stickers، Lesson Plan)
+• LICENSE — رخصة مستخدم واحد شخصية / صفّية
+
+حالات الاستخدام
+التحكم في الروبوتات · أجهزة تحكم بالألعاب · مشاريع المنزل الذكي · سيارات RC · آلات موسيقية · كل ما يخطر ببالك.
 
 المتطلبات
-• BBC micro:bit V1 or V2 (V1 يعمل لكن بدون حساس صوت)
-• Chrome أو Edge على سطح المكتب (أو Chrome على أندرويد)
+• BBC micro:bit V1 أو V2 + USB أو بطاريات
+• Chrome أو Edge على سطح المكتب (أو Chrome على Android)
 • تفعيل Bluetooth
-• HTTPS أو file:// — النقر المزدوج على HTML يكفي
 
-لمن هو موجَّه
-المعلمون الذين يديرون ورش STEM · الأسر التي تدرّس منزليًا · نوادي الروبوتات · صانعو النماذج الأولية لمشاريع BLE · كل مهتم بـ micro:bit.
-
-الخصوصية أولًا
-لا شيء يغادر جهازك. بلا تتبع، بلا تسجيل دخول، بلا سحابة. جميع المعايرات والتسجيلات والإعدادات المسبقة تبقى في localStorage للمتصفح وعلى قرصك.
+خصوصية أولاً
+لا شيء يغادر جهازك. لا حسابات، لا سحابة، لا تحليلات. التصاميم وتدفق BLE يبقيان عندك.
 
 تحديثات مدى الحياة
-كل إصدار يُطرح من هذا الإعلان هو ملكك للأبد. أعد تنزيل أحدث ZIP في أي وقت من صفحة مشترياتك في Etsy.
+كل نسخة تُنشر من هذا الإعلان هي لك للأبد. أعد التنزيل من صفحة مشترياتك على Etsy متى شئت.
 
-قرصنة سعيدة! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+اِبنِ • اقْرن • العَب — بدون برمجة. 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
 
 <h2>فئات الأسعار</h2>
 <table>
   <tr><th>الفئة</th><th>لمن</th><th>السعر</th></tr>
-  <tr><td>مستخدم وحيد</td><td>معلم / عائلة / صانع واحد</td><td><code>{{PRICE}}</code></td></tr>
-  <tr><td>صف / موقع</td><td>حتى 30 معلمًا في مدرسة واحدة، طلاب بلا حدود</td><td><code>{{PRICE}}</code></td></tr>
-  <tr><td>منطقة / OEM</td><td>مواقع متعددة — تواصل عبر طلب Etsy</td><td>حسب الطلب</td></tr>
+  <tr><td>إطلاق</td><td>أول المشترين / عرض ترويجي</td><td><code>$12.99</code></td></tr>
+  <tr><td>قياسي</td><td>مستخدم واحد — معلم / عائلة / صانع</td><td><code>$17.99</code></td></tr>
+  <tr><td>حزمة</td><td>البانِي + حزمة المطبوعات الصفيّة</td><td><code>$29.99</code></td></tr>
+  <tr><td>إضافة صغيرة</td><td>مكمّل منخفض التكلفة</td><td><code>$5</code></td></tr>
+  <tr><td>موقع</td><td>حتى 30 معلماً في مدرسة واحدة</td><td><code>$199</code></td></tr>
+  <tr><td>مديرية</td><td>مواقع متعددة — راسل عبر طلب Etsy</td><td><code>$499</code></td></tr>
+  <tr><td>رمز <code>RXYLAUNCH</code></td><td>خصم أسبوع الإطلاق</td><td><code>$7</code></td></tr>
 </table>
 
-<!-- ═══════════ الوسوم ═══════════ -->
-<div class="slug" id="tags">الوسوم والمواد</div>
-<h2>13 وسمًا لـ Etsy (20 حرفًا لكل وسم)</h2>
+<div class="slug" id="tags">المرحلة — الوسوم والمواد</div>
+<h2>13 وسماً لـ Etsy (20 حرفاً لكل وسم)</h2>
 <div class="pills">
   <span class="pill">micro:bit</span>
-  <span class="pill">BLE</span>
+  <span class="pill">جهاز تحكم</span>
   <span class="pill">bluetooth</span>
-  <span class="pill">تعليم</span>
+  <span class="pill">بدون برمجة</span>
+  <span class="pill">سحب إفلات</span>
   <span class="pill">STEM</span>
   <span class="pill">روبوتات</span>
   <span class="pill">برمجة أطفال</span>
-  <span class="pill">مورد للمعلم</span>
-  <span class="pill">حساسات</span>
-  <span class="pill">محركات</span>
-  <span class="pill">غرفة صف</span>
+  <span class="pill">مورد معلم</span>
+  <span class="pill">makecode</span>
+  <span class="pill">فصل دراسي</span>
   <span class="pill">تعليم منزلي</span>
-  <span class="pill">ميكرسبيس</span>
+  <span class="pill">فاب لاب</span>
 </div>
 
-<h2>المواد (ما الذي يشغّله)</h2>
+<h2>المواد (ما يشغّل التطبيق)</h2>
 <div class="pills">
   <span class="pill">HTML5</span>
   <span class="pill">JavaScript</span>
   <span class="pill">Web Bluetooth</span>
-  <span class="pill">Chart.js</span>
-  <span class="pill">Three.js</span>
-  <span class="pill">PWA</span>
+  <span class="pill">BLE UART</span>
   <span class="pill">MakeCode</span>
-  <span class="pill">TypeScript</span>
+  <span class="pill">JSON</span>
 </div>
 
-<h2>كلمات SEO</h2>
-<p><code>browser-based</code> · <code>no-install</code> · <code>privacy-first</code> · <code>offline-capable</code> · <code>web bluetooth</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>micro:bit V2</code></p>
+<h2>كلمات SEO المفتاحية</h2>
+<p><code>drag and drop</code> · <code>no-code remote</code> · <code>web bluetooth</code> · <code>micro:bit controller</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>BLE UART</code> · <code>makecode generator</code></p>
 
-<!-- ═══════════ الصور ═══════════ -->
-<div class="slug" id="images">ترتيب الصور السبع للإعلان</div>
-<h2>تسلسل الصور (Etsy يعرض 1 و 2 بأكبر حجم)</h2>
+<div class="slug" id="images">المرحلة — ترتيب الصور السبع</div>
+<h2>تسلسل الصور (Etsy تعرض الأولى والثانية بالحجم الأكبر)</h2>
 <div class="card">
   <ol style="padding-right:22px;line-height:2">
-    <li><strong>الصورة البطل</strong> — micro:bit حقيقي + لقطة شاشة مقسومة للحاسوب تُظهر النموذج ثلاثي الأبعاد وهو يعكس ميل اللوحة. عنوان بخط Orbitron فوقها.</li>
-    <li><strong>نظرة عامة على الألسنة</strong> — لقطة شبكية لجميع الألسنة الثماني مع رموزها.</li>
-    <li><strong>لقطة مقرَّبة للمخطط</strong> — Chart.js بخطوط ملونة وتعليقات، مع زر تسجيل أحمر متوهج.</li>
-    <li><strong>العربة + الذراع الروبوتية 3D</strong> — لقطة شاشة مقسومة تُظهر نموذجين من بين نماذج Three.js الخمسة.</li>
-    <li><strong>يد تمسك اللوحة</strong> — محرك حقيقي موصول بـ P1، والمنزلقات على الشاشة في الخلفية.</li>
-    <li><strong>عيّنة السمات</strong> — شبكة 2×2: Stealth · Neon · Arctic · Blaze.</li>
-    <li><strong>بطاقة نصية</strong> — «رخصة مستخدم وحيد · تحديثات مدى الحياة · بلا سحابة · Chrome / Edge» على تدرج داكن.</li>
+    <li><strong>البطل</strong> — الهاتف في اليد على لسان Play، يقود هدفاً مرئياً. عنوان علوي: «اِبنِ • اقْرن • العَب — بدون برمجة».</li>
+    <li><strong>لوحة Build</strong> — لقطة للبانِي مع تخطيط كامل: joystick، زرّان، gauge، label.</li>
+    <li><strong>توليد MakeCode</strong> — انقسام: البانِي يساراً، makecode.microbit.org JavaScript يميناً مع الكود الملصوق.</li>
+    <li><strong>شبكة الودجتات الـ 12</strong> — الجميع موسومة بالإيموجي (7 مدخلات + 5 مخرجات).</li>
+    <li><strong>تدفق اقتران BLE</strong> — نافذة اختيار BBC micro:bit فوق لسان Play، سهم نحو «📡 Tap to Connect».</li>
+    <li><strong>عينة المظاهر</strong> — ثلاث لوحات: neo · glass · neon لنفس جهاز التحكم.</li>
+    <li><strong>مشهد صفي</strong> — أطفال يحملون أجهزة لوحية، واحد يقود روبوتاً صغيراً؛ ودجت Label يعرض حالة حية.</li>
   </ol>
 </div>
 
-<!-- ═══════════ الأخطاء ═══════════ -->
-<div class="slug" id="mistakes">تجنَّب ذلك</div>
+<div class="slug" id="mistakes">المرحلة — تجنّب هذه</div>
 <h2>أخطاء شائعة</h2>
 <table>
   <tr><th>❌ لا تفعل</th><th>✅ افعل</th></tr>
-  <tr><td>ابدأ بـ «مرحبًا، أنا…» مع 10 ثوانٍ من المقدمة</td><td>افتح باللوحة الحقيقية وهي تُميل نموذجًا ثلاثي الأبعاد في أول 3 ثوانٍ</td></tr>
-  <tr><td>التصوير بالوضع الأفقي (16:9)</td><td>عمودي 9:16 — Etsy يشغّل تلقائيًا على الجوال</td></tr>
-  <tr><td>التحدث فوق رسوم متحركة مزدحمة</td><td>اترك الصورة تتنفس لثانية، ثم اشرح</td></tr>
-  <tr><td>نسيان الترجمة (Etsy يشغّل كتم الصوت)</td><td>ادمج الترجمة أو أضف نصًا في كل مشهد</td></tr>
-  <tr><td>عرض iOS / Safari في الفيديو</td><td>اعرض دائمًا على Chrome/Edge — مستخدمو iPhone سيشترون ثم يطلبون استرجاع المبلغ</td></tr>
-  <tr><td>تخطي CTA</td><td>قل «الرابط في الأسفل» في آخر 5 ثوانٍ في كل مرة</td></tr>
+  <tr><td>ابدأ بـ «مرحباً، أنا…» و 10 ثوانٍ مقدمة</td><td>افتتح على لوحة Build الفارغة وسَحبة واحدة في أول 3 ثواني</td></tr>
+  <tr><td>تصوير أفقي (16:9)</td><td>عمودي 9:16 — Etsy يشغّل تلقائياً على الجوال</td></tr>
+  <tr><td>نسيان إظهار الهدف الذي يتحرك</td><td>أظهِر دوماً شيئاً حقيقياً (روبوت / LED / محرك) يستجيب</td></tr>
+  <tr><td>ترك شاشة MakeCode 20 ثانية</td><td>اقتطع اللصق/الفلاش إلى أقل من 10 ثوانٍ — لا أحد يحب مشاهدة الكود يتمرر</td></tr>
+  <tr><td>نسيان الترجمات (Etsy يشغّل صامتاً)</td><td>اكتب الترجمات فوق الفيديو، وركّز على «بدون برمجة» و «Bluetooth»</td></tr>
+  <tr><td>إظهار iOS / Safari في الفيديو</td><td>اعرض دائماً على Chrome/Edge — مستخدمو iPhone يشترون ثم يُرجعون</td></tr>
+  <tr><td>تخطّي نداء العمل</td><td>قل «الرابط بالأسفل» في آخر 5 ثواني في كل مرة</td></tr>
 </table>
 
-<!-- ═══════════ بطاقة سريعة ═══════════ -->
-<div class="slug">بطاقة الجيب المرجعية</div>
-<div class="copybox">قبل     V2 يعمل (أيقونة X) · Chrome مفتوح · BLE أخضر · هاتف 9:16
-صوِّر   خطاف في 3 ثوانٍ · إمالة ← انعكاس 3D · محرك يتحرك · محاكاة مخطط · CTA
-بعد     قصّ إلى 55 ثانية · ترجمة مدمجة · أول إطار = المصغَّرة
-أعلن    عنوان · وصف 160 حرفًا · 13 وسمًا · 7 صور · فئات الأسعار</div>
+<div class="slug">المرحلة — بطاقة الجيب</div>
+<div class="copybox">قبل     Chrome مفتوح · Build فارغ · MakeCode جاهز · هاتف 9:16
+التصوير  خطّاف 3 ث · سحب الودجتات · كود-لصق-فلاش · اضغط للاتصال · قُد
+بعد     قصّ إلى 55 ث · ترجمات مدمجة · الإطار الأول = الصورة المصغّرة
+الإعلان  عنوان · 160 حرف وصف · 13 وسم · 7 صور · فئات الأسعار</div>
 
-<p style="text-align:center;margin-top:40px;color:var(--muted);font-size:.85rem">
-  Micro:bit Remote Builder v1.0.0 — دليل Etsy في دقيقة · اطبع بحجم A4 · غلّفه · واحتفظ به بجانب معدات التصوير
+<p style="text-align:center;margin-top:40px;color:var(--muted);font-size:.9rem">
+  Micro:bit Remote Builder v1.0.0 — دليل إتسي بدقيقة · للطبع A4 · تغليف · أبقِهِ قرب معدات التصوير
 </p>
 
 </body>
