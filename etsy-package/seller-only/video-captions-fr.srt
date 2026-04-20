@@ -1,0 +1,37 @@
+1
+00:00:00,000 --> 00:00:03,000
+Construis une télécommande Bluetooth pour ton
+micro:bit — sans programmation.
+
+2
+00:00:03,000 --> 00:00:10,000
+Glisse un Bouton. Dépose un Joystick. Fini.
+
+3
+00:00:10,000 --> 00:00:20,000
+Douze widgets — Boutons, Curseurs,
+D-Pad, Pad XY, Jauge, Graphique.
+
+4
+00:00:20,000 --> 00:00:30,000
+Ouvre l'onglet Code —
+ton MakeCode est déjà écrit.
+
+5
+00:00:30,000 --> 00:00:40,000
+Onglet Play, connecte en BLE, appuie sur
+un bouton — le micro:bit réagit.
+
+6
+00:00:40,000 --> 00:00:50,000
+Six onglets : Build, Play, Demo,
+Export, Import, Code. C'est tout.
+
+7
+00:00:50,000 --> 00:00:55,000
+Lien ci-dessous — mises à jour à vie,
+enseignants et enfants bienvenus.
+
+8
+00:00:55,000 --> 00:01:00,000
+Construis. Connecte. Joue.
