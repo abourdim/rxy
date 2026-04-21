@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════════
+  ⚠️  REWRITE PER PRODUCT — DO NOT SHIP AS-IS
+  ───────────────────────────────────────────────────────────────────────
+  apply-template.mjs only substituted identifiers (Micro:bit Remote Builder,
+  v1.0.0, https://abourdim.github.io/rxy/, etc.). The feature content, steps,
+  shortcuts, and examples below were inherited from the template's
+  source product (rxy) and WILL BE WRONG for your product
+  unless you rewrite them.
+  
+  Before including this file in a buyer ZIP:
+    1. Delete this banner.
+    2. Rewrite every mention of specific features, shortcuts,
+       tab names, hardware interactions, etc. to match your product.
+    3. Verify with: grep -iE "servo|chart\.js|3d board|gamepad|
+       accelerometer|compass|led matrix|2 tabs|sensors tab" this-file.
+  ═══════════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Micro:bit Remote Builder Lesson Plan Template</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Orbitron:wght@500&family=Tajawal:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4 portrait; margin: 0; }
+  body { width: 210mm; font-family: 'Tajawal', sans-serif; background: #fafaf9; color: #0f172a; line-height: 1.6; font-size: 14px; }
+
+  .page { width: 210mm; min-height: 297mm; padding: 14mm 18mm; position: relative; page-break-after: always; }
+
+  .header { display: flex; align-items: center; gap: 14px; margin-bottom: 8mm; padding-bottom: 6mm; border-bottom: 3px solid #22c55e; }
+  .header-logo { width: 44px; height: 44px; background: #020617; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .header-logo span { font-family: 'Righteous', sans-serif; font-size: 20px; color: #22c55e; }
+  .header-text h1 { font-family: 'Righteous', sans-serif; font-size: 24px; color: #020617; }
+  .header-text span { font-size: 12px; color: #64748b; }
+
+  .field { margin-bottom: 5mm; }
+  .field-row { display: flex; gap: 10px; margin-bottom: 5mm; }
+  .field-row .field { flex: 1; margin-bottom: 0; }
+  label { font-weight: 700; font-size: 12px; color: #374151; text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 2px; }
+  .input {
+    width: 100%; border: 1px solid #d1d5db; border-radius: 8px;
+    padding: 8px 12px; font-size: 14px; min-height: 32px; background: #fff;
+    font-family: 'Tajawal', sans-serif; color: #1e293b;
+  }
+  .input-tall { min-height: 60px; }
+  .input-xl { min-height: 100px; }
+
+  .section {
+    font-family: 'Righteous', sans-serif; font-size: 16px; color: #fff;
+    background: #020617; padding: 6px 14px; border-radius: 8px;
+    margin: 6mm 0 4mm; display: flex; align-items: center; gap: 8px;
+  }
+  .section .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+
+  .checklist { list-style: none; margin: 3mm 0; }
+  .checklist li {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+  .checklist li::before {
+    content: ''; width: 16px; height: 16px; border: 2px solid #22c55e;
+    border-radius: 4px; flex-shrink: 0;
+  }
+
+  .timeline { margin: 3mm 0; }
+  .trow { display: flex; border-bottom: 1px solid #e5e7eb; }
+  .trow.thead { font-weight: 700; font-size: 11px; text-transform: uppercase; color: #64748b; background: #f1f5f9; border-radius: 6px 6px 0 0; }
+  .trow div { padding: 6px 10px; }
+  .tcol-time { width: 20%; }
+  .tcol-act { width: 40%; }
+  .tcol-tool { width: 20%; }
+  .tcol-notes { width: 20%; }
+
+  .callout {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
+    padding: 10px 16px; margin: 4mm 0;
+  }
+  .callout h4 { font-size: 13px; color: #166534; margin-bottom: 4px; }
+  .callout ul { margin: 0; padding-left: 20px; font-size: 12px; color: #374151; }
+  .callout li { margin: 2px 0; }
+
+  .footer { position: absolute; bottom: 10mm; left: 18mm; right: 18mm; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; border-top: 1px solid #e5e7eb; padding-top: 4px; }
+
+  .sample { color: #94a3b8; font-style: italic; font-size: 13px; }
+
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .pg { background: #dcfce7; color: #166534; }
+  .pb { background: #cffafe; color: #155e75; }
+  .py { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: Template -->
+<div class="page">
+  <div class="header">
+    <div class="header-logo"><span>µP</span></div>
+    <div class="header-text">
+      <h1>Micro:bit Remote Builder Lesson Plan</h1>
+      <span>45-Minute STEM Lesson Planner &bull; v1.0.0</span>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field"><label>Lesson Title</label><div class="input"></div></div>
+    <div class="field" style="width:30%;flex:none;"><label>Date</label><div class="input"></div></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Teacher</label><div class="input"></div></div>
+    <div class="field"><label>Grade / Age Group</label><div class="input"></div></div>
+    <div class="field"><label>Subject</label><div class="input"></div></div>
+  </div>
+
+  <div class="section"><div class="dot"></div> Learning Objectives</div>
+  <div class="field"><label>By the end of this lesson, students will be able to:</label><div class="input input-tall"></div></div>
+
+  <div class="section"><div class="dot"></div> Materials &amp; Setup</div>
+  <ul class="checklist">
+    <li>BBC micro:bit V1 or V2 (1 per student or per pair)</li>
+    <li>USB cable or battery pack</li>
+    <li>Laptop / tablet with Chrome or Edge (Bluetooth enabled)</li>
+    <li>Micro:bit Remote Builder opened via <code>index.html</code></li>
+    <li>Firmware flashed from <code>makecode.ts</code></li>
+    <li>micro:bit V2 (optional)</li>
+    <li>Printed Quick-Start Card &amp; Shortcuts sheet</li>
+    <li>Theme chosen: ________________</li>
+  </ul>
+
+  <div class="section"><div class="dot"></div> Lesson Timeline (45 min)</div>
+  <div class="timeline">
+    <div class="trow thead">
+      <div class="tcol-time">Time</div>
+      <div class="tcol-act">Activity</div>
+      <div class="tcol-tool">Playground Tab</div>
+      <div class="tcol-notes">Notes</div>
+    </div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+    <div class="trow"><div class="tcol-time"></div><div class="tcol-act"></div><div class="tcol-tool"></div><div class="tcol-notes"></div></div>
+  </div>
+
+  <div class="section"><div class="dot"></div> Wrap-up</div>
+  <ul class="checklist">
+    <li>Stop streaming (Space)</li>
+    <li>Save session JSON from Graph tab</li>
+    <li>Students share one observation</li>
+    <li>Exit-ticket question</li>
+  </ul>
+
+  <div class="section"><div class="dot"></div> Reflection &amp; Notes</div>
+  <div class="field"><div class="input input-xl"></div></div>
+
+  <div class="footer">
+    <span>Micro:bit Remote Builder Lesson Plan &bull; Editable &bull; Print or fill digitally</span>
+    <span>v1.0.0</span>
+  </div>
+</div>
+
+<!-- PAGE 2: Sample lesson -->
+<div class="page">
+  <div class="header">
+    <div class="header-logo"><span>µP</span></div>
+    <div class="header-text">
+      <h1>Sample Lesson: Hot or Not? The Sensor Detective</h1>
+      <span>Ready-to-teach 45-minute example</span>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field"><label>Lesson Title</label><div class="input"><span class="sample">Hot or Not? The Sensor Detective</span></div></div>
+    <div class="field" style="width:30%;flex:none;"><label>Duration</label><div class="input"><span class="sample">45 minutes</span></div></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Grade / Age Group</label><div class="input"><span class="sample">Ages 9&ndash;14</span></div></div>
+    <div class="field"><label>Subject</label><div class="input"><span class="sample">STEM / Physics / Data Literacy</span></div></div>
+  </div>
+
+  <div class="section"><div class="dot"></div> Learning Objectives</div>
+  <div class="field"><div class="input input-tall"><span class="sample">1. Pair a micro:bit V2 over Web Bluetooth.<br>2. Read temperature, light, and sound sensors.<br>3. Graph a measurement over time and identify trends.<br>4. Explain a physical cause for an observed spike.</span></div></div>
+
+  <div class="section"><div class="dot"></div> Lesson Timeline</div>
+  <div class="timeline">
+    <div class="trow thead">
+      <div class="tcol-time">Time</div>
+      <div class="tcol-act">Activity</div>
+      <div class="tcol-tool">Playground</div>
+      <div class="tcol-notes">Notes</div>
+    </div>
+    <div class="trow"><div class="tcol-time"><span class="sample">0&ndash;5</span></div><div class="tcol-act"><span class="sample">Hook: "Can your micro:bit feel a hand on its face?"</span></div><div class="tcol-tool"><span class="sample">LEDs tab</span></div><div class="tcol-notes"><span class="sample">Show heart preset</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">5&ndash;10</span></div><div class="tcol-act"><span class="sample">Flash firmware &amp; pair board</span></div><div class="tcol-tool"><span class="sample">Connect btn</span></div><div class="tcol-notes"><span class="sample">Help with BLE prompts</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">10&ndash;18</span></div><div class="tcol-act"><span class="sample">Tour the Build tab &mdash; name each reading</span></div><div class="tcol-tool"><span class="sample">Sensors (2)</span></div><div class="tcol-notes"><span class="sample">Pause with Space</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">18&ndash;28</span></div><div class="tcol-act"><span class="sample">Investigate: cover light sensor, cup hands around board</span></div><div class="tcol-tool"><span class="sample">Graph (5)</span></div><div class="tcol-notes"><span class="sample">Press R to record</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">28&ndash;35</span></div><div class="tcol-act"><span class="sample">Annotate spikes on the graph</span></div><div class="tcol-tool"><span class="sample">Graph + K</span></div><div class="tcol-notes"><span class="sample">Timestamp notes</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">35&ndash;40</span></div><div class="tcol-act"><span class="sample">Export session JSON, open in next class</span></div><div class="tcol-tool"><span class="sample">Graph &rarr; Export</span></div><div class="tcol-notes"><span class="sample">Save to shared folder</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">40&ndash;45</span></div><div class="tcol-act"><span class="sample">Share one finding + exit ticket</span></div><div class="tcol-tool"><span class="sample">&mdash;</span></div><div class="tcol-notes"><span class="sample">Peer applause</span></div></div>
+  </div>
+
+  <div class="callout">
+    <h4>Playground features used in this lesson</h4>
+    <ul>
+      <li><span class="pill pg">BLE Connect</span> Web Bluetooth pairing with auto-reconnect</li>
+      <li><span class="pill pb">Live Sensors</span> temp, light, sound, accel, compass all at once</li>
+      <li><span class="pill py">drag-and-drop Graph</span> live rolling plot, fullscreen with F</li>
+      <li><span class="pill pg">Session Recording</span> press R, export as JSON for later analysis</li>
+      <li><span class="pill pb">Simulate Mode</span> great backup if a board fails mid-class</li>
+    </ul>
+  </div>
+
+  <div class="section"><div class="dot"></div> Assessment Rubric</div>
+  <div class="timeline">
+    <div class="trow thead">
+      <div class="tcol-time">Criteria</div>
+      <div class="tcol-act">Excellent (3)</div>
+      <div class="tcol-tool">Good (2)</div>
+      <div class="tcol-notes">Needs Work (1)</div>
+    </div>
+    <div class="trow"><div class="tcol-time"><span class="sample">BLE pairing</span></div><div class="tcol-act"><span class="sample">Paired independently</span></div><div class="tcol-tool"><span class="sample">With 1 hint</span></div><div class="tcol-notes"><span class="sample">Needed help</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">Sensor naming</span></div><div class="tcol-act"><span class="sample">Named all 6 correctly</span></div><div class="tcol-tool"><span class="sample">4&ndash;5 correct</span></div><div class="tcol-notes"><span class="sample">&lt; 4 correct</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">Graph reading</span></div><div class="tcol-act"><span class="sample">Explained spike with cause</span></div><div class="tcol-tool"><span class="sample">Identified spike</span></div><div class="tcol-notes"><span class="sample">Missed spike</span></div></div>
+    <div class="trow"><div class="tcol-time"><span class="sample">Curiosity</span></div><div class="tcol-act"><span class="sample">Tested own hypothesis</span></div><div class="tcol-tool"><span class="sample">Followed guide</span></div><div class="tcol-notes"><span class="sample">Off-task</span></div></div>
+  </div>
+
+  <div class="footer">
+    <span>Micro:bit Remote Builder &bull; Sample lesson &mdash; adapt it for your classroom!</span>
+    <span>v1.0.0</span>
+  </div>
+</div>
+
+<!-- QR-BLOCK-START -->
+<div style="position:fixed;right:12mm;bottom:12mm;display:flex;gap:8mm;align-items:center;
+  background:rgba(10,14,18,0.92);color:#e8ffe8;padding:4mm 5mm;border-radius:3mm;
+  box-shadow:0 2mm 6mm rgba(0,0,0,0.35);font-family:-apple-system,Segoe UI,sans-serif;
+  max-width:80mm;z-index:9999;">
+  <img src="data:image/png;base64,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" alt="QR code — scan to open live demo" style="width:24mm;height:24mm;background:#fff;padding:1mm;border-radius:1.5mm;display:block;"/>
+  <div style="display:flex;flex-direction:column;gap:1mm;min-width:0;">
+    <div style="font-weight:700;font-size:9pt;color:#00ff88;line-height:1.2;">Try before you teach</div>
+    <div style="font-size:7pt;opacity:0.75;line-height:1.3;word-break:break-all;">abourdim.github.io/rxy/</div>
+  </div>
+</div>
+<!-- QR-BLOCK-END -->
+</body>
+</html>

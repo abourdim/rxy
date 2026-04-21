@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════════
+  ⚠️  REWRITE PER PRODUCT — DO NOT SHIP AS-IS
+  ───────────────────────────────────────────────────────────────────────
+  apply-template.mjs only substituted identifiers (Micro:bit Remote Builder,
+  v1.0.0, https://abourdim.github.io/rxy/, etc.). The feature content, steps,
+  shortcuts, and examples below were inherited from the template's
+  source product (rxy) and WILL BE WRONG for your product
+  unless you rewrite them.
+  
+  Before including this file in a buyer ZIP:
+    1. Delete this banner.
+    2. Rewrite every mention of specific features, shortcuts,
+       tab names, hardware interactions, etc. to match your product.
+    3. Verify with: grep -iE "servo|chart\.js|3d board|gamepad|
+       accelerometer|compass|led matrix|2 tabs|sensors tab" this-file.
+  ═══════════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Micro:bit Remote Builder Keyboard Shortcuts Cheat Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Orbitron:wght@500&family=Tajawal:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4 landscape; margin: 0; }
+  body { width: 297mm; height: 210mm; font-family: 'Tajawal', sans-serif; background: #020617; color: #cbd5e1; overflow: hidden; }
+
+  .page { width: 297mm; height: 210mm; padding: 10mm 14mm; position: relative; overflow: hidden; }
+  .page::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(34,197,94,.012) 3px, rgba(34,197,94,.012) 6px);
+    pointer-events: none;
+  }
+
+  .header { text-align: center; margin-bottom: 6mm; }
+  .header h1 { font-family: 'Righteous', sans-serif; font-size: 32px; color: #22c55e; display: inline; }
+  .header span { font-size: 16px; color: #64748b; margin-left: 12px; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .group { margin-bottom: 6px; }
+  .group-title {
+    font-family: 'Righteous', sans-serif; font-size: 14px; color: #22d3ee;
+    padding: 4px 10px; background: rgba(34,211,238,.06); border-radius: 8px;
+    border-left: 3px solid #22d3ee; margin-bottom: 4px;
+  }
+
+  .row {
+    display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .row:nth-child(even) { background: rgba(34,197,94,.02); }
+
+  kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 30px; height: 26px; padding: 0 8px;
+    background: rgba(0,0,0,.6); border: 1px solid rgba(34,197,94,.3);
+    border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 11px;
+    color: #22c55e; box-shadow: 0 2px 4px rgba(0,0,0,.4);
+    white-space: nowrap;
+  }
+  .label { font-size: 12px; color: #94a3b8; flex: 1; }
+
+  .footer {
+    position: absolute; bottom: 8mm; left: 14mm; right: 14mm;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(34,197,94,.1); padding-top: 4px;
+  }
+  .footer span { font-size: 10px; color: #64748b; }
+  .footer .brand { font-family: 'Orbitron', monospace; font-size: 11px; color: #22c55e; }
+
+  .laminate-tip {
+    position: absolute; top: 10mm; right: 14mm;
+    font-size: 9px; color: #64748b; background: rgba(34,197,94,.05);
+    border: 1px solid rgba(34,197,94,.12); border-radius: 8px; padding: 3px 10px;
+  }
+
+  .ble-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .d-green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.6); }
+  .d-amber { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,.6); }
+  .d-red { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.6); }
+  .d-blue { background: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,.6); }
+  .d-gray { background: #475569; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Micro:bit Remote Builder Shortcuts</h1>
+    <span>Cheat Sheet &mdash; Laminate Me!</span>
+  </div>
+  <div class="laminate-tip">Print &rarr; Laminate &rarr; Stick near your micro:bit</div>
+
+  <div class="cols">
+
+    <!-- Column 1 -->
+    <div>
+      <div class="group">
+        <div class="group-title">Streaming &amp; Data</div>
+        <div class="row"><kbd>Space</kbd><span class="label">Pause / Resume sensor stream</span></div>
+        <div class="row"><kbd>K</kbd><span class="label">Clear graph buffer</span></div>
+        <div class="row"><kbd>F</kbd><span class="label">Toggle fullscreen graph</span></div>
+        <div class="row"><kbd>R</kbd><span class="label">Start / Stop session recording</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Tabs (1&ndash;8)</div>
+        <div class="row"><kbd>1</kbd><span class="label">LEDs &mdash; 5&times;5 matrix</span></div>
+        <div class="row"><kbd>2</kbd><span class="label">Sensors &mdash; live readings</span></div>
+        <div class="row"><kbd>3</kbd><span class="label">Servos &mdash; P1 &amp; P2</span></div>
+        <div class="row"><kbd>4</kbd><span class="label">GamePad &mdash; D-pad + Fire</span></div>
+        <div class="row"><kbd>5</kbd><span class="label">Graph &mdash; drag-and-drop live plot</span></div>
+        <div class="row"><kbd>6</kbd><span class="label">Play tab &mdash; Three.js view</span></div>
+        <div class="row"><kbd>7</kbd><span class="label">Bench &mdash; raw JSON console</span></div>
+        <div class="row"><kbd>8</kbd><span class="label">About &mdash; version &amp; credits</span></div>
+      </div>
+    </div>
+
+    <!-- Column 2 -->
+    <div>
+      <div class="group">
+        <div class="group-title">LEDs &amp; Overlays</div>
+        <div class="row"><kbd>P</kbd><span class="label">Open LED preset picker</span></div>
+        <div class="row"><kbd>C</kbd><span class="label">Clear LED matrix</span></div>
+        <div class="row"><kbd>H</kbd><span class="label">Heart preset</span></div>
+        <div class="row"><kbd>S</kbd><span class="label">Smile preset</span></div>
+        <div class="row"><kbd>Esc</kbd><span class="label">Close any overlay / fullscreen</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Play tab Models</div>
+        <div class="row"><kbd>M</kbd><span class="label">Switch model (cycle)</span></div>
+        <div class="row"><span style="font-size:14px;">🔲</span><span class="label">micro:bit V2 board</span></div>
+        <div class="row"><span style="font-size:14px;">🚗</span><span class="label">Buggy robot</span></div>
+        <div class="row"><span style="font-size:14px;">🦾</span><span class="label">Robot Arm</span></div>
+        <div class="row"><span style="font-size:14px;">🎯</span><span class="label">Balance game</span></div>
+        <div class="row"><span style="font-size:14px;">🌦️</span><span class="label">Weather station</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Themes &amp; View</div>
+        <div class="row"><kbd>T</kbd><span class="label">Cycle theme (Stealth &rarr; Neon &rarr; Arctic &rarr; Blaze)</span></div>
+        <div class="row"><kbd>L</kbd><span class="label">Cycle language (EN &rarr; FR &rarr; AR)</span></div>
+        <div class="row"><kbd>?</kbd><span class="label">Show shortcuts help overlay</span></div>
+      </div>
+    </div>
+
+    <!-- Column 3 -->
+    <div>
+      <div class="group">
+        <div class="group-title">BLE State Cheat Sheet</div>
+        <div class="ble-row"><span class="dot d-gray"></span><span class="label"><strong style="color:#cbd5e1;">Disconnected</strong> &mdash; click Connect to pair</span></div>
+        <div class="ble-row"><span class="dot d-amber"></span><span class="label"><strong style="color:#fbbf24;">Pairing</strong> &mdash; choose "BBC micro:bit [xxxxx]"</span></div>
+        <div class="ble-row"><span class="dot d-green"></span><span class="label"><strong style="color:#22c55e;">Connected</strong> &mdash; data is streaming live</span></div>
+        <div class="ble-row"><span class="dot d-blue"></span><span class="label"><strong style="color:#22d3ee;">Simulate</strong> &mdash; fake data, no board needed</span></div>
+        <div class="ble-row"><span class="dot d-red"></span><span class="label"><strong style="color:#ef4444;">Error</strong> &mdash; auto-retry 3x, then prompt</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Servos (P1 / P2)</div>
+        <div class="row"><kbd>Q</kbd> / <kbd>A</kbd><span class="label">P1 servo +/- 10&deg;</span></div>
+        <div class="row"><kbd>W</kbd> / <kbd>S</kbd><span class="label">P2 servo +/- 10&deg;</span></div>
+        <div class="row"><kbd>0</kbd><span class="label">Center both servos (90&deg;)</span></div>
+        <div class="row"><kbd>O</kbd><span class="label">Servos OFF (detach PWM)</span></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Pro Tips</div>
+        <div class="row" style="flex-direction:column;align-items:start;">
+          <span class="label" style="color:#22d3ee;">No board? Turn on <strong>Simulate Mode</strong> in Settings for Sine/Random/Ramp data.</span>
+          <span class="label" style="color:#64748b;font-size:11px;">Only <strong>Chrome</strong> / <strong>Edge</strong> (desktop or Android) support Web Bluetooth.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>Micro:bit Remote Builder v1.0.0 &bull; Print on A4 landscape, laminate, love.</span>
+    <span class="brand">For the BBC micro:bit V1 or V2</span>
+  </div>
+
+</div>
+<!-- QR-BLOCK-START -->
+<div style="position:fixed;right:12mm;bottom:12mm;display:flex;gap:8mm;align-items:center;
+  background:rgba(10,14,18,0.92);color:#e8ffe8;padding:4mm 5mm;border-radius:3mm;
+  box-shadow:0 2mm 6mm rgba(0,0,0,0.35);font-family:-apple-system,Segoe UI,sans-serif;
+  max-width:80mm;z-index:9999;">
+  <img src="data:image/png;base64,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" alt="QR code — scan to open live demo" style="width:24mm;height:24mm;background:#fff;padding:1mm;border-radius:1.5mm;display:block;"/>
+  <div style="display:flex;flex-direction:column;gap:1mm;min-width:0;">
+    <div style="font-weight:700;font-size:9pt;color:#00ff88;line-height:1.2;">Open on your computer</div>
+    <div style="font-size:7pt;opacity:0.75;line-height:1.3;word-break:break-all;">abourdim.github.io/rxy/</div>
+  </div>
+</div>
+<!-- QR-BLOCK-END -->
+</body>
+</html>

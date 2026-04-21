@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>
+  @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Orbitron:wght@500;700&family=Inter:wght@400;600;800;900&family=Tajawal:wght@400;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A3 portrait; margin: 0; }
+  html, body { width: 297mm; height: 420mm; }
+  body {
+    font-family: 'Tajawal', 'Inter', sans-serif;
+    background: #020617;
+    color: #e8ffe8;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page { width: 297mm; height: 420mm; padding: 16mm 18mm 60mm; position: relative; overflow: hidden; }
+  .page::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(34,197,94,.18) 0%, transparent 45%),
+      radial-gradient(circle at 85% 88%, rgba(34,211,238,.12) 0%, transparent 55%);
+  }
+  .page::after {
+    content: ''; position: absolute; inset: 10mm;
+    border: 1.5px solid rgba(34,197,94,.2); border-radius: 8mm;
+    pointer-events: none;
+  }
+
+  .kicker {
+    font-family: 'Orbitron', monospace; font-size: 11pt;
+    color: #22d3ee; letter-spacing: 0.25em;
+    margin-bottom: 4mm;
+    font-family: Inter, monospace;
+  }
+  .title {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 62pt;
+    font-weight: 900;
+    color: #22c55e;
+    line-height: 1.05;
+    letter-spacing: normal;
+    text-shadow: 0 0 40px rgba(34,197,94,.3);
+    white-space: pre-line;
+    max-width: 240mm;
+  }
+  .subtitle {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-top: 6mm;
+    line-height: 1.35;
+    max-width: 240mm;
+  }
+
+  .hero-shot {
+    margin: 8mm auto 0;
+    width: 100%; max-width: 235mm; height: 180mm;
+    border-radius: 4mm; overflow: hidden;
+    box-shadow: 0 8mm 20mm rgba(0,0,0,.55), 0 0 0 1.5px rgba(34,197,94,.25);
+    background: #000;
+  }
+  .hero-shot img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+  .features {
+    display: flex; gap: 5mm; margin-top: 6mm;
+    margin-bottom: 55mm;
+  }
+  .feat {
+    flex: 1;
+    background: rgba(15,23,42,.75);
+    border: 1px solid rgba(34,197,94,.18);
+    border-radius: 4mm;
+    padding: 5mm 4mm;
+  }
+  .feat .icon { font-size: 22pt; display: block; margin-bottom: 2mm; }
+  .feat h3 { color: #22c55e; font-size: 14pt; font-weight: 800; margin-bottom: 2mm; }
+  .feat p { color: #94a3b8; font-size: 10pt; line-height: 1.4; }
+
+  .qr-block {
+    position: absolute; bottom: 14mm; left: 18mm;
+    display: flex; align-items: center; gap: 5mm;
+    background: rgba(10,14,18,.92); color: #e8ffe8;
+    padding: 5mm 6mm; border-radius: 3mm;
+    border: 1px solid rgba(34,197,94,.3);
+  }
+  .qr-block img { width: 32mm; height: 32mm; background: #fff; padding: 1mm; border-radius: 1mm; display: block; }
+  .qr-block .qr-caption { font-weight: 700; font-size: 11pt; color: #22c55e; line-height: 1.2; margin-bottom: 1.5mm; }
+  .qr-block .qr-url { font-family: 'Orbitron', monospace; font-size: 8pt; color: #94a3b8; letter-spacing: 0.05em; }
+
+  .footer {
+    position: absolute; bottom: 14mm; right: 18mm;
+    max-width: 120mm;
+  }
+  .footer .left { font-size: 9pt; color: #64748b; }
+  .footer .brand { font-family: 'Orbitron', monospace; font-size: 11pt; color: #22c55e; letter-spacing: 0.12em; margin-top: 2mm; }
+</style></head>
+<body><div class="page">
+  <div class="kicker">WEB BLUETOOTH · MICRO:BIT V2</div>
+  <div class="title">كل حساس،
+مباشرةً في المتصفح.</div>
+  <div class="subtitle">لوحة تحكم جاهزة للقاعة الدراسية. 30 جهازاً. بدون تثبيت.</div>
+
+  <div class="hero-shot"><img src="file://D:/work/dev/16_workshop/102_etsy/rxy/etsy-package/output/ar/screenshots/screenshot-build.png"></div>
+
+  <div class="features">
+    
+    <div class="feat">
+      <span class="icon">⚡</span>
+      <h3>مستشعرات حية</h3>
+      <p>الحرارة، الصوت، الضوء، التسارع، البوصلة — كلها في الوقت الحقيقي.</p>
+    </div>
+    <div class="feat">
+      <span class="icon">🎛️</span>
+      <h3>تحكم كامل</h3>
+      <p>ارسم على مصفوفة LED، أدِر السيرفو، قُد المحركات. تصدير CSV للدروس.</p>
+    </div>
+    <div class="feat">
+      <span class="icon">🧊</span>
+      <h3>مرآة ثلاثية الأبعاد</h3>
+      <p>لوحة واقعية تميل مع micro:bit الفعلي. الفيزياء تصبح مرئية.</p>
+    </div>
+  </div>
+
+  <div class="qr-block">
+    <img src="data:image/png;base64,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">
+    <div>
+      <div class="qr-caption">امسح لتجربة العرض المباشر</div>
+      <div class="qr-url">abourdim.github.io/rxy</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="left">Chrome / Edge · يعمل دون اتصال · بدون حساب<br>فيرموير MakeCode · متوافق مع المصدر المفتوح</div>
+    <div class="brand">rxy</div>
+  </div>
+</div></body></html>

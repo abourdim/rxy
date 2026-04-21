@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════════
+  ⚠️  REWRITE PER PRODUCT — DO NOT SHIP AS-IS
+  ───────────────────────────────────────────────────────────────────────
+  apply-template.mjs only substituted identifiers (Micro:bit Remote Builder,
+  v1.0.0, https://abourdim.github.io/rxy/, etc.). The feature content, steps,
+  shortcuts, and examples below were inherited from the template's
+  source product (rxy) and WILL BE WRONG for your product
+  unless you rewrite them.
+  
+  Before including this file in a buyer ZIP:
+    1. Delete this banner.
+    2. Rewrite every mention of specific features, shortcuts,
+       tab names, hardware interactions, etc. to match your product.
+    3. Verify with: grep -iE "servo|chart\.js|3d board|gamepad|
+       accelerometer|compass|led matrix|2 tabs|sensors tab" this-file.
+  ═══════════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Micro:bit Remote Builder Quick-Start Card</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Righteous&family=Orbitron:wght@500&family=Tajawal:wght@400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4 portrait; margin: 0; }
+  body { width: 210mm; height: 297mm; font-family: 'Tajawal', sans-serif; background: #020617; color: #cbd5e1; overflow: hidden; }
+
+  .page { width: 210mm; height: 297mm; padding: 14mm 16mm; position: relative; overflow: hidden; }
+  .page::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(34,197,94,.015) 3px, rgba(34,197,94,.015) 6px);
+    pointer-events: none;
+  }
+
+  .header { text-align: center; margin-bottom: 10mm; position: relative; }
+  .header h1 { font-family: 'Righteous', sans-serif; font-size: 42px; color: #22c55e; letter-spacing: 2px; }
+  .header .sub { font-size: 16px; color: #94a3b8; margin-top: 2px; }
+  .header .tagline { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .header .line { width: 80%; height: 2px; background: linear-gradient(90deg, transparent, rgba(34,197,94,.35), transparent); margin: 8px auto 0; }
+
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8mm; }
+  .step {
+    background: rgba(15,23,42,.6); border: 1px solid rgba(34,197,94,.14);
+    border-radius: 14px; padding: 16px 18px; position: relative;
+  }
+  .step-num {
+    position: absolute; top: -10px; left: 14px;
+    width: 28px; height: 28px; background: #22c55e; color: #020617;
+    border-radius: 50%; font-family: 'Orbitron', monospace; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+  }
+  .step h3 { font-size: 16px; color: #22c55e; margin-top: 8px; margin-bottom: 4px; font-family: 'Righteous', sans-serif; }
+  .step p { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+  .step .icon { font-size: 28px; text-align: center; margin-bottom: 2px; }
+  .step-full { grid-column: 1 / -1; }
+
+  .section-title { font-family: 'Righteous', sans-serif; font-size: 20px; color: #22d3ee; margin: 6mm 0 4mm; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(34,211,238,.18); }
+
+  .shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6mm; }
+  .shortcut {
+    background: rgba(15,23,42,.5); border: 1px solid rgba(34,197,94,.08);
+    border-radius: 10px; padding: 8px 10px; text-align: center;
+  }
+  .shortcut kbd {
+    display: inline-block; background: rgba(0,0,0,.5); border: 1px solid rgba(34,197,94,.3);
+    border-radius: 6px; padding: 3px 10px; font-family: 'Orbitron', monospace; font-size: 14px;
+    color: #22c55e; box-shadow: 0 2px 4px rgba(0,0,0,.4); margin-bottom: 3px;
+  }
+  .shortcut span { display: block; font-size: 10px; color: #64748b; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6mm; }
+  .feat {
+    background: rgba(15,23,42,.4); border: 1px solid rgba(34,197,94,.06);
+    border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #94a3b8;
+  }
+  .feat strong { color: #22d3ee; display: block; font-size: 13px; margin-bottom: 2px; }
+
+  .footer {
+    position: absolute; bottom: 12mm; left: 16mm; right: 16mm;
+    text-align: center; border-top: 1px solid rgba(34,197,94,.1);
+    padding-top: 8px;
+  }
+  .footer .url { font-family: 'Orbitron', monospace; font-size: 12px; color: #22c55e; }
+  .footer .copy { font-size: 10px; color: #64748b; margin-top: 2px; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+  .pg { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.25); }
+  .pb { background: rgba(34,211,238,.1); color: #22d3ee; border: 1px solid rgba(34,211,238,.25); }
+  code.code { background: rgba(34,197,94,.1); padding: 1px 6px; border-radius: 4px; color: #22c55e; font-size: 12px; font-family: 'Orbitron', monospace; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Micro:bit Remote Builder</h1>
+    <div class="sub">Browser BLE Control Panel for the BBC micro:bit V1 or V2</div>
+    <div class="tagline">No install &bull; No account &bull; 100% local &bull; EN / FR / AR</div>
+    <div class="line"></div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="icon">🤖</div>
+      <h3>Flash the Firmware</h3>
+      <p>Open <a style="color:#22d3ee;">makecode.microbit.org</a>, switch to JavaScript, paste <code class="code">makecode.ts</code>, hit <strong style="color:#22c55e;">Download</strong> and drag to your micro:bit V2.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="icon">🌐</div>
+      <h3>Open the App</h3>
+      <p>Double-click <code class="code">index.html</code> in <strong style="color:#fff;">Chrome</strong> or <strong style="color:#fff;">Edge</strong>. No server, no install. Works offline as a PWA.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="icon">📡</div>
+      <h3>Pair over BLE</h3>
+      <p>Click <span class="pill pg">Connect</span>, pick <strong style="color:#fff;">BBC micro:bit [xxxxx]</strong> in the browser prompt. The board LEDs flash a tick.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="icon">🎛️</div>
+      <h3>Play with the Tabs</h3>
+      <p>LEDs, Sensors, Servos, GamePad, Graph, play tab, Bench, About. Press <kbd style="background:rgba(0,0,0,.5);border:1px solid rgba(34,197,94,.25);border-radius:5px;padding:1px 6px;font-size:11px;font-family:'Orbitron',monospace;color:#22c55e;">1</kbd>–<kbd style="background:rgba(0,0,0,.5);border:1px solid rgba(34,197,94,.25);border-radius:5px;padding:1px 6px;font-size:11px;font-family:'Orbitron',monospace;color:#22c55e;">8</kbd> to jump.</p>
+    </div>
+    <div class="step step-full">
+      <div class="step-num">5</div>
+      <div class="icon">📈</div>
+      <h3>Graph It &amp; Save</h3>
+      <p>Open the <strong style="color:#22c55e;">Graph</strong> tab to see live temperature, light, sound and motion rolling across drag-and-drop. Press <kbd style="background:rgba(0,0,0,.5);border:1px solid rgba(34,197,94,.2);border-radius:4px;padding:0 6px;font-family:'Orbitron',monospace;font-size:11px;color:#22c55e;">F</kbd> for fullscreen, tap <span class="pill pb">Record</span> to capture a session and export it as JSON. No micro:bit? Try <strong style="color:#22d3ee;">Simulate Mode</strong>.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Essential Shortcuts</div>
+  <div class="shortcuts">
+    <div class="shortcut"><kbd>Space</kbd><span>Pause stream</span></div>
+    <div class="shortcut"><kbd>1-8</kbd><span>Switch tab</span></div>
+    <div class="shortcut"><kbd>P</kbd><span>LED presets</span></div>
+    <div class="shortcut"><kbd>F</kbd><span>Fullscreen graph</span></div>
+    <div class="shortcut"><kbd>K</kbd><span>Clear graph</span></div>
+    <div class="shortcut"><kbd>Esc</kbd><span>Close overlay</span></div>
+    <div class="shortcut"><kbd>?</kbd><span>Shortcuts help</span></div>
+    <div class="shortcut"><kbd>T</kbd><span>Cycle themes</span></div>
+  </div>
+
+  <div class="section-title">Highlights</div>
+  <div class="features">
+    <div class="feat"><strong>5&times;5 LED Matrix</strong>Draw, presets, hex patterns</div>
+    <div class="feat"><strong>Live Sensors</strong>Temp, light, sound, accel, compass</div>
+    <div class="feat"><strong>Dual Servos P1/P2</strong>Sliders, gauges, OFF buttons</div>
+    <div class="feat"><strong>Play tab View</strong>micro:bit, Buggy, Arm, Balance, Weather</div>
+    <div class="feat"><strong>4 Themes</strong>Stealth, Neon, Arctic, Blaze</div>
+    <div class="feat"><strong>Trilingual</strong>English, Français, العربية</div>
+  </div>
+
+  <div class="footer">
+    <div class="url">Micro:bit Remote Builder v1.0.0</div>
+    <div class="copy">For BBC micro:bit V1 or V2 &bull; Web Bluetooth required &bull; Chrome / Edge</div>
+  </div>
+
+</div>
+<!-- QR-BLOCK-START -->
+<div style="position:fixed;right:12mm;bottom:12mm;display:flex;gap:8mm;align-items:center;
+  background:rgba(10,14,18,0.92);color:#e8ffe8;padding:4mm 5mm;border-radius:3mm;
+  box-shadow:0 2mm 6mm rgba(0,0,0,0.35);font-family:-apple-system,Segoe UI,sans-serif;
+  max-width:80mm;z-index:9999;">
+  <img src="data:image/png;base64,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" alt="QR code — scan to open live demo" style="width:24mm;height:24mm;background:#fff;padding:1mm;border-radius:1.5mm;display:block;"/>
+  <div style="display:flex;flex-direction:column;gap:1mm;min-width:0;">
+    <div style="font-weight:700;font-size:9pt;color:#00ff88;line-height:1.2;">Live demo · Chrome / Edge</div>
+    <div style="font-size:7pt;opacity:0.75;line-height:1.3;word-break:break-all;">abourdim.github.io/rxy/</div>
+  </div>
+</div>
+<!-- QR-BLOCK-END -->
+</body>
+</html>
