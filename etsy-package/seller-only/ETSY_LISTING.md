@@ -46,7 +46,7 @@
 
 ## Title (140 char max — pack it with searchable keywords)
 
-Bluetooth Web App for BBC micro:bit V2 + Illustrated Guide | Features, 6 Templates, Live Graphs | STEM Classroom | Digital Download
+Drag-and-Drop Bluetooth Remote Builder for BBC micro:bit V1 + V2 | 12 Widgets, 6 Templates, Auto MakeCode Export | Kids Digital Download
 
 > Product name in your Etsy shop is **"Rxy Remote Builder"** — use the phrase **"for the BBC micro:bit V2"** everywhere else to stay within the Micro:bit Educational Foundation's trademark-use guidelines.
 
@@ -57,7 +57,7 @@ Digital Downloads → Educational Resources
 
 ## Tags (13 max — Etsy lets you use all 13, use them)
 
-micro:bit, microbit v2, STEM, coding kids, BBC microbit, bluetooth app, MakeCode, classroom resource, homeschool STEM, robotics, web bluetooth, coding club, chromebook stem
+no code micro:bit, remote control builder, drag drop coding, microbit v1, microbit v2, MakeCode generator, STEM robotics, classroom resource, gamepad builder, web bluetooth, coding club, chromebook stem, homeschool STEM
 
 > Replaced the two weakest tags (`edtech` — corporate, not what teachers search; `sensor playground` — zero search volume) with `coding club` and `chromebook stem` (both strong long-tail teacher queries).
 
@@ -82,18 +82,17 @@ micro:bit, microbit v2, STEM, coding kids, BBC microbit, bluetooth app, MakeCode
 > 🧪 **Try it now** (Simulate mode, no micro:bit needed): <https://abourdim.github.io/rxy/>
 >
 > ✨ **What you get** (instant download):
-> • A complete web app (HTML, CSS, JS) you run locally in Chrome or Edge
-> • Ready-to-flash micro:bit firmware (`makecode.ts`)
-> • **Illustrated trilingual user guide (EN/FR/AR) with built-in diagrams:**
->   — architecture diagram • micro:bit V2 pin-out • firmware flow storyboard
->   — interactive LED playground inside the guide (click cells, copy hex commands)
->   — visual troubleshooting: decision tree, symptom picker, icon gallery, reset recipe
-> • A printable Quick Setup guide (`SETUP.md`)
-> • 4 themes (Stealth, Neon, Arctic, Blaze)
-> • 2 tabs: Light widget, Sensors, Widget, GamePad, Graph, Play tab, Bench, Settings
-> • 5 interactive 3D models (micro:bit, Buggy, Robot Arm, Balance Game, Weather Station)
-> • Session recording, live graphs, annotations, JSON export
-> • Beginner & Expert modes — grows with the learner
+> • A complete drag-and-drop Bluetooth remote **builder** — your kid designs the controller, the app writes the MakeCode for them
+> • **Build tab**: drop widgets onto a canvas, drag to reposition, edit properties in a side panel
+> • **Play tab**: connect a micro:bit (V1 or V2) and the controller you just built is live
+> • **12 widget types** — Button, Slider, Switch/Toggle, Joystick, **D-Pad**, XY Pad, Light/LED, Label, Gauge, Graph, Battery, Timer
+> • **6 starter templates** — Game Pad, Robot, DJ Mixer, Race Car, Lights, or Start Fresh
+> • **5 themes** — dark, ocean, space, candy (Fire), forest
+> • **Auto-generated MakeCode** — one click exports paste-ready MakeCode/JavaScript; paste into makecode.microbit.org, flash, done
+> • **20 keyboard shortcuts** — undo/redo (Ctrl+Z/Y), copy/paste, duplicate, group, nudge, zoom, theme cycle, help, logs panel
+> • **Trilingual UI** — EN / FR / AR with full right-to-left layout
+> • Works on **BBC micro:bit V1 or V2** (rare — most dashboards are V2-only)
+> • Local-only: no accounts, no cloud, no telemetry — COPPA-friendly by design
 >
 > 🧒 **Perfect for**: classrooms, homeschool, after-school clubs, makerspaces, STEM camps, robotics enthusiasts, parents teaching kids to code.
 >
@@ -134,14 +133,15 @@ Paste this block into the listing just above the FAQ. No fabricated reviews — 
 
 | Feature | Rxy Remote Builder | MakeCode Editor | Raw Web Bluetooth demos |
 |---|:---:|:---:|:---:|
-| Works in-browser, zero install | ✅ | ✅ | ✅ |
-| Ready-to-use sensor dashboard (temp, light, sound, accel, XY Pad, touch) | ✅ | ❌ | ❌ |
-| Live graph + CSV / PNG export + session record & replay | ✅ | ❌ | ❌ |
-| Dual widget control UI with gauges and trim | ✅ | ❌ | Build it yourself |
-| 5 interactive 3D models (micro:bit, Buggy, Arm, Balance, Weather) | ✅ | ❌ | ❌ |
-| Trilingual EN/FR/AR with full RTL support | ✅ | Partial | ❌ |
-| Classroom lesson plan + printable stickers & A3 poster | ✅ | ❌ | ❌ |
-| Works offline after first load (installable PWA) | ✅ | ❌ | ❌ |
+| Drag-drop visual controller designer (no typing) | ✅ | Block code only | ❌ |
+| 12 pre-built widgets (Button/Slider/Joystick/D-Pad/Graph…) | ✅ | ❌ | ❌ |
+| 6 starter templates (Game Pad, Robot, DJ Mixer…) | ✅ | ❌ | ❌ |
+| Auto-generates paste-ready MakeCode JS | ✅ | You write it | ❌ |
+| Works on **both V1 and V2 micro:bits** | ✅ | ✅ | Varies |
+| 20 keyboard shortcuts (undo/copy/paste/group/nudge/zoom) | ✅ | Partial | ❌ |
+| Trilingual UI (EN/FR/AR with RTL) | ✅ | Partial | ❌ |
+| Classroom lesson plan + printable stickers + A3 poster | ✅ | ❌ | ❌ |
+| Runs 100% locally — no sign-in, no telemetry | ✅ | ✅ | ✅ |
 
 ---
 
