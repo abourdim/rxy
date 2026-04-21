@@ -1,5 +1,5 @@
 {
-  "_comment": "Social media kit specs — 4 aspect ratios per language, driven by generate-social.mjs. Screenshots resolved from output/<lang>/screenshots/.",
+  "_comment": "Social kit for rxy (Micro:bit Remote Builder). Drag-drop · 12 widgets · 6 templates · V1+V2.",
 
   "formats": [
     { "name": "ig-post",    "w": 1080, "h": 1080, "label": "Instagram feed",   "layout": "square" },
@@ -12,29 +12,29 @@
 
   "en": {
     "brand": "rxy",
-    "kicker": "MICRO:BIT · WEB BLUETOOTH",
-    "title": "Every sensor.\nLive in the browser.",
-    "subtitle": "Chrome / Edge · Zero install · Works offline",
+    "kicker": "12 WIDGETS · MAKECODE GENERATOR · V1 + V2",
+    "title": "Drag. Drop. Drive.\nNo code.",
+    "subtitle": "Chrome / Edge · Button · Slider · Joystick · D-Pad · XY Pad · Gauge · Graph",
     "cta": "Try the demo →",
     "url": "abourdim.github.io/rxy",
-    "hashtags": "#microbit  #STEM  #EdTech"
+    "hashtags": "#microbit  #MakeCode  #EdTech  #STEM  #Bluetooth"
   },
   "fr": {
     "brand": "rxy",
-    "kicker": "MICRO:BIT · WEB BLUETOOTH",
-    "title": "Chaque capteur,\nen direct dans le navigateur.",
-    "subtitle": "Chrome / Edge · Zéro installation · Hors ligne",
+    "kicker": "12 WIDGETS · MAKECODE AUTO · V1 + V2",
+    "title": "Glisser. Déposer. Piloter.\nSans code.",
+    "subtitle": "Chrome / Edge · Bouton · Curseur · Joystick · D-Pad · Pad XY · Jauge",
     "cta": "Essayer la démo →",
     "url": "abourdim.github.io/rxy",
-    "hashtags": "#microbit  #STEM  #EdTech"
+    "hashtags": "#microbit  #MakeCode  #EdTech  #STEM  #Bluetooth"
   },
   "ar": {
     "brand": "rxy",
-    "kicker": "MICRO:BIT · WEB BLUETOOTH",
-    "title": "كل حساس،\nمباشرةً في المتصفح.",
-    "subtitle": "Chrome / Edge · بدون تثبيت · يعمل دون اتصال",
+    "kicker": "12 ودجت · MakeCode · V1 + V2",
+    "title": "اسحب. أفلت. قُد.\nبدون كود.",
+    "subtitle": "Chrome / Edge · زر · منزلق · عصا · D-Pad · XY Pad · مقياس",
     "cta": "← جرّب العرض التوضيحي",
     "url": "abourdim.github.io/rxy",
-    "hashtags": "#microbit  #STEM  #EdTech"
+    "hashtags": "#microbit  #MakeCode  #EdTech  #STEM  #Bluetooth"
   }
 }

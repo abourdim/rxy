@@ -1,91 +1,91 @@
 {
-  "_comment": "Per-language strings for the poster (A3 portrait) and flyer (A4 portrait). Used by generate-print.mjs. Screenshots referenced are resolved from output/<lang>/screenshots/.",
+  "_comment": "Print specs for rxy (Micro:bit Remote Builder). Drag-drop Bluetooth remote · 12 widgets · 6 templates · 5 themes · auto-generated MakeCode · V1+V2 · trilingual.",
 
   "common": {
     "url": "abourdim.github.io/rxy",
     "qrUrl": "https://abourdim.github.io/rxy/?utm_source=etsy&utm_medium=print&utm_campaign=poster",
     "screenshots": {
       "teacher": "screenshot-build.png",
-      "kid": "screenshot-audience-kid-3d.png",
-      "maker": "screenshot-audience-maker-3d.png"
+      "kid": "screenshot-play.png",
+      "maker": "screenshot-palette.png"
     }
   },
 
   "en": {
     "brand": "rxy",
-    "posterTitle": "Every sensor.\nLive in every browser.",
-    "posterKicker": "WEB BLUETOOTH · MICRO:BIT V2",
-    "posterSubtitle": "Classroom-ready control panel. 30 laptops. Zero install.",
+    "posterTitle": "Drag. Drop. Drive.\nNo code.",
+    "posterKicker": "12 WIDGETS · 6 TEMPLATES · MAKECODE GENERATOR",
+    "posterSubtitle": "Build a Bluetooth remote for your micro:bit — in a browser tab. V1 AND V2 supported.",
     "features": [
-      { "icon": "⚡", "h": "Live sensors", "p": "Temperature, sound, light, Joystick, XY Pad — all streaming in real time." },
-      { "icon": "🎛️", "h": "Full control", "p": "Paint LEDs, Drag a widget, drive motors. Record CSV sessions for lessons." },
-      { "icon": "🧊", "h": "Live 3D mirror", "p": "A photoreal board tilts with your micro:bit. Kids see the physics click." }
+      { "icon": "🧩", "h": "12 widgets, 6 templates", "p": "Button · Slider · Joystick · D-Pad · XY Pad · Gauge · Graph · Battery · Timer · Knob · Switch · Readout." },
+      { "icon": "⚙️", "h": "Auto-generated MakeCode", "p": "Design a remote — one click exports paste-ready MakeCode JS. Download .hex, drag to the board." },
+      { "icon": "🎨", "h": "5 themes, trilingual UI", "p": "Stealth, Neon, Arctic, Blaze, Classic. EN / FR / AR interface with 20 keyboard shortcuts." }
     ],
     "steps": [
-      "Plug in the micro:bit (USB or battery).",
       "Open Chrome or Edge on any laptop.",
-      "Visit the URL below — no install.",
-      "Click Connect, pick your board.",
-      "Dot goes green. You're live."
+      "Pick a template, or drag widgets.",
+      "Click Connect, pair the micro:bit.",
+      "Play — your board responds live.",
+      "Export MakeCode JS or flash .hex."
     ],
     "stepsHeader": "Get started in 60 seconds",
     "qrCaption": "Scan to try the live demo",
     "audienceLine": "For teachers, kids, and makers.",
-    "footerLeft": "Chrome / Edge · Works offline · No account",
-    "footerRight": "MakeCode firmware · Open source friendly",
-    "flyerTagline": "The browser IS the IDE.",
-    "motto": "Every scientist started by asking \"what happens if I press this?\""
+    "footerLeft": "Chrome / Edge · 100% local · No account",
+    "footerRight": "Works on micro:bit V1 AND V2 (rare)",
+    "flyerTagline": "The browser IS the remote builder.",
+    "motto": "The best remote is the one the kid just designed."
   },
 
   "fr": {
     "brand": "rxy",
-    "posterTitle": "Chaque capteur,\nen direct dans le navigateur.",
-    "posterKicker": "WEB BLUETOOTH · MICRO:BIT V2",
-    "posterSubtitle": "Panneau de contrôle prêt pour la classe. 30 ordinateurs. Zéro installation.",
+    "posterTitle": "Glisser. Déposer. Piloter.\nSans code.",
+    "posterKicker": "12 WIDGETS · 6 MODÈLES · MAKECODE AUTO",
+    "posterSubtitle": "Construis une télécommande Bluetooth pour ton micro:bit — dans un onglet. V1 ET V2.",
     "features": [
-      { "icon": "⚡", "h": "Capteurs en direct", "p": "Fonctionnalités du produit — voir la description." },
-      { "icon": "🎛️", "h": "Contrôle complet", "p": "Peindre les LEDs, faire tourner les D-Pad widget, piloter les moteurs. Export CSV." },
-      { "icon": "🧊", "h": "Miroir 3D", "p": "Une carte photoréaliste s'incline avec votre micro:bit. La physique prend vie." }
+      { "icon": "🧩", "h": "12 widgets, 6 modèles", "p": "Bouton · Curseur · Joystick · D-Pad · Pad XY · Jauge · Graph · Batterie · Timer · Bouton rotatif · Interrupteur · Afficheur." },
+      { "icon": "⚙️", "h": "MakeCode auto-généré", "p": "Conçois, exporte en un clic du MakeCode JS prêt à coller. Télécharge le .hex, glisse-le sur la carte." },
+      { "icon": "🎨", "h": "5 thèmes, UI trilingue", "p": "Stealth, Neon, Arctic, Blaze, Classic. Interface EN / FR / AR avec 20 raccourcis clavier." }
     ],
     "steps": [
-      "Branchez le micro:bit (USB ou pile).",
-      "Ouvrez Chrome ou Edge.",
-      "Visitez l'URL ci-dessous — rien à installer.",
-      "Cliquez Connecter, choisissez votre carte.",
-      "Le point passe au vert. C'est parti."
+      "Ouvre Chrome ou Edge.",
+      "Choisis un modèle, ou glisse des widgets.",
+      "Clique Connecter, associe le micro:bit.",
+      "Joue — la carte répond en direct.",
+      "Exporte MakeCode JS ou flashe le .hex."
     ],
     "stepsHeader": "Démarrez en 60 secondes",
     "qrCaption": "Scannez pour la démo en direct",
     "audienceLine": "Pour les enseignants, les enfants et les makers.",
-    "footerLeft": "Chrome / Edge · Hors ligne · Sans compte",
-    "footerRight": "Firmware MakeCode · Compatible open source",
-    "flyerTagline": "Le navigateur EST l'IDE.",
-    "motto": "Chaque scientifique a commencé par demander « que se passe-t-il si j'appuie ici ? »"
+    "footerLeft": "Chrome / Edge · 100 % local · Sans compte",
+    "footerRight": "Fonctionne sur micro:bit V1 ET V2",
+    "flyerTagline": "Le navigateur EST le constructeur de télécommande.",
+    "motto": "La meilleure télécommande est celle que l'enfant vient de créer."
   },
 
   "ar": {
     "brand": "rxy",
-    "posterTitle": "كل حساس،\nمباشرةً في المتصفح.",
-    "posterKicker": "WEB BLUETOOTH · MICRO:BIT V2",
-    "posterSubtitle": "لوحة تحكم جاهزة للقاعة الدراسية. 30 جهازاً. بدون تثبيت.",
+    "posterTitle": "اسحب. أفلت. قُد.\nبدون كود.",
+    "posterKicker": "12 ودجت · 6 قوالب · مولّد MakeCode",
+    "posterSubtitle": "ابنِ جهاز تحكّم Bluetooth لـ micro:bit في علامة تبويب. دعم V1 و V2.",
     "features": [
-      { "icon": "⚡", "h": "مستشعرات حية", "p": "الحرارة، الصوت، الضوء، التسارع، البوصلة — كلها في الوقت الحقيقي." },
-      { "icon": "🎛️", "h": "تحكم كامل", "p": "ارسم على مصفوفة LED، أدِر السيرفو، قُد المحركات. تصدير CSV للدروس." },
-      { "icon": "🧊", "h": "مرآة ثلاثية الأبعاد", "p": "لوحة واقعية تميل مع micro:bit الفعلي. الفيزياء تصبح مرئية." }
+      { "icon": "🧩", "h": "12 ودجت، 6 قوالب", "p": "زر · منزلق · عصا · D-Pad · XY Pad · مقياس · رسم · بطارية · مؤقت · مقبض · مفتاح · شاشة." },
+      { "icon": "⚙️", "h": "MakeCode مُولَّد تلقائياً", "p": "صمّم واحصل بنقرة على MakeCode JS جاهز للّصق. حمّل .hex واسحبه إلى اللوحة." },
+      { "icon": "🎨", "h": "5 سمات، واجهة ثلاثية", "p": "Stealth, Neon, Arctic, Blaze, Classic. واجهة EN / FR / AR مع 20 اختصاراً." }
     ],
     "steps": [
-      "وصّل micro:bit (USB أو بطارية).",
       "افتح Chrome أو Edge.",
-      "زُر الرابط أدناه — بدون تثبيت.",
-      "اضغط Connect واختر لوحتك.",
-      "تتحول النقطة إلى الأخضر. جاهز."
+      "اختر قالباً أو اسحب الودجات.",
+      "اضغط Connect واربط micro:bit.",
+      "العب — اللوحة تستجيب مباشرة.",
+      "صدّر MakeCode JS أو فلاش .hex."
     ],
     "stepsHeader": "ابدأ خلال 60 ثانية",
     "qrCaption": "امسح لتجربة العرض المباشر",
     "audienceLine": "للمعلمين والأطفال والمبدعين.",
-    "footerLeft": "Chrome / Edge · يعمل دون اتصال · بدون حساب",
-    "footerRight": "فيرموير MakeCode · متوافق مع المصدر المفتوح",
-    "flyerTagline": "المتصفح هو بيئة التطوير.",
-    "motto": "كل عالِم بدأ بسؤال: «ماذا يحدث لو ضغطت هنا؟»"
+    "footerLeft": "Chrome / Edge · محلّي · بدون حساب",
+    "footerRight": "يعمل على micro:bit V1 و V2",
+    "flyerTagline": "المتصفح هو باني جهاز التحكّم.",
+    "motto": "أفضل جهاز تحكّم هو الذي صمّمه الطفل بنفسه."
   }
 }
