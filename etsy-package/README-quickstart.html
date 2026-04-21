@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════════
+  ⚠️  REWRITE PER PRODUCT — DO NOT SHIP AS-IS
+  ───────────────────────────────────────────────────────────────────────
+  apply-template.mjs only substituted identifiers (Micro:bit Remote Builder,
+  v1.0.0, https://abourdim.github.io/rxy/, etc.). The feature content, steps,
+  shortcuts, and examples below were inherited from the template's
+  source product (rxy) and WILL BE WRONG for your product
+  unless you rewrite them.
+  
+  Before including this file in a buyer ZIP:
+    1. Delete this banner.
+    2. Rewrite every mention of specific features, shortcuts,
+       tab names, hardware interactions, etc. to match your product.
+    3. Verify with: grep -iE "servo|chart\.js|3d board|gamepad|
+       accelerometer|compass|led matrix|2 tabs|sensors tab" this-file.
+  ═══════════════════════════════════════════════════════════════════════
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -71,6 +89,7 @@
   .footer span { font-size: 10px; color: #64748b; }
   .footer .brand { font-family: 'Orbitron', monospace; color: #22c55e; }
   code.c { color: #22c55e; background: rgba(34,197,94,.1); padding: 0 4px; border-radius: 3px; font-family: 'Orbitron', monospace; font-size: 11px; }
+  kbd { background: rgba(0,0,0,.5); border: 1px solid rgba(34,197,94,.25); border-radius: 4px; padding: 0 6px; font-family: 'Orbitron', monospace; font-size: 10px; color: #22c55e; }
 </style>
 </head>
 <body>
@@ -78,65 +97,68 @@
 
   <div class="header">
     <h1>Micro:bit Remote Builder</h1>
-    <div class="sub">Drag-and-drop Bluetooth remote builder for the BBC micro:bit V1 or V2</div>
+    <div class="sub">Browser BLE Control Panel for the BBC micro:bit V1 or V2</div>
     <div class="ver">v1.0.0 &bull; Digital Download</div>
     <div class="line"></div>
   </div>
 
   <div class="thanks">
-    <strong>Thank you for buying Micro:bit Remote Builder!</strong> You just grabbed a zero-install, zero-account, browser-local builder for custom Bluetooth remote controllers. Drag widgets, generate MakeCode, flash, pair, play. Everything runs on your machine &mdash; no cloud, no telemetry, no nonsense. This page walks you through the first three things to do.
+    <strong>Thank you for buying Micro:bit Remote Builder!</strong> You just grabbed a zero-install, zero-account, browser-local control panel for the BBC micro:bit V1 or V2. Everything runs on your machine &mdash; no cloud, no telemetry, no nonsense. This page walks you through the first three things to do.
   </div>
 
   <h2>First 3 Things To Do</h2>
   <div class="steps-mini">
-    <div class="step-m"><div class="num">1</div><span><strong style="color:#22c55e;">Open the builder.</strong> Double-click <code class="c">index.html</code> in <strong style="color:#fff;">Chrome</strong> or <strong style="color:#fff;">Edge</strong>. Tap <strong style="color:#22c55e;">✏️ Build</strong>, drag widgets from the palette (Button, Slider, Joystick, Gauge…) onto the canvas. Edit Label, Size, Min/Max, Colors in the properties panel.</span></div>
-    <div class="step-m"><div class="num">2</div><span><strong style="color:#22c55e;">Flash the generated MakeCode.</strong> Click <strong style="color:#22c55e;">📄 Code</strong>, copy the program, paste into <strong style="color:#fff;">makecode.microbit.org</strong> (JavaScript mode), hit Download, drag the <code class="c">.hex</code> onto your micro:bit.</span></div>
-    <div class="step-m"><div class="num">3</div><span><strong style="color:#22c55e;">Pair &amp; play.</strong> Switch to <strong style="color:#22c55e;">▶️ Play</strong>, tap <strong>"📡 Tap to Connect"</strong>, pick your board. Drive your widgets. No board yet? Use <strong style="color:#22d3ee;">🎮 Demo</strong> to try all 12 widgets offline.</span></div>
+    <div class="step-m"><div class="num">1</div><span><strong style="color:#22c55e;">Flash the firmware.</strong> Open <a style="color:#22d3ee;">makecode.microbit.org</a>, switch to JavaScript, paste <code class="c">makecode.ts</code>, click Download, and drag the <code class="c">.hex</code> to your micro:bit V2. The board will show an <strong style="color:#fff;">X</strong>.</span></div>
+    <div class="step-m"><div class="num">2</div><span><strong style="color:#22c55e;">Open the app.</strong> Double-click <code class="c">index.html</code> in <strong style="color:#fff;">Chrome</strong> or <strong style="color:#fff;">Edge</strong>. It loads locally. Click <strong style="color:#22c55e;">Connect</strong>, pick your board, watch the status dot turn green.</span></div>
+    <div class="step-m"><div class="num">3</div><span><strong style="color:#22c55e;">Play.</strong> Press <kbd>1</kbd>&hellip;<kbd>8</kbd> to hop between LEDs, Sensors, Servos, GamePad, Graph, 3D, Bench, About. Tap <kbd>F</kbd> for fullscreen graph. No board? Flip on <strong style="color:#22d3ee;">Simulate Mode</strong>.</span></div>
   </div>
 
   <h2>What&apos;s in the ZIP</h2>
   <div class="files">
-    <div class="file"><span class="icon">🌐</span><code>index.html</code><span>&mdash; Builder app</span></div>
-    <div class="file"><span class="icon">🎨</span><code>styles.css</code><span>&mdash; neo/glass/neon</span></div>
-    <div class="file"><span class="icon">⚙️</span><code>script.js</code><span>&mdash; Builder + BLE</span></div>
-    <div class="file"><span class="icon">🖼️</span><code>logo.svg</code><span>&mdash; App logo</span></div>
-    <div class="file"><span class="icon">📖</span><code>README.md</code><span>&mdash; Full guide</span></div>
-    <div class="file"><span class="icon">🖨️</span><code>etsy-package/</code><span>&mdash; Printables</span></div>
+    <div class="file"><span class="icon">🌐</span><code>index.html</code><span>&mdash; Main app</span></div>
+    <div class="file"><span class="icon">🎨</span><code>styles.css</code><span>&mdash; 4 themes</span></div>
+    <div class="file"><span class="icon">📦</span><code>sw.js</code><span>&mdash; Offline PWA</span></div>
+    <div class="file"><span class="icon">🤖</span><code>makecode.ts</code><span>&mdash; Firmware</span></div>
+    <div class="file"><span class="icon">⚙️</span><code>js/*.js</code><span>&mdash; BLE + logic</span></div>
+    <div class="file"><span class="icon">🎲</span><code>js/models/</code><span>&mdash; 5 3D models</span></div>
+    <div class="file"><span class="icon">📖</span><code>docs/guide.html</code><span>&mdash; Full user guide</span></div>
+    <div class="file"><span class="icon">⌨️</span><code>docs/cheatsheet.html</code><span>&mdash; Shortcuts</span></div>
+    <div class="file"><span class="icon">❓</span><code>docs/faq.html</code><span>&mdash; FAQ</span></div>
     <div class="file"><span class="icon">📜</span><code>LICENSE.txt</code><span>&mdash; Your license</span></div>
-    <div class="file"><span class="icon">📦</span><code>product.json</code><span>&mdash; Build metadata</span></div>
   </div>
-  <p style="font-size:11px;color:#64748b;">Printable extras live in <code class="c">etsy-package/</code>: quick-start card, widget cheat sheet, A3 classroom poster, sticker sheet, lesson plan.</p>
+  <p style="font-size:11px;color:#64748b;">Printable extras live in <code class="c">etsy-package/</code>: quick-start card, shortcut cheat sheet, A3 classroom poster, sticker sheet, lesson plan.</p>
 
   <h2>Requirements</h2>
   <div class="req">
-    <div><span class="check">&#10003;</span><span class="label">BBC micro:bit <strong style="color:#fff;">V1 or V2</strong></span></div>
+    <div><span class="check">&#10003;</span><span class="label">BBC micro:bit <strong style="color:#fff;">V2</strong> (V1 lacks the sound sensor)</span></div>
     <div><span class="check">&#10003;</span><span class="label">Chrome 90+ or Edge 90+ on desktop or Android (Web Bluetooth)</span></div>
-    <div><span class="check">&#10003;</span><span class="label">Bluetooth enabled on the host phone / tablet / computer</span></div>
-    <div><span class="check">&#10003;</span><span class="label">USB cable or battery pack for the micro:bit</span></div>
-    <div><span class="check">&#10003;</span><span class="label">A free makecode.microbit.org tab (JavaScript mode) to paste &amp; flash</span></div>
+    <div><span class="check">&#10003;</span><span class="label">Bluetooth enabled on the host device</span></div>
+    <div><span class="check">&#10003;</span><span class="label">Optional: hobby servos on pins <strong style="color:#22c55e;">P1</strong> / <strong style="color:#22c55e;">P2</strong></span></div>
+    <div><span class="check">&#10003;</span><span class="label">No internet needed after first load &mdash; installs as a PWA</span></div>
   </div>
 
   <h2>Key Features</h2>
   <div class="box">
-    <p><strong style="color:#22d3ee;">Build:</strong> drag-drop canvas &bull; 12 widgets (7 inputs + 5 outputs) &bull; per-widget properties (Label, Model, Size, Min/Max, Colors)</p>
-    <p><strong style="color:#22d3ee;">Inputs:</strong> Button &bull; Slider &bull; Toggle &bull; Joystick &bull; D-Pad &bull; XY Pad &bull; Timer</p>
-    <p><strong style="color:#22d3ee;">Outputs:</strong> LED &bull; Label &bull; Gauge &bull; Graph &bull; Battery</p>
-    <p><strong style="color:#22d3ee;">Connect:</strong> BLE UART text protocol &bull; <code class="c">SET widget_id value</code> / <code class="c">UPD widget_id value</code> &bull; auto-generated MakeCode &bull; JSON export / import &bull; neo / glass / neon themes</p>
+    <p><strong style="color:#22d3ee;">Control:</strong> 5&times;5 LED matrix &bull; 2 servos (P1/P2) &bull; buzzer &bull; D-pad gamepad</p>
+    <p><strong style="color:#22d3ee;">Read:</strong> temperature &bull; light &bull; sound &bull; accelerometer &bull; compass &bull; buttons &bull; touch pins</p>
+    <p><strong style="color:#22d3ee;">Visualize:</strong> drag-and-drop live graph (fullscreen, record, export JSON) &bull; 3D Three.js board view with 5 models</p>
+    <p><strong style="color:#22d3ee;">Polish:</strong> 4 themes &bull; EN / FR / AR &bull; simulate mode &bull; keyboard shortcuts &bull; PWA offline</p>
   </div>
 
   <h2>Privacy</h2>
   <div class="box">
     <h4>100% Local &mdash; Zero Data Collection</h4>
-    <p>Runs entirely in your browser. No accounts, no cloud, no tracking, no analytics. Your designs and the BLE stream stay on your device. Safe for school networks.</p>
+    <p>Runs entirely in your browser. No accounts, no cloud, no tracking, no analytics. Sessions, settings, and recordings stay on your device. Safe for school networks.</p>
   </div>
 
-  <h2>Language</h2>
-  <p>Interface is in <strong style="color:#fff;">English</strong>. Emoji labels are universal so non-English classrooms can follow the printables visually.</p>
+  <h2>Languages</h2>
+  <p>Built-in <strong style="color:#fff;">English</strong>, <strong style="color:#fff;">Français</strong>, and <strong style="color:#fff;">العربية</strong> (full RTL). Cycle with <kbd>L</kbd>.</p>
 
   <h2>Need Help?</h2>
   <div class="box">
-    <p>Open <code class="c">README.md</code> for the complete walkthrough, widget reference, MakeCode examples, BLE protocol spec, and troubleshooting.</p>
-    <p>Printable Quick-Start Card &amp; Widget Cheat Sheet are in <code class="c">etsy-package/</code>.</p>
+    <p>Open <code class="c">docs/guide.html</code> for the complete walkthrough and troubleshooting.</p>
+    <p>Open <code class="c">docs/faq.html</code> for the top buyer questions.</p>
+    <p>Press <kbd>?</kbd> inside the app for the built-in shortcuts overlay.</p>
   </div>
 
   <div class="footer">

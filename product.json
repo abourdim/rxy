@@ -17,5 +17,5 @@
   "PRICE_DISTRICT": "499",
   "PROMO_CODE": "RXYLAUNCH",
   "PROMO_PRICE": "7",
-  "ALLOWED_TERMS": ["servo"]
+  "ALLOWED_TERMS": ["servo", "servos", "GamePad", "gamepad", "LED Matrix", "Graph", "Sensors"]
 }

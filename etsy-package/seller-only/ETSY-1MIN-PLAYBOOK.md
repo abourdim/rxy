@@ -25,13 +25,15 @@ A second-by-second script: **what to say** + **what to click / do** to produce a
 
 Before you press Record:
 
-- [ ] Chrome or Edge open with `index.html` loaded on the **✏️ Build** tab, empty canvas
-- [ ] makecode.microbit.org open in a second tab, **JavaScript mode** selected
-- [ ] BBC micro:bit plugged in by USB, sitting on the desk
-- [ ] A visible target to drive (a small robot / RC car / external LED / motor)
-- [ ] Theme set — **neon** photographs best; **neo** reads best in harsh daylight
+- [ ] BBC micro:bit V1 or V2 powered on, showing the **X** icon *(if not → re-flash `makecode.ts`)*
+- [ ] Chrome or Edge open with `index.html` loaded
+- [ ] BLE paired — status chip is **green**
+- [ ] Theme set — **Neon** photographs best; **Arctic** reads best in harsh daylight
+- [ ] Language matches your voiceover (EN / FR / AR)
+- [ ] micro:bit V2 paired (optional)
+- [ ] Tab 6 (3D) open with Buggy or Robot Arm selected — looks impressive in the hero shot
 - [ ] Phone in 9:16 on a tripod, front-lit, clean background
-- [ ] Desk cleared — only the laptop, the board, and the target in frame
+- [ ] Desk cleared — only the board + one prop (buggy / servo / cable) in frame
 - [ ] Captions app running OR on-screen text plan ready
 - [ ] Script read aloud once, timed under 55 seconds
 - [ ] Phone silenced, kids / dogs warned
@@ -41,32 +43,32 @@ Before you press Record:
 ## The 60-second arc
 
 ```
- 0–3 s    HOOK     "Build a Bluetooth remote for your micro:bit. No code."
- 3–12 s   BUILD    Drag Joystick + 2 Buttons + Label onto the canvas.
-12–25 s   CODE     📄 Code → copy → paste in makecode.microbit.org → Download → flash.
-25–40 s   PAIR     ▶️ Play → 📡 Tap to Connect → pick BBC micro:bit.
-40–52 s   PAYOFF   Push joystick → robot rolls. Press button → light turns on.
-52–57 s   CTA      "Full kit, lifetime updates — link below."
-57–60 s   END      Logo + tagline frozen for the loop preview.
+ 0–3 s   HOOK        "Watch what this micro:bit does in 60 seconds."
+ 3–10 s  CONTEXT     Board → laptop → Connect → green chip.
+10–35 s  DEMO        Demo the core features. Highlight main benefits.
+35–50 s  PAYOFF      Live graph with Simulate. Record / Replay / CSV.
+50–55 s  CTA         "Full kit, lifetime updates — link below."
+55–60 s  END FRAME   Logo + handle frozen for the loop preview.
 ```
 
 Etsy loops the video, so the **end frame should match the cover** — keeps viewers watching the loop.
 
 ---
 
-## Script Template A — "Build • Pair • Play — no code required" (hero demo)
+## Script Template A — "Your micro:bit becomes a playground" (hero demo)
 
-**Use case:** the main Etsy listing video. Showcases the drag-drop, the auto MakeCode, and the BLE payoff in one go.
+**Use case:** the main Etsy listing video. Showcases the 3D, the BLE pairing, and the live graph in one go.
 
 | Time | What to SAY | What to CLICK / DO |
 |---|---|---|
-| 0–3 s | *"Build your own Bluetooth remote for a micro:bit in 60 seconds. No code."* | Cold open on the empty **✏️ Build** canvas. Cursor hovers over the widget palette. |
-| 3–12 s | *"Drag a joystick. Drop two buttons. Add a label."* | Drag 🕹️ Joystick + 👆 Button × 2 + 🏷️ Label onto the canvas. Snap them into a clean layout. |
-| 12–25 s | *"Tap Code. Paste into MakeCode. Flash. Zero typing."* | Click **📄 Code** → auto-generated MakeCode appears. Cmd-C → switch tab → paste into makecode.microbit.org (JavaScript). **Download** → drag the .hex onto the micro:bit drive. |
-| 25–40 s | *"Switch to Play. Tap to connect. Pick your micro:bit."* | Click **▶️ Play** → big **📡 Tap to Connect** button → browser picker → pick **BBC micro:bit**. Status chip turns green. |
-| 40–52 s | *"Joystick forward — the robot rolls. Button — the light turns on. Over Bluetooth."* | Thumb pushes the joystick → cut to the real target moving. Tap button → LED on the target lights up. Hold 2 s for satisfaction. |
-| 52–57 s | *"Full kit — link below."* | Face-cam back on. Eye contact. |
-| 57–60 s | *"Build • Pair • Play — no code required."* | Hold still. Logo + tagline overlay freezes. This becomes the loop frame. |
+| 0–3 s | *"Your micro:bit becomes a playground — in the browser, in 60 seconds."* | Close-up of the real board with the X icon on the LEDs. Your hand holds it. |
+| 3–10 s | *"One page, one click, paired."* | Cut to the laptop. Click **🔗 Connect to micro:bit** → pick the board → chip turns green. |
+| 10–20 s | *"Sensors live — tilt it, the 3D model tilts too."* | Tab **6 · Play tab**. Tilt the real board. The virtual one mirrors it. Hold both in frame. |
+| 20–30 s | *"Click through the live demo — features run in the browser."* | Click through the live demo; features run in the browser.|
+| 30–40 s | *"Live graph with record, replay, CSV. A lab in a browser tab."* | Tab **5 · Graph** → click **🎲 Simulate** → chart dances → hover on **⏺ Record** and **📄 CSV**. |
+| 40–50 s | *"4 themes, 3 languages, works offline, no install, no account."* | Quick theme swap (header dropdown) → show Neon → Arctic. |
+| 50–55 s | *"Link below — lifetime updates, teachers and kids welcome."* | Face-cam back on. Eye contact. |
+| 55–60 s | *"Happy hacking."* | Hold still. Logo + handle overlay freezes. This becomes the loop frame. |
 
 ---
 
@@ -76,29 +78,29 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 
 | Time | What to SAY | What to CLICK / DO |
 |---|---|---|
-| 0–3 s | *"STEM teachers — your next 45-minute lesson."* | Overhead shot of a laptop + one or two micro:bits laid out on a desk. |
-| 3–12 s | *"Kids design the remote by dragging widgets. No coding, no install day."* | Show the ✏️ Build canvas — drag a few widgets in while the voiceover runs. |
-| 12–22 s | *"Twelve widgets — buttons, sliders, joystick, gauges, graphs."* | Quickly pan across the widget palette. Callout: "12 widgets · 7 inputs · 5 outputs". |
-| 22–35 s | *"Tap Code. Paste into MakeCode. Flash. The remote is live."* | Click 📄 Code → paste into MakeCode → Download → flash a board held up to camera. |
-| 35–48 s | *"One board per pair. Three themes — neo, glass, neon. Exports as JSON to share."* | Swap theme on a widget Model field. Tap 📦 Export. |
-| 48–58 s | *"Site license for up to 30 teachers. Lifetime updates."* | Text overlay with the licensing tiers + Etsy shop name. |
-| 58–60 s | *"Link below."* | Face-cam, hold the micro:bit, smile, freeze on logo. |
+| 0–3 s | *"STEM teachers — you need to see this."* | Overhead shot of a laptop + 5 micro:bits laid out on a desk. |
+| 3–10 s | *"One browser tab. Live sensors. No install on 30 laptops."* | Click Connect. Status goes green. Cut to Build tab — values streaming. |
+| 10–20 s | *"Calibrate the compass right in the UI. Baseline the sound for a quiet classroom."* | Build tab → Calibrate. Show the Set Level / Set Ambient buttons. |
+| 20–30 s | *"Record a full lesson. Export CSV. Drop into a lab report."* | Graph tab → Record → Stop → Save Session → CSV. |
+| 30–40 s | *"4 themes — Arctic for projectors. 3 languages — Arabic with full RTL."* | Swap theme to Arctic. Swap language to Arabic — watch the UI flip RTL. |
+| 40–50 s | *"Site license for up to 30 teachers. Lifetime updates."* | Text overlay with the licensing tiers + Etsy shop name. |
+| 50–60 s | *"Link below. Tag me when you run a workshop."* | Face-cam, hold the micro:bit, smile, freeze on logo. |
 
 ---
 
-## Script Template C — "Kid builds a remote" (parent / home-school angle)
+## Script Template C — "Kid builds a robot" (parent / home-school angle)
 
 **Use case:** showing a young maker using the app — UGC / influencer feel.
 
 | Time | What to SAY | What to CLICK / DO |
 |---|---|---|
-| 0–3 s | *"My kid built a robot remote. With a browser tab."* | Close-up: a small hand dragging a joystick widget onto the canvas. |
-| 3–12 s | *"No code. Just drag-drop. The app writes the micro:bit program for you."* | Show the 📄 Code view — the generated program fills the panel. |
-| 12–25 s | *"Paste into MakeCode. Download. Drag to the board."* | Paste & flash, held up to the camera. |
-| 25–38 s | *"Pair over Bluetooth. Thumb on the joystick. The robot moves."* | ▶️ Play → 📡 Tap to Connect → pick board → push joystick → cut to real robot rolling. |
-| 38–48 s | *"Press a button — a light. A toggle — a switch. An XY pad — aim."* | Rapid three cuts: button → LED; toggle → relay click; XY pad → on-target LED changes colour. |
-| 48–58 s | *"No login. Nothing leaves the computer."* | Close the Wi-Fi indicator (airplane mode). App still builds. |
-| 58–60 s | *"Full kit on Etsy. Link below."* | Kid holding the micro:bit + phone. Smile. Freeze. |
+| 0–3 s | *"My kid built a robot. With a browser tab."* | Close-up: a small hand tapping Connect. |
+| 3–10 s | *"The micro:bit drives the servo. The 3D model mirrors the real robot."* | Tab 6 (widget canvas). Real robot next to the laptop. Buggy in 3D follows. |
+| 10–20 s | *"D-pad in the browser → arrows on the LED → commands to the motors."* | Tab 4 (GamePad). Press ⬆ → LED arrow. Buggy crawls forward. |
+| 20–30 s | *"Tilt the brain — the ball rolls to the targets."* | Tab 6 → Balance Game model. Tilt the board. Ball rolls. |
+| 30–40 s | *"Graph the sensors. Record the run. Replay for homework."* | Tab 5 → Record 3 s of accel → Replay → Save Session. |
+| 40–50 s | *"No login. Nothing leaves the computer. Offline after first load."* | Close the Wi-Fi indicator (airplane mode). App still works. |
+| 50–60 s | *"Full kit on Etsy. Link below."* | Kid holding the robot + board. Smile. Freeze. |
 
 ---
 
@@ -106,7 +108,7 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 
 - **One scene per phase.** Do not cut every 2 s — it feels frantic.
 - **Switch scenes on words**, not mid-sentence.
-- **Pause 1 second on the 📄 Code click** — visual emphasis on the no-code reveal.
+- **Pause 1 second on the graph record button** — visual emphasis.
 - **Look at the camera lens**, not the screen, during all CTAs.
 - **Smile for the final 3 seconds**. The loop frame matters.
 - **Watch the clock** — if you pass 55 s, re-cut. Etsy compresses aggressively.
@@ -117,13 +119,11 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 
 | ❌ Don't | ✅ Do |
 |---|---|
-| Start with "Hi, I'm…" + 10 s intro | First 3 s = the empty Build canvas + one drag |
+| Start with "Hi, I'm…" + 10 s intro | First 3 s = the board tilting a 3D model on the laptop |
 | Film landscape (16:9) | 9:16 portrait — Etsy autoplays on mobile |
 | Demo on Safari / iPhone | Show Chrome/Edge only. iOS users will buy and refund |
 | Skip captions | Burn in captions — the feed is muted by default |
 | Whisper | Speak 15% louder and 10% slower than normal conversation |
-| Forget the target | Always show a real thing move when you drive a widget |
-| Dwell on MakeCode for 20 s | Cut the paste/flash sequence to under 10 s |
 | Forget the CTA | "Link below" in the last 5 s, every single time |
 | End mid-sentence | Land your closing line. Then hold 2 seconds of silence |
 | Cluttered desk | Clean area in frame — even a tiny frame shows clutter |
@@ -135,7 +135,7 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 1. Watch the playback **once**, eyes off the script. Does it land?
 2. If >60 s → trim with a simple editor (iMovie, CapCut, DaVinci). Aim for 55 s.
 3. Burn in captions if you haven't already. Keep them centered below the subject.
-4. First frame — set it to a strong, still visual (the empty canvas about to be filled, or the logo). This is your cover.
+4. First frame — set it to a strong, still visual (the board in hand, or the logo). This is your cover.
 5. Export MP4 / H.264, under 100 MB.
 6. Upload to the Etsy listing. Verify autoplay. Check on a phone with sound off.
 
@@ -144,10 +144,10 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 ## Etsy-specific upload tips
 
 - Etsy listing videos appear at the top as an **autoplaying preview tile**. First frame is the cover — make it visually clean.
-- Use the listing **title** to echo the video's first words. If you say *"Build a Bluetooth remote — no code"*, the listing title starts with *"Micro:bit Remote Builder — Drag-Drop Bluetooth Remote Designer…"*.
+- Use the listing **title** to echo the video's first words. If you say *"Your micro:bit becomes a playground"*, the listing title starts with *"Micro:bit Remote Builder — BLE Control Panel…"*.
 - Add the captions text into the listing **description** — searchable, helps SEO.
 - Tag the listing with words you actually said in the video.
-- Price tiers: Launch $12.99 · Standard $17.99 · Bundle $29.99 · Site $199 · District $499.
+- Price tiers: single user `{{PRICE}}` · classroom / site `{{PRICE}}`.
 
 ---
 
@@ -166,9 +166,9 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 ## Quick-reference cheat card
 
 ```
-PRE     Chrome open · Build empty · MakeCode tab ready · 9:16 phone · neon theme
+PRE     V2 has X icon · Chrome open · BLE green · 9:16 phone · Neon theme
 LAUNCH  Record → first words land in the first 3 seconds
-DURING  Drag widgets → Code → paste → flash → Tap to Connect → drive it
+DURING  Tilt → 3D · A → LED · slider → servo · Simulate → graph
 AFTER   Stop → trim to 55 s → burn captions → first frame = thumbnail
 UPLOAD  Etsy listing → upload MP4 → echo first words in listing title
 ```
@@ -179,49 +179,47 @@ UPLOAD  Etsy listing → upload MP4 → echo first words in listing title
 
 **Title (140 chars max):**
 ```
-Micro:bit Remote Builder — Drag-Drop Bluetooth Remote Designer for BBC micro:bit · 12 Widgets · Auto MakeCode · No Code Required · Chrome / Edge
+Micro:bit Remote Builder — BLE Control Panel for Teachers & Kids · Sensors · Servos · Live Graph · 3D Models · No Install · Chrome / Edge
 ```
 
 **160-char short description:**
 ```
-Drag-and-drop Bluetooth remote builder for the BBC micro:bit V1 or V2. 12 widgets, auto-generated MakeCode, BLE pairing. No coding required.
+Browser-based BLE control panel for the BBC micro:bit V1 or V2. Sensors, servos, live graphs, 3D models, and a GamePad — all from Chrome. No install, no account.
 ```
 
 **13 Etsy tags:**
 ```
-micro:bit, remote builder, bluetooth, no code, drag drop, STEM, robotics, kids coding, teacher resource, makecode, classroom, home school, makerspace
+micro:bit, BLE, bluetooth, education, STEM, robotics, kids coding, teacher resource, sensors, servos, classroom, home school, makerspace
 ```
 
 **Materials:**
 ```
-HTML5, JavaScript, Web Bluetooth, BLE UART, MakeCode, JSON
+HTML5, JavaScript, Web Bluetooth, drag-and-drop, Three.js, PWA, MakeCode, TypeScript
 ```
 
 **SEO keywords:**
 ```
-drag and drop · no-code remote · web bluetooth · micro:bit controller · teacher resource · STEM workshop · BLE UART · makecode generator
+browser-based · no-install · privacy-first · offline-capable · web bluetooth · micro:bit V2 · STEM workshop · teacher resource
 ```
 
-**Price tiers:**
+**Price tiers (fill the `{{PRICE}}` placeholders):**
 
 | Tier | Who | Price |
 |---|---|---|
-| Launch | First buyers / promo | `$12.99` |
-| Standard | Single user — teacher / family / maker | `$17.99` |
-| Bundle | Builder + classroom printable pack | `$29.99` |
-| Site | Up to 30 teachers at one school | `$199` |
-| District | Multiple sites — DM through order | `$499` |
+| Single user | One teacher / family / maker | `{{PRICE}}` |
+| Classroom / Site | Up to 30 teachers at one school | `{{PRICE}}` |
+| District / OEM | Multiple sites — DM through order | Custom |
 
 ---
 
 ## 7-image listing order
 
-1. **Hero** — phone in hand running the Play tab, driving a visible target. Title overlay in Orbitron: "Build • Pair • Play — no code required."
-2. **Build canvas** — screenshot of the builder with a full layout: joystick, 2 buttons, gauge, label.
-3. **MakeCode generation** — split screen: builder on left, makecode.microbit.org JavaScript editor on right with code pasted.
-4. **Widget palette** — grid of all 12 widgets labeled with emoji (7 inputs + 5 outputs).
-5. **BLE connect flow** — the browser chooser over the Play tab, arrow pointing at "📡 Tap to Connect".
-6. **Theme sampler** — 3 panels: neo · glass · neon of the same remote.
+1. **Hero** — real micro:bit + laptop, 3D model mirroring the board's tilt. Title overlay in Orbitron.
+2. **Tabs overview** — grid screenshot of all 2 tabs with emoji labels.
+3. **Live graph** — drag-and-drop close-up with colored lines + annotations, Record button glowing red.
+4. **3D models** — split screenshot of Buggy + Robot Arm.
+5. **Hand-holding** — real servo plugged into P1, sliders on the screen.
+6. **Theme sampler** — 2×2 grid: Stealth · Neon · Arctic · Blaze.
 7. **License card** — "Single-user license · Lifetime updates · No cloud · Chrome / Edge" on a dark gradient.
 
 ---

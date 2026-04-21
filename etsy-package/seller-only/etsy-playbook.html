@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- REWRITE PER PRODUCT — DO NOT SHIP AS-IS -->
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8" />
@@ -100,6 +101,7 @@
   tr:hover td { background: rgba(34,197,94,.04); }
 
   code { background: rgba(34,197,94,.12); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: .88em; }
+  kbd { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: var(--mono); font-size: .82em; color: var(--accent); }
 
   .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
   .pill { background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.3); color: var(--accent2); padding: 4px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600; font-family: var(--mono); }
@@ -123,7 +125,7 @@
 <div class="slate">
   <div class="slate-clap">🎬</div>
   <div class="tag">— ETSY PLAYBOOK · v1.0.0 —</div>
-  <h1>Micro:bit <span>Remote Builder</span></h1>
+  <h1>micro:bit <span>Playground</span></h1>
   <div class="tag">The 1-minute listing demo · copy-ready snippets</div>
   <div class="meta"><span><b>Format:</b> 9:16 portrait</span><span><b>Length:</b> ≤ 60 s</span><span><b>Goal:</b> turn scrollers into buyers</span></div>
 </div>
@@ -143,14 +145,14 @@
 <h2>Before you press Record</h2>
 <div class="card">
   <ul class="checklist" onclick="var li=event.target.closest('li');if(li)li.classList.toggle('checked')">
-    <li><input type="checkbox"><label>Chrome or Edge open with <code>index.html</code> loaded<span class="where">Safari/Firefox/iOS will not work</span></label></li>
-    <li><input type="checkbox"><label>Blank canvas on the ✏️ Build tab<span class="where">Start fresh — empty canvas = story of creation</span></label></li>
-    <li><input type="checkbox"><label>makecode.microbit.org open in a second tab, JavaScript mode<span class="where">Ready to paste the generated code</span></label></li>
-    <li><input type="checkbox"><label>micro:bit plugged in by USB, sitting on desk<span class="where">We&apos;ll flash it live on camera</span></label></li>
-    <li><input type="checkbox"><label>A target to drive in frame (small robot / RC car / LED)<span class="where">Something that visibly moves when the button is pressed</span></label></li>
-    <li><input type="checkbox"><label>Theme picked — <strong>neon</strong> looks best on camera<span class="where">Properties panel → Model field on a selected widget</span></label></li>
+    <li><input type="checkbox"><label>micro:bit V2 powered on, showing <kbd>X</kbd> icon<span class="where">If not → reflash <code>makecode.ts</code></span></label></li>
+    <li><input type="checkbox"><label>Chrome or Edge open, <code>index.html</code> loaded<span class="where">Safari/Firefox/iOS will not work</span></label></li>
+    <li><input type="checkbox"><label>BLE connected — status chip is <strong>green</strong><span class="where">Click 🔗 Connect, pick BBC micro:bit from picker</span></label></li>
+    <li><input type="checkbox"><label>Theme picked — <strong>Neon</strong> looks best on camera<span class="where">Header → paint-roller dropdown</span></label></li>
+    <li><input type="checkbox"><label>micro:bit V2 paired (optional)</label></li>
+    <li><input type="checkbox"><label>Play tab tab open, Buggy or Robot Arm selected<span class="where">Tab 6 → model dropdown</span></label></li>
     <li><input type="checkbox"><label>Phone in 9:16 mode on a tripod, lit from the front</label></li>
-    <li><input type="checkbox"><label>Desk cleared — only laptop, board, and the target in frame</label></li>
+    <li><input type="checkbox"><label>Desk cleared — only the board and one prop in frame</label></li>
     <li><input type="checkbox"><label>Script read aloud once — timed under 55 s</label></li>
   </ul>
 </div>
@@ -160,140 +162,120 @@
 <h2>Structure</h2>
 <div class="card">
   <pre style="color:var(--accent2);font-family:var(--mono);font-size:.9rem;line-height:1.7;margin:0">
- 0–3 s   HOOK        "Build your own Bluetooth remote in 60 seconds. No code."
- 3–12 s  BUILD       Drag a Joystick + 2 Buttons + a Label onto the canvas.
-12–25 s  CODE        Tap 📄 Code → copy → paste into makecode.microbit.org → flash.
-25–40 s  PAIR        Switch to ▶️ Play → 📡 Tap to Connect → pick the board.
-40–52 s  PAYOFF      Push the joystick → robot rolls. Press a button → light.
-52–57 s  CTA         "Full kit in my shop — link below."
-57–60 s  END FRAME   Logo + tagline frozen for the loop preview.</pre>
+ 0–3 s   HOOK        "Watch what this micro:bit does in 60 seconds."
+ 3–10 s  CONTEXT     Board on-screen, X icon → status turns green.
+10–35 s  DEMO        Demo the core features. Highlight main benefits.
+35–50 s  PAYOFF      Zoom on live graph + 3D model mirroring real board.
+50–55 s  CTA         "Full kit in my shop — link below."
+55–60 s  END FRAME   Logo + handle frozen for the loop preview.</pre>
 </div>
 
 <!-- ═══════════ SCRIPT ═══════════ -->
 <div class="slug" id="script">SLUG — SCENE-BY-SCENE SCRIPT</div>
-<h2>Template: "Build • Pair • Play — no code required"</h2>
+<h2>Template: "The micro:bit becomes a playground"</h2>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">HOOK</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Build your own Bluetooth remote for a micro:bit in 60 seconds. No code."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Cold open on the empty Build canvas. Cursor hovers over the widget palette.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Your micro:bit is a playground. No install, no account — just a browser."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Hold the board in frame. Close-up of the X icon pulsing on the LED matrix.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:03–00:12</span><span class="scene-phase phase-demo">BUILD</span></div>
+  <div class="scene-head"><span class="scene-time">00:03–00:10</span><span class="scene-phase phase-demo">CONTEXT</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Drag a joystick. Drop two buttons. Add a label. Done."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Drag from palette: 🕹️ Joystick, 👆 Button × 2, 🏷️ Label. Snap them into a clean layout.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Open the page, click connect — and that's it. Sensors live, LEDs live, servos live."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Screen recording: click <strong>🔗 Connect to micro:bit</strong>, pick the board, status chip goes green.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:12–00:25</span><span class="scene-phase phase-demo">CODE</span></div>
+  <div class="scene-head"><span class="scene-time">00:10–00:25</span><span class="scene-phase phase-demo">DEMO · SENSORS + 3D</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Tap Code. Paste into MakeCode. Flash. Thirteen seconds of typing zero."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Click 📄 Code → auto-generated MakeCode fills the panel. Cmd-C → switch tab → paste into makecode.microbit.org (JavaScript). Click Download. Drag the .hex to the micro:bit drive.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Tilt it — the 3D model on screen tilts too. Tap the logo — it reacts."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Tab <kbd>6</kbd> → Play tab. Tilt the real board → the virtual one follows. Hand holds the micro:bit next to the screen for the split.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">PAIR</span></div>
+  <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">DÉMO · FEATURES</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Switch to Play. Tap to connect. Pick your micro:bit."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Click ▶️ Play → big 📡 Tap to Connect button → browser picker shows BBC micro:bit → pick it. Status chip turns green.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Move a servo from the browser. Drive a robot with the GamePad."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Click through the live demo; features run in the browser.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:40–00:52</span><span class="scene-phase phase-payoff">PAYOFF · DRIVE IT</span></div>
+  <div class="scene-head"><span class="scene-time">00:40–00:50</span><span class="scene-phase phase-payoff">PAYOFF · GRAPH</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Joystick forward — the robot rolls. Button — the lights come on. Over Bluetooth."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Thumb pushes joystick on phone → cut to real target moving. Tap button → LED on the target lights. Hold the shot 2 s for satisfaction.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Record, replay, export CSV. It's a whole science lab in a browser tab."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Tab <kbd>5</kbd> → 🎲 Simulate → live chart dances. Zoom on the Record/CSV buttons.</div>
   </div>
 </div>
 
 <div class="scene">
-  <div class="scene-head"><span class="scene-time">00:52–00:60</span><span class="scene-phase phase-cta">CTA + END FRAME</span></div>
+  <div class="scene-head"><span class="scene-time">00:50–00:60</span><span class="scene-phase phase-cta">CTA + END FRAME</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div>"Build • Pair • Play — no code required. Full kit in my shop, link below."</div>
-    <div class="do"><div class="do-label">🎬 DO</div>Overlay logo + handle + tagline. Freeze 3 s for the loop frame.</div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Full kit, lifetime updates — link in description. Teachers, tag me when you use it."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Switch to logo + handle overlay. Hold 3 seconds still — becomes the loop frame.</div>
   </div>
 </div>
 
 <!-- ═══════════ LISTING COPY ═══════════ -->
 <div class="slug" id="listing">SLUG — COPY-READY LISTING TEXT</div>
-
-<h2>Hero copybox / CTA</h2>
-<div class="copybox">Micro:bit Remote Builder — Build • Pair • Play — no code required. Drag, drop, and control your micro:bit from your phone over Bluetooth.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
-
-<h2>Feature pills</h2>
-<div class="pills">
-  <span class="pill">drag-drop</span>
-  <span class="pill">12 widgets</span>
-  <span class="pill">MakeCode</span>
-  <span class="pill">Bluetooth</span>
-  <span class="pill">no-code</span>
-  <span class="pill">micro:bit</span>
-</div>
-
 <h2>Etsy title (140 chars max)</h2>
-<div class="copybox">Micro:bit Remote Builder — Drag-Drop Bluetooth Remote Designer for BBC micro:bit · 12 Widgets · Auto MakeCode · No Code Required · Chrome / Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
+<div class="copybox">Micro:bit Remote Builder — BLE Control Panel for Teachers &amp; Kids · Sensors · Servos · Live Graph · 3D Models · No Install · Chrome / Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
 
 <h2>Short description (first 160 chars — shown in search)</h2>
-<div class="copybox">Drag-and-drop Bluetooth remote builder for the BBC micro:bit V1 or V2. 12 widgets, auto-generated MakeCode, BLE pairing. No coding required.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
+<div class="copybox">Browser-based BLE control panel for the BBC micro:bit V1 or V2. Sensors, servos, live graphs, 3D models, and a GamePad — all from Chrome. No install, no account.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
 
 <h2>Full description</h2>
-<div class="copybox">🎮 Micro:bit Remote Builder — design custom Bluetooth remotes for the BBC micro:bit without writing a line of code.
+<div class="copybox">🎮 Micro:bit Remote Builder — a browser-based BLE control panel for the BBC micro:bit V1 or V2.
 
-Drag widgets onto a canvas. Tap Code. Paste into makecode.microbit.org. Flash. Pair. Play. Your phone, tablet, or laptop becomes a live wireless controller.
+Open one HTML file in Chrome or Edge, pair over Bluetooth, and unlock 2 tabs of hands-on STEM fun — no install, no account, no backend, no tracking.
 
 WHAT YOU GET
-• ✏️ Drag-and-drop Build canvas
-• 🎮 12 widgets — 7 inputs + 5 outputs
-    Inputs: Button · Slider · Toggle · Joystick · D-Pad · XY Pad · Timer
-    Outputs: LED · Label · Gauge · Graph · Battery
-• 🎨 Per-widget properties: Label, Model, Size, Min/Max, Colors
-• 📄 Auto-generated MakeCode — paste &amp; flash
-• 📡 BLE UART pairing in one tap (SET / UPD text protocol)
-• 📦 JSON export / import of your designs
-• 🎨 3 visual themes: neo · glass · neon
-• 🎮 Demo tab to try every widget without a board
+• 🎛 LED matrix + preset icons + text scroller
+• 📡 Live sensors: temperature, light, sound, accelerometer, compass, touch
+• ⚙️ 2 servos (P1 + P2) with sliders, gauges, trim, OFF buttons
+• 🎮 D-pad GamePad for robots and games
+• 📈 Live Graph (drag-and-drop) — record, replay, annotate, export PNG + CSV
+• 🎲 5 interactive 3D models (Three.js): micro:bit, Buggy, Arm, Balance, Weather
+• 🎨 4 themes (Stealth · Neon · Arctic · Blaze) + 3 languages (EN · FR · AR with full RTL)
+• 📱 PWA — installable, offline-capable
+• 👶 Beginner mode + 🧙 Expert mode
 
 WHAT'S IN YOUR DOWNLOAD
-• index.html — the builder app
-• script.js — drag-drop + BLE + MakeCode generator
-• styles.css — three-theme visual system
-• README.md — full guide with widget reference &amp; MakeCode examples
-• etsy-package/ — printables (Quick-Start, Cheat Sheet, Poster, Stickers, Lesson Plan)
+• index.html — the full app
+• makecode.ts — micro:bit firmware (flash once from MakeCode)
+• SETUP.md — 5-minute quick-start
+• docs/ — illustrated guide, cheat sheet, FAQ, Etsy playbook
 • LICENSE — personal / classroom single-user license
 
-USE CASES
-Robot control · game controllers · smart-home projects · RC cars · music instruments · anything you can imagine.
-
 REQUIREMENTS
-• BBC micro:bit V1 or V2 + USB or battery
+• BBC micro:bit V1 or V2 (V1 works but has no sound sensor)
 • Chrome or Edge on desktop (or Chrome on Android)
-• Bluetooth enabled on the host device
+• Bluetooth enabled
+• HTTPS or file:// — double-clicking the HTML works
+
+WHO IT'S FOR
+Teachers running STEM workshops · home-schooling families · robotics clubs · makers prototyping BLE projects · anyone curious about the micro:bit.
 
 PRIVACY FIRST
-Nothing leaves your computer. No accounts, no cloud, no analytics. Designs and BLE streams stay on your device.
+Nothing leaves your computer. No analytics, no logins, no cloud. All calibrations, recordings, and presets live in your browser's localStorage and on your disk.
 
 LIFETIME UPDATES
 Every version shipped from this listing is yours forever. Re-download the latest ZIP anytime from your Etsy Purchases page.
 
-Build • Pair • Play — no code required. 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
+Happy hacking! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
 
 <h2>Price tiers</h2>
 <table>
   <tr><th>Tier</th><th>Who</th><th>Price</th></tr>
-  <tr><td>Launch</td><td>First buyers / promo</td><td><code>$12.99</code></td></tr>
-  <tr><td>Standard</td><td>Single user — teacher / family / maker</td><td><code>$17.99</code></td></tr>
-  <tr><td>Bundle</td><td>Builder + printable classroom pack</td><td><code>$29.99</code></td></tr>
-  <tr><td>Tripwire</td><td>Low-ticket add-on</td><td><code>$5</code></td></tr>
-  <tr><td>Site</td><td>Up to 30 teachers at one school</td><td><code>$199</code></td></tr>
-  <tr><td>District</td><td>Multiple sites — DM through Etsy order</td><td><code>$499</code></td></tr>
-  <tr><td>Promo <code>RXYLAUNCH</code></td><td>Launch-week discount</td><td><code>$7</code></td></tr>
+  <tr><td>Single user</td><td>One teacher / family / maker</td><td><code>{{PRICE}}</code></td></tr>
+  <tr><td>Classroom / Site</td><td>Up to 30 teachers at one school, unlimited students</td><td><code>{{PRICE}}</code></td></tr>
+  <tr><td>District / OEM</td><td>Multiple sites — DM through the Etsy order</td><td>Custom</td></tr>
 </table>
 
 <!-- ═══════════ TAGS ═══════════ -->
@@ -301,15 +283,15 @@ Build • Pair • Play — no code required. 🚀🎮🤖<button class="copybtn
 <h2>13 Etsy tags (20 chars each)</h2>
 <div class="pills">
   <span class="pill">micro:bit</span>
-  <span class="pill">remote builder</span>
+  <span class="pill">BLE</span>
   <span class="pill">bluetooth</span>
-  <span class="pill">no code</span>
-  <span class="pill">drag drop</span>
+  <span class="pill">education</span>
   <span class="pill">STEM</span>
   <span class="pill">robotics</span>
   <span class="pill">kids coding</span>
   <span class="pill">teacher resource</span>
-  <span class="pill">makecode</span>
+  <span class="pill">sensors</span>
+  <span class="pill">servos</span>
   <span class="pill">classroom</span>
   <span class="pill">home school</span>
   <span class="pill">makerspace</span>
@@ -320,26 +302,28 @@ Build • Pair • Play — no code required. 🚀🎮🤖<button class="copybtn
   <span class="pill">HTML5</span>
   <span class="pill">JavaScript</span>
   <span class="pill">Web Bluetooth</span>
-  <span class="pill">BLE UART</span>
+  <span class="pill">drag-and-drop</span>
+  <span class="pill">Three.js</span>
+  <span class="pill">PWA</span>
   <span class="pill">MakeCode</span>
-  <span class="pill">JSON</span>
+  <span class="pill">TypeScript</span>
 </div>
 
 <h2>SEO keywords</h2>
-<p><code>drag and drop</code> · <code>no-code remote</code> · <code>web bluetooth</code> · <code>micro:bit controller</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>BLE UART</code> · <code>makecode generator</code></p>
+<p><code>browser-based</code> · <code>no-install</code> · <code>privacy-first</code> · <code>offline-capable</code> · <code>web bluetooth</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>micro:bit V2</code></p>
 
 <!-- ═══════════ IMAGES ═══════════ -->
 <div class="slug" id="images">SLUG — 7-IMAGE LISTING ORDER</div>
 <h2>Image sequence (Etsy shows 1 &amp; 2 largest)</h2>
 <div class="card">
   <ol style="padding-left:22px;line-height:2">
-    <li><strong>Hero</strong> — phone held in hand running the Play tab, driving a visible target. Title overlay in Orbitron: "Build • Pair • Play — no code required."</li>
-    <li><strong>Build canvas</strong> — screenshot of the builder with a full layout: joystick, 2 buttons, gauge, label.</li>
-    <li><strong>MakeCode generation</strong> — split screen: builder on left, makecode.microbit.org JavaScript editor filled with pasted code on the right.</li>
-    <li><strong>Widget palette grid</strong> — all 12 widgets labeled with emoji (7 inputs + 5 outputs).</li>
-    <li><strong>BLE connect flow</strong> — the browser BBC micro:bit chooser over the Play tab, arrow pointing to "📡 Tap to Connect".</li>
-    <li><strong>Theme sampler</strong> — 3-panel: neo · glass · neon of the same remote.</li>
-    <li><strong>Classroom scene</strong> — kids holding tablets, one driving a small robot on the floor; Label widget shows a live status.</li>
+    <li><strong>Hero</strong> — real micro:bit + laptop split-screen showing the 3D model mirroring the board's tilt. Title overlay in Orbitron.</li>
+    <li><strong>Tabs overview</strong> — grid screenshot of all 2 tabs with emoji labels.</li>
+    <li><strong>Live graph close-up</strong> — drag-and-drop with colored lines + annotations, Record button glowing red.</li>
+    <li><strong>widget canvas + Robot Arm</strong> — split screenshot showing two of the five Three.js models.</li>
+    <li><strong>Hand-holding the board</strong> — real servo plugged into P1, sliders on screen in the background.</li>
+    <li><strong>Theme sampler</strong> — 2×2 grid: Stealth · Neon · Arctic · Blaze.</li>
+    <li><strong>Text card</strong> — "Single-user license · Lifetime updates · No cloud · Chrome / Edge" on a dark gradient.</li>
   </ol>
 </div>
 
@@ -348,19 +332,18 @@ Build • Pair • Play — no code required. 🚀🎮🤖<button class="copybtn
 <h2>Common mistakes</h2>
 <table>
   <tr><th>❌ Don't</th><th>✅ Do</th></tr>
-  <tr><td>Open with "Hi, I'm…" + 10s of intro</td><td>Open with the empty Build canvas and a single drag in the first 3 s</td></tr>
+  <tr><td>Start with "Hi, I'm…" + 10s of intro</td><td>Open with the real board tilting a 3D model in the first 3 s</td></tr>
   <tr><td>Film landscape (16:9)</td><td>9:16 portrait — Etsy autoplays on mobile</td></tr>
-  <tr><td>Skip showing the target that moves</td><td>Always show a real thing (robot / LED / motor) react when you press a widget</td></tr>
-  <tr><td>Show the MakeCode screen for 20 s</td><td>Cut the paste/flash to &lt;10 s — nobody wants to watch code scroll</td></tr>
-  <tr><td>Forget captions (Etsy plays muted)</td><td>Burn in captions, highlight "No code" and "Bluetooth" hard</td></tr>
+  <tr><td>Talk over busy on-screen animation</td><td>Let the visual breathe for 1s, then explain</td></tr>
+  <tr><td>Forget captions (Etsy plays muted)</td><td>Burn in captions or add a text overlay every scene</td></tr>
   <tr><td>Show iOS / Safari in the video</td><td>Always demo on Chrome/Edge — iPhone users will buy and return</td></tr>
   <tr><td>Skip the CTA</td><td>Say "link below" in the last 5 seconds every single time</td></tr>
 </table>
 
 <!-- ═══════════ QUICK CARD ═══════════ -->
 <div class="slug">SLUG — POCKET CHEAT CARD</div>
-<div class="copybox">PRE    Chrome open · Build tab empty · MakeCode tab ready · 9:16 phone
-SHOOT  Hook 3s · Drag widgets · Code-paste-flash · Tap to Connect · Drive it
+<div class="copybox">PRE    V2 powered (X icon) · Chrome open · BLE green · 9:16 phone
+SHOOT  Hook in 3s · Live demo · CTA
 POST   Trim to 55 s · captions burn-in · first frame = thumbnail
 LIST   Title · 160-char desc · 13 tags · 7 images · price tiers</div>
 

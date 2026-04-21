@@ -45,10 +45,9 @@ Pay Teachers, or directly from the author.
    offered at a discounted renewal rate.
 
 6. THIRD-PARTY COMPONENTS
-   The Software ships as plain HTML, CSS and vanilla JavaScript. No
-   third-party runtime libraries are bundled. If a future version loads
-   any third-party component, that component remains under its own
-   license and is not covered by this agreement.
+   The Software loads Chart.js (MIT) and Three.js (MIT) from public CDNs.
+   Those libraries remain under their own licenses and are not covered by
+   this agreement.
 
 7. NO WARRANTY
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
