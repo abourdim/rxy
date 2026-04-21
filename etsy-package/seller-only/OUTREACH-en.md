@@ -29,7 +29,7 @@
 >
 > I saw your {{CONTEXT: "intro-to-coding unit" / "coding club page" / "micro:bit lesson plan"}} and wanted to share something I built — it might save you a class period on setup.
 >
-> It's a web-based control panel for the BBC micro:bit V2. One browser tab, no install, works on Chromebooks. Click Connect, pick your board, and every sensor streams live on-screen. Kids can paint the LEDs, graph temperature/sound in real time, spin servos, and see a 3D mirror of the board tilt with the real one.
+> It's a web-based control panel for the BBC micro:bit V2. One browser tab, no install, works on Chromebooks. Click Connect, pick your board, and every sensor streams live on-screen. Kids can paint the LEDs, graph temperature/sound in real time, widget, and see a 3D mirror of the board tilt with the real one.
 >
 > **Try it in 30 seconds** (no micro:bit needed for simulation mode): abourdim.github.io/rxy
 >
@@ -59,7 +59,7 @@
 
 > Hey {{FIRST_NAME}},
 >
-> Quick one — I built a browser-based control panel for the BBC micro:bit V2. Open in Chrome, click Connect, and every sensor + the LED matrix + servos are live, no IDE required. Open-source-friendly firmware (MakeCode), CSV export, 3D mirror of the board.
+> Quick one — I built a browser-based control panel for the BBC micro:bit V2. Open in Chrome, click Connect, and every sensor + the LED matrix + widget are live, no IDE required. Open-source-friendly firmware (MakeCode), CSV export, 3D mirror of the board.
 >
 > Figured it might be useful for drop-in workshops or Kids Code Hour — visitors can just sit down and play, no Arduino setup.
 >

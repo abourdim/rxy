@@ -30,7 +30,7 @@
 >
 > J'ai vu votre {{CONTEXT : « unité d'initiation au code » / « page du club codage » / « plan de séquence micro:bit »}} et j'ai pensé à un outil que j'ai créé — il pourrait vous faire gagner une séance entière sur l'installation.
 >
-> C'est un panneau de contrôle web pour le BBC micro:bit V2. Un onglet de navigateur, rien à installer, fonctionne sur Chromebook. Les élèves cliquent Connecter, choisissent leur carte, et chaque capteur diffuse en direct à l'écran. Ils peuvent peindre les LEDs, tracer température/son en temps réel, faire tourner des servos, et voir un miroir 3D de la carte s'incliner avec la vraie.
+> C'est un panneau de contrôle web pour le BBC micro:bit V2. Un onglet de navigateur, rien à installer, fonctionne sur Chromebook. Les élèves cliquent Connecter, choisissent leur carte, et chaque capteur diffuse en direct à l'écran. Ils peuvent peindre les LEDs, tracer température/son en temps réel, faire tourner des widget, et voir un miroir 3D de la carte s'incliner avec la vraie.
 >
 > **Essayez en 30 secondes** (mode Simulation, pas besoin de micro:bit) : abourdim.github.io/rxy
 >
@@ -60,7 +60,7 @@
 
 > Salut {{PRENOM}},
 >
-> Rapide — j'ai construit un panneau de contrôle web pour le BBC micro:bit V2. On ouvre dans Chrome, on clique Connecter, et chaque capteur + la matrice LED + les servos sont live, sans IDE. Firmware compatible open source (MakeCode), export CSV, miroir 3D de la carte.
+> Rapide — j'ai construit un panneau de contrôle web pour le BBC micro:bit V2. On ouvre dans Chrome, on clique Connecter, et chaque capteur + la matrice LED + les widget sont live, sans IDE. Firmware compatible open source (MakeCode), export CSV, miroir 3D de la carte.
 >
 > Ça pourrait être utile pour les ateliers libres ou les sessions Kids Code Hour — les visiteurs s'assoient et jouent directement, pas de setup Arduino.
 >

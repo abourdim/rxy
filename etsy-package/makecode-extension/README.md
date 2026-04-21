@@ -15,7 +15,7 @@ this repo's URL → one block in `on start`**.
    after it
 5. Flash. Open the live demo, click Connect, pick your board.
 
-That's it. Sensor stream starts, LEDs / servos / buzzer all respond.
+That's it. Sensor stream starts, LEDs / widget / buzzer all respond.
 
 ## Blocks
 

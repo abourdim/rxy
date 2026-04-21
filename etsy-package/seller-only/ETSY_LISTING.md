@@ -90,7 +90,7 @@ micro:bit, microbit v2, STEM, coding kids, BBC microbit, bluetooth app, MakeCode
 >   — visual troubleshooting: decision tree, symptom picker, icon gallery, reset recipe
 > • A printable Quick Setup guide (`SETUP.md`)
 > • 4 themes (Stealth, Neon, Arctic, Blaze)
-> • 2 tabs: LED Matrix, Sensors, Servos, GamePad, Graph, Play tab, Bench, Settings
+> • 2 tabs: Light widget, Sensors, Widget, GamePad, Graph, Play tab, Bench, Settings
 > • 5 interactive 3D models (micro:bit, Buggy, Robot Arm, Balance Game, Weather Station)
 > • Session recording, live graphs, annotations, JSON export
 > • Beginner & Expert modes — grows with the learner
@@ -135,9 +135,9 @@ Paste this block into the listing just above the FAQ. No fabricated reviews — 
 | Feature | Rxy Remote Builder | MakeCode Editor | Raw Web Bluetooth demos |
 |---|:---:|:---:|:---:|
 | Works in-browser, zero install | ✅ | ✅ | ✅ |
-| Ready-to-use sensor dashboard (temp, light, sound, accel, compass, touch) | ✅ | ❌ | ❌ |
+| Ready-to-use sensor dashboard (temp, light, sound, accel, XY Pad, touch) | ✅ | ❌ | ❌ |
 | Live graph + CSV / PNG export + session record & replay | ✅ | ❌ | ❌ |
-| Dual servo control UI with gauges and trim | ✅ | ❌ | Build it yourself |
+| Dual widget control UI with gauges and trim | ✅ | ❌ | Build it yourself |
 | 5 interactive 3D models (micro:bit, Buggy, Arm, Balance, Weather) | ✅ | ❌ | ❌ |
 | Trilingual EN/FR/AR with full RTL support | ✅ | Partial | ❌ |
 | Classroom lesson plan + printable stickers & A3 poster | ✅ | ❌ | ❌ |
@@ -206,7 +206,7 @@ A3 micro:bit V2 Pin-out Classroom Poster — Printable PDF | STEM Wall Chart for
 ### Description
 > 🖨️ **One poster. One price. Print it today.**
 >
-> A printable A3 **BBC micro:bit V2 pin-out poster** — the exact diagram used in the Rxy Remote Builder illustrated guide. Labeled pins, accelerometer axes, sound sensor callout, touch-logo arrow, radio + BLE note.
+> A printable A3 **BBC micro:bit V2 pin-out poster** — the exact diagram used in the Rxy Remote Builder illustrated guide. Labeled pins, Joystick axes, sound sensor callout, touch-logo arrow, radio + BLE note.
 >
 > 📄 **What you get:** 1 PDF, A3 (297×420 mm) + US Tabloid (11×17 in) versions, print-at-home or send to any copy shop.
 >
@@ -472,7 +472,7 @@ Upload this to **Loom**, **YouTube** (unlisted), or **Vimeo** and paste the link
 >
 > *(0:04)* "Plug in a micro:bit V2, click Connect, pick it from the list. Done."
 >
-> *(0:09)* "You get two tabs: LED matrix, live sensors, two servo channels, a gamepad, recordable graphs, and five interactive 3D models that move when the board moves."
+> *(0:09)* "You get two tabs: LED matrix, live sensors, two widget channels, a gamepad, recordable graphs, and five interactive 3D models that move when the board moves."
 >
 > *(0:18)* "Tilt the board — the widget canvas tilts. Press a button — the screen lights up. Everything is live."
 >
@@ -496,12 +496,12 @@ Etsy shows photo #1 as a **square** in search results, and the first 5 above the
 
 | # | Tab / theme | What to capture | Overlay text |
 |---|-------------|-----------------|--------------|
-| 1 | **Hero** — Stealth theme, LED Matrix tab, micro:bit physically next to laptop | Square crop. App on screen, real hardware in frame. | "micro:bit V2 Playground" + "Instant download" |
+| 1 | **Hero** — Stealth theme, Light widget tab, micro:bit physically next to laptop | Square crop. App on screen, real hardware in frame. | "micro:bit V2 Playground" + "Instant download" |
 | 2 | Build tab, all sparklines populated, micro:bit being held in hand for motion | Show 6+ live values | "Live sensor dashboard — temp, light, sound, motion" |
 | 3 | Graph tab in **fullscreen**, Neon theme, ~3 datasets plotting | Capture mid-animation | "Real-time charts • record • export" |
 | 4 | Play tab tab, Buggy model rotated to show wheels + LED screen | Drag to a 3/4 angle first | "5 interactive 3D models" |
 | 5 | **2×2 grid** — one screenshot per theme (Stealth, Neon, Arctic, Blaze) | Same tab in each, e.g. Sensors | "4 themes — pick your vibe" |
-| 6 | Mobile-width view (DevTools → 414×896) of the LED Matrix tab | Use Chrome's device toolbar (`Cmd+Shift+M`) | "Works on Chromebooks & Android tablets" |
+| 6 | Mobile-width view (DevTools → 414×896) of the Light widget tab | Use Chrome's device toolbar (`Cmd+Shift+M`) | "Works on Chromebooks & Android tablets" |
 | 7 | Onboarding overlay (clear localStorage with `localStorage.clear()` then reload) | Show all 4 welcome steps | "Friendly first-run guide" |
 | 8 | **Compatibility infographic** — make in Canva / Figma, not a screenshot | ✅ Chrome / Edge / Android. ❌ Safari / Firefox / iPhone / iPad | "Check before you buy" |
 | 9 | **Feature wall** — text-on-image styled list of top 8 features | Use a Canva template | Bullet list of what's inside |
@@ -540,9 +540,9 @@ Pinterest indexes pins for years, unlike Instagram. One good pin can drive sales
 
 ### Pin descriptions (500 chars, keyword-rich, written for the searcher)
 
-> Looking for a micro:bit project that works straight from the browser? Rxy Remote Builder gives you 2 tabs of live control — LED matrix, sensors, servos, gamepad, real-time graphs, and 5 interactive 3D models — all over Bluetooth. Perfect for STEM teachers, homeschool parents, and after-school clubs. No installs, no accounts. Works on Chrome and Edge. One-time download. #microbit #STEM #homeschool #coding #edtech
+> Looking for a micro:bit project that works straight from the browser? Rxy Remote Builder gives you 2 tabs of live control — LED matrix, sensors, widget, gamepad, real-time graphs, and 5 interactive 3D models — all over Bluetooth. Perfect for STEM teachers, homeschool parents, and after-school clubs. No installs, no accounts. Works on Chrome and Edge. One-time download. #microbit #STEM #homeschool #coding #edtech
 
-> The Bluetooth control panel for the BBC micro:bit V2 that turns one $20 board into an entire robotics lab. Draw on the LEDs, watch live sensor graphs, drive a widget canvas with the on-screen gamepad, and record sessions for science class. Browser-based — no installs. Instant download from Etsy. #microbit #classroomresources #stemforkids #robotics #makered
+> The Bluetooth control panel for the BBC micro:bit V2 that turns one $20 board into an entire robotics lab. Draw on the LEDs, watch live Graph widgets, drive a widget canvas with the on-screen gamepad, and record sessions for science class. Browser-based — no installs. Instant download from Etsy. #microbit #classroomresources #stemforkids #robotics #makered
 
 ### Hashtag bank (rotate, don't reuse the same set)
 
@@ -1188,7 +1188,7 @@ Publish free tutorials on [Instructables](https://www.instructables.com) that ra
 #### 8a. Tutorial ideas (pick 3, publish one per week)
 1. "**How to make a micro:bit thermometer in 5 minutes**" — manual version (MakeCode only)
 2. "**micro:bit sound level meter** — no code needed" — same
-3. "**Control a servo from your laptop via Bluetooth**" — advanced manual setup
+3. "**Control a widget from your laptop via Bluetooth**" — advanced manual setup
 
 Each Instructable has:
 - Real, working code (shows you're credible)
@@ -1249,7 +1249,7 @@ Subject: White-label micro:bit app for your kits — $1/unit licensing
 
 Hi [Name],
 
-I'm the developer of Rxy Remote Builder — a browser-based app that turns a bare micro:bit V2 into an interactive STEM lab (LEDs, sensors, servos, graphs, 3D). You can see it at [Etsy URL].
+I'm the developer of Rxy Remote Builder — a browser-based app that turns a bare micro:bit V2 into an interactive STEM lab (LEDs, sensors, widget, graphs, 3D). You can see it at [Etsy URL].
 
 Proposal: I license you a co-branded version of the app ("Powered by [Your Company]" footer, your logo) to ship with your micro:bit kits. Buyers scan the QR code on the box and get the full app — no cloud, no install.
 
