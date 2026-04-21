@@ -28,7 +28,7 @@ Before you press Record:
 - [ ] BBC micro:bit V1 or V2 powered on, showing the **X** icon *(if not → re-flash `makecode.ts`)*
 - [ ] Chrome or Edge open with `index.html` loaded
 - [ ] BLE paired — status chip is **green**
-- [ ] Theme set — **Neon** photographs best; **Arctic** reads best in harsh daylight
+- [ ] Theme set — **Default** photographs best; **Light** reads best in harsh daylight
 - [ ] Language matches your voiceover (EN / FR / AR)
 - [ ] micro:bit V2 paired (optional)
 - [ ] Main screen ready — looks impressive in the hero shot
@@ -66,7 +66,7 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 | 10–20 s | *"Sensors live — tilt it, the 3D model tilts too."* | Tab **6 · Play tab**. Tilt the real board. The virtual one mirrors it. Hold both in frame. |
 | 20–30 s | *"Click through the live demo — features run in the browser."* | Click through the live demo; features run in the browser.|
 | 30–40 s | *"Live graph with record, replay, CSV. A lab in a browser tab."* | Tab **5 · Graph** → click **🎲 Simulate** → chart dances → hover on **⏺ Record** and **📄 CSV**. |
-| 40–50 s | *"4 themes, 3 languages, works offline, no install, no account."* | Quick theme swap (header dropdown) → show Neon → Arctic. |
+| 40–50 s | *"4 themes, 3 languages, works offline, no install, no account."* | Quick theme swap (header dropdown) → show Default → Light. |
 | 50–55 s | *"Link below — lifetime updates, teachers and kids welcome."* | Face-cam back on. Eye contact. |
 | 55–60 s | *"Happy hacking."* | Hold still. Logo + handle overlay freezes. This becomes the loop frame. |
 
@@ -81,8 +81,8 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 | 0–3 s | *"STEM teachers — you need to see this."* | Overhead shot of a laptop + 5 micro:bits laid out on a desk. |
 | 3–10 s | *"One browser tab. Live sensors. No install on 30 laptops."* | Click Connect. Status goes green. Cut to Build tab — values streaming. |
 | 10–20 s | *"Calibrate the XY Pad right in the UI. Baseline the sound for a quiet classroom."* | Build tab → Calibrate. Show the Set Level / Set Ambient buttons. |
-| 20–30 s | *"Record a full lesson. Export CSV. Drop into a lab report."* | Graph tab → Record → Stop → Save Session → CSV. |
-| 30–40 s | *"4 themes — Arctic for projectors. 3 languages — Arabic with full RTL."* | Swap theme to Arctic. Swap language to Arabic — watch the UI flip RTL. |
+| 20–30 s | *"Record a full lesson. Export CSV. Drop into a lab report."* | Play tab → Record → Stop → Save Session → CSV. |
+| 30–40 s | *"4 themes — Light for projectors. 3 languages — Arabic with full RTL."* | Swap theme to Light. Swap language to Arabic — watch the UI flip RTL. |
 | 40–50 s | *"Site license for up to 30 teachers. Lifetime updates."* | Text overlay with the licensing tiers + Etsy shop name. |
 | 50–60 s | *"Link below. Tag me when you run a workshop."* | Face-cam, hold the micro:bit, smile, freeze on logo. |
 
@@ -96,7 +96,7 @@ Etsy loops the video, so the **end frame should match the cover** — keeps view
 |---|---|---|
 | 0–3 s | *"My kid built a robot. With a browser tab."* | Close-up: a small hand tapping Connect. |
 | 3–10 s | *"The micro:bit drives the widget. The 3D model mirrors the real robot."* | Tab 6 (widget canvas). Real robot next to the laptop. Robot in 3D follows. |
-| 10–20 s | *"D-pad in the browser → arrows on the LED → commands to the motors."* | Tab 4 (GamePad). Press ⬆ → LED arrow. Robot crawls forward. |
+| 10–20 s | *"D-pad in the browser → arrows on the LED → commands to the motors."* | Tab 4 (D-Pad widget). Press ⬆ → LED arrow. Robot crawls forward. |
 | 20–30 s | *"Tilt the brain — the ball rolls to the targets."* | Tab 6 → Balance Game model. Tilt the board. Ball rolls. |
 | 30–40 s | *"Graph the sensors. Record the run. Replay for homework."* | Tab 5 → Record 3 s of accel → Replay → Save Session. |
 | 40–50 s | *"No login. Nothing leaves the computer. Offline after first load."* | Close the Wi-Fi indicator (airplane mode). App still works. |
@@ -184,7 +184,7 @@ Micro:bit Remote Builder — BLE Control Panel for Teachers & Kids · Sensors ·
 
 **160-char short description:**
 ```
-Browser-based BLE control panel for the BBC micro:bit V1 or V2. Sensors, widget, live graphs, 3D models, and a GamePad — all from Chrome. No install, no account.
+Browser-based BLE control panel for the BBC micro:bit V1 or V2. Sensors, widget, live graphs, 3D models, and a D-Pad widget — all from Chrome. No install, no account.
 ```
 
 **13 Etsy tags:**

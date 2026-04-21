@@ -19,7 +19,7 @@
       "accentColor": "#00ff88",
       "screenshots": ["screenshot-build.png", "screenshot-audience-kid-3d.png"],
       "title": "Your micro:bit\nbecomes a playground",
-      "subtitle": "Sensors. Servos. 3D models. No install, no account.",
+      "subtitle": "Sensors. D-Pad widget. 3D models. No install, no account.",
       "badge": "Works offline",
       "footerLeft": "Kid-safe · No cloud",
       "footerRight": "60-sec setup"

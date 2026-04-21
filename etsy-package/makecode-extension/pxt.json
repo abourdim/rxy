@@ -1,7 +1,7 @@
 {
     "name": "rxy-companion",
     "version": "0.1.0",
-    "description": "Companion firmware blocks for the rxy browser app — pairs any micro:bit V2 with the Etsy-distributed BLE Control Panel (https://abourdim.github.io/rxy/). Adds one-click streaming of temperature, light, sound, accel, compass, buttons, and touch pins, plus receives LED pattern / servo / sound commands.",
+    "description": "Companion firmware blocks for the rxy browser app — pairs any micro:bit V2 with the Etsy-distributed BLE Control Panel (https://abourdim.github.io/rxy/). Adds one-click streaming of Drag a widget, accel, XY Pad, buttons, and touch pins, plus receives LED pattern / D-Pad widget / sound commands.",
     "license": "MIT",
     "dependencies": {
         "core": "*",

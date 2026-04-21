@@ -20,7 +20,7 @@
   "tabs": [
     { "slug": "controls", "selector": ".tab-btn[data-page=\"controls\"]", "settle": 500 },
     { "slug": "sensors",  "selector": ".tab-btn[data-page=\"senses\"]",   "settle": 1000 },
-    { "slug": "motors",   "selector": ".tab-btn[data-page=\"servos\"]",   "settle": 800 },
+    { "slug": "motors",   "selector": ".tab-btn[data-page=\"D-Pad widget\"]",   "settle": 800 },
     { "slug": "gamepad",  "selector": ".tab-btn[data-page=\"gamepad\"]",  "settle": 600 },
     { "slug": "graph",    "selector": ".tab-btn[data-page=\"graph\"]",    "settle": 1500,
       "prep": { "action": "click", "selector": "button:has-text(\"Simulate\"),button:has-text(\"🎲 Simulate\")", "wait": 2000 } },

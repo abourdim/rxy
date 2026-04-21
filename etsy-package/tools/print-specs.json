@@ -17,8 +17,8 @@
     "posterKicker": "WEB BLUETOOTH · MICRO:BIT V2",
     "posterSubtitle": "Classroom-ready control panel. 30 laptops. Zero install.",
     "features": [
-      { "icon": "⚡", "h": "Live sensors", "p": "Temperature, sound, light, accelerometer, compass — all streaming in real time." },
-      { "icon": "🎛️", "h": "Full control", "p": "Paint LEDs, spin servos, drive motors. Record CSV sessions for lessons." },
+      { "icon": "⚡", "h": "Live sensors", "p": "Temperature, sound, light, Joystick, XY Pad — all streaming in real time." },
+      { "icon": "🎛️", "h": "Full control", "p": "Paint LEDs, Drag a widget, drive motors. Record CSV sessions for lessons." },
       { "icon": "🧊", "h": "Live 3D mirror", "p": "A photoreal board tilts with your micro:bit. Kids see the physics click." }
     ],
     "steps": [
@@ -44,7 +44,7 @@
     "posterSubtitle": "Panneau de contrôle prêt pour la classe. 30 ordinateurs. Zéro installation.",
     "features": [
       { "icon": "⚡", "h": "Capteurs en direct", "p": "Fonctionnalités du produit — voir la description." },
-      { "icon": "🎛️", "h": "Contrôle complet", "p": "Peindre les LEDs, faire tourner les servos, piloter les moteurs. Export CSV." },
+      { "icon": "🎛️", "h": "Contrôle complet", "p": "Peindre les LEDs, faire tourner les D-Pad widget, piloter les moteurs. Export CSV." },
       { "icon": "🧊", "h": "Miroir 3D", "p": "Une carte photoréaliste s'incline avec votre micro:bit. La physique prend vie." }
     ],
     "steps": [

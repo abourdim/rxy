@@ -174,7 +174,7 @@ TEMPLATES_BY_LANG.fr = {
       `${PRODUCT} : transforme un micro:bit en jeu`,
     ],
     subtitles: [
-      `Capteurs, servos, fonctionnalités. Sans install. Sans compte.`,
+      `Capteurs, D-Pad widget, fonctionnalités. Sans install. Sans compte.`,
       `Fonctionne hors ligne après la première ouverture.`,
       `Explore ton produit. Découvre ce qu'il peut faire.`,
       `tout un outil à explorer. Tes parents n'y comprendront rien.`,
@@ -247,7 +247,7 @@ TEMPLATES_BY_LANG.en = {
     socialCaptions: [
       `A browser tab turned my micro:bit into a live-data lab. Students ran 20-minute experiments without installing a thing. 🔬`,
       `If you've ever watched 30 Chromebooks stall on a Python install, this is the alternative.`,
-      `One Etsy download. Zero IT tickets. Thirty students graphing real accelerometer data.`,
+      `One Etsy download. Zero IT tickets. Thirty students graphing real Joystick data.`,
     ],
     pinCaptions: [
       `STEM teachers — you need to see this`,
@@ -269,7 +269,7 @@ TEMPLATES_BY_LANG.en = {
       `${PRODUCT}: turn a micro:bit into a game`,
     ],
     subtitles: [
-      `Sensors, servos, 3D models. No install. No account.`,
+      `Sensors, D-Pad widget, 3D models. No install. No account.`,
       `Works offline after the first open.`,
       `Draw on the LEDs. Hear the buzzer. Tilt the 3D model.`,
       `2 tabs of things to try. Your parents won't understand most of them.`,

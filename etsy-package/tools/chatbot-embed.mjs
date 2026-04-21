@@ -66,8 +66,8 @@ RULES_BY_LANG.ar = [
     answer: `صفر قياسات عن بُعد. ${PRODUCT} ليس له خادم ولا حساب ولا سحاب. كل بيانات المستشعرات تبقى على جهازك.` },
   { id: 'csv-export', keywords: ['csv', 'تصدير', 'جدول بيانات'],
     answer: `علامة تبويب الرسم البياني تسجل بيانات المستشعرات حية وتصدرها بصيغة CSV — صف لكل عينة، جاهز لـ Excel / Sheets / Python.` },
-  { id: 'servos-motors', keywords: ['servo', 'محرك', 'تحريك'],
-    answer: `${PRODUCT} يقود محركَي servo متصلَين بالمنفذَين P1 وP2. علامة تبويب المحركات بها منزلقات، علامة تبويب لوحة اللعب ترسل أوامر اتجاهية.` },
+  { id: 'D-Pad widget-motors', keywords: ['D-Pad widget', 'محرك', 'تحريك'],
+    answer: `${PRODUCT} يقود محركَي D-Pad widget متصلَين بالمنفذَين P1 وP2. علامة تبويب المحركات بها منزلقات، علامة تبويب لوحة اللعب ترسل أوامر اتجاهية.` },
 ];
 
 RULES_BY_LANG.fr = [
@@ -93,8 +93,8 @@ RULES_BY_LANG.fr = [
     answer: `Zéro télémétrie. ${PRODUCT} n'a ni serveur, ni compte, ni cloud. Toutes les données des capteurs restent sur votre appareil.` },
   { id: 'csv-export', keywords: ['csv', 'export', 'données', 'tableur'],
     answer: `L'onglet Graphique enregistre les données des capteurs en direct et exporte en CSV — une ligne par échantillon, prêt pour Excel / Sheets / Python.` },
-  { id: 'servos-motors', keywords: ['servo', 'moteur', 'bouger'],
-    answer: `${PRODUCT} pilote deux servos connectés aux broches P1 et P2. L'onglet Moteurs a des curseurs, l'onglet Manette envoie des commandes directionnelles.` },
+  { id: 'D-Pad widget-motors', keywords: ['D-Pad widget', 'moteur', 'bouger'],
+    answer: `${PRODUCT} pilote deux D-Pad widget connectés aux broches P1 et P2. L'onglet Moteurs a des curseurs, l'onglet Manette envoie des commandes directionnelles.` },
 ];
 
 RULES_BY_LANG.en = [
@@ -151,12 +151,12 @@ RULES_BY_LANG.en = [
   {
     id: 'csv-export',
     keywords: ['csv', 'export', 'save data', 'spreadsheet'],
-    answer: `The Graph tab records live sensor data and exports CSV — one row per sample, ready for Excel / Sheets / Python. You can also load back a saved CSV and replay it.`,
+    answer: `The Play tab records live sensor data and exports CSV — one row per sample, ready for Excel / Sheets / Python. You can also load back a saved CSV and replay it.`,
   },
   {
-    id: 'servos-motors',
-    keywords: ['servo', 'motor', 'move', 'physical'],
-    answer: `${PRODUCT} drives two servos connected to pins P1 and P2. The Motors tab has sliders for angle control, the GamePad tab sends directional commands, and the 3D tab mirrors the board's orientation in real time.`,
+    id: 'D-Pad widget-motors',
+    keywords: ['D-Pad widget', 'motor', 'move', 'physical'],
+    answer: `${PRODUCT} drives two D-Pad widget connected to pins P1 and P2. The Motors tab has sliders for angle control, the D-Pad widget tab sends directional commands, and the 3D tab mirrors the board's orientation in real time.`,
   },
 ];
 
