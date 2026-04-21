@@ -145,14 +145,14 @@
 <h2>Before you press Record</h2>
 <div class="card">
   <ul class="checklist" onclick="var li=event.target.closest('li');if(li)li.classList.toggle('checked')">
-    <li><input type="checkbox"><label>micro:bit V2 powered on, showing <kbd>X</kbd> icon<span class="where">If not → reflash <code>makecode.ts</code></span></label></li>
-    <li><input type="checkbox"><label>Chrome or Edge open, <code>index.html</code> loaded<span class="where">Safari/Firefox/iOS will not work</span></label></li>
-    <li><input type="checkbox"><label>BLE connected — status chip is <strong>green</strong><span class="where">Click 🔗 Connect, pick BBC micro:bit from picker</span></label></li>
-    <li><input type="checkbox"><label>Theme picked — <strong>Neon</strong> looks best on camera<span class="where">Header → paint-roller dropdown</span></label></li>
-    <li><input type="checkbox"><label>Servo plugged into P1 (if showing Robot Arm / Buggy)</label></li>
-    <li><input type="checkbox"><label>3D Board tab open, Buggy or Robot Arm selected<span class="where">Tab 6 → model dropdown</span></label></li>
+    <li><input type="checkbox"><label>micro:bit (V1 or V2) powered on, pairing-ready<span class="where">If not → flash the MakeCode hex once from the Play tab export</span></label></li>
+    <li><input type="checkbox"><label>Chrome or Edge open, <code>index.html</code> loaded<span class="where">Safari/Firefox/iOS will not work with Web Bluetooth</span></label></li>
+    <li><input type="checkbox"><label>Build tab active with an <strong>empty canvas</strong><span class="where">Hero shot needs a clean grid for the first drag</span></label></li>
+    <li><input type="checkbox"><label>Theme picked — <strong>candy</strong> (Fire) or <strong>space</strong> looks best on camera<span class="where">Press <kbd>T</kbd> to cycle through dark · ocean · space · candy · forest</span></label></li>
+    <li><input type="checkbox"><label>Widget palette visible on the left, template chooser bookmarked</label></li>
+    <li><input type="checkbox"><label>MakeCode tab pre-opened at <code>makecode.microbit.org</code> for the export demo</label></li>
     <li><input type="checkbox"><label>Phone in 9:16 mode on a tripod, lit from the front</label></li>
-    <li><input type="checkbox"><label>Desk cleared — only the board and one prop in frame</label></li>
+    <li><input type="checkbox"><label>Desk cleared — only the micro:bit and the laptop screen in frame</label></li>
     <li><input type="checkbox"><label>Script read aloud once — timed under 55 s</label></li>
   </ul>
 </div>
@@ -162,11 +162,12 @@
 <h2>Structure</h2>
 <div class="card">
   <pre style="color:var(--accent2);font-family:var(--mono);font-size:.9rem;line-height:1.7;margin:0">
- 0–3 s   HOOK        "Watch what this micro:bit does in 60 seconds."
- 3–10 s  CONTEXT     Board on-screen, X icon → status turns green.
-10–35 s  DEMO        Tilt → 3D model follows. Press A → LED heart. Servo swings.
-35–50 s  PAYOFF      Zoom on live graph + 3D model mirroring real board.
-50–55 s  CTA         "Full kit in my shop — link below."
+ 0–3 s   HOOK        "Build your own micro:bit remote. Drag widgets. No coding."
+ 3–10 s  CONTEXT     12 widgets · 6 templates · V1 AND V2 — palette + template chooser side-by-side.
+10–25 s  DEMO 1      Pick Race Car template → Play tab → connect → D-Pad lights the real micro:bit.
+25–40 s  DEMO 2      Click </> → copy MakeCode → paste into makecode.microbit.org → hex → drag onto micro:bit.
+40–50 s  PAYOFF      Cycle 5 themes with T · save as custom template · share with 30 students.
+50–55 s  CTA         "Build a controller in 60 seconds. Link below."
 55–60 s  END FRAME   Logo + handle frozen for the loop preview.</pre>
 </div>
 
@@ -182,83 +183,91 @@
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">HOOK</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[Hook line — 1-second promise, the reason a scroller stops]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[The hook shot — what the viewer sees during the line]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Build your own micro:bit remote. Drag widgets. No coding."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Drag a <strong>Joystick</strong> from the palette onto the empty canvas — it snaps to the grid with a satisfying click.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:03–00:10</span><span class="scene-phase phase-demo">CONTEXT</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[Who this is for, what problem it solves]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[Setup shot — connecting, first meaningful screen]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"12 widgets. 6 templates. Works on V1 and V2."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Reveal the widget palette (Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer) next to the template chooser grid.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:10–00:25</span><span class="scene-phase phase-demo">DEMO 1</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[First wow-moment — a marquee feature of Micro:bit Remote Builder]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[The 15-second action shot]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Pick Race Car. The canvas fills itself — D-Pad, speed slider, LED. Hit Play, connect the real micro:bit, press right — and the LED arrow lights up on the real board."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Click the <strong>Race Car</strong> template → D-Pad + Slider + Light appear on the canvas → switch to the <strong>Play</strong> tab → pair the micro:bit → press the D-Pad right arrow → real micro:bit LED arrow lights up in sync.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">DEMO 2</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[Second wow-moment — second feature / use case]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[The 15-second action shot]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"One click — MakeCode is auto-generated. Paste it, download the hex, drag it onto the micro:bit. That's the no-coding proof."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Click the <code>&lt;/&gt;</code> button → the export modal opens with paste-ready MakeCode JavaScript → copy → paste into <code>makecode.microbit.org</code> → hex downloads → drag onto the <code>MICROBIT</code> drive.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:40–00:50</span><span class="scene-phase phase-payoff">PAYOFF</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[The "why it matters" — time saved, skill acquired, safety]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[The screen that carries the message — export, capture, result]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Cycle five themes. Save as your own template. Share with thirty students."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Tap <kbd>T</kbd> four times — canvas flashes through dark → ocean → space → candy → forest. Press <kbd>Ctrl</kbd>+<kbd>S</kbd> to save custom template.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:50–00:60</span><span class="scene-phase phase-cta">CTA + END FRAME</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 SAY</div><em>[Call to action — full kit + link in description]</em></div>
-    <div class="do"><div class="do-label">🎬 DO</div><em>[Logo overlay, 3-second still for the loop]</em></div>
+    <div class="say"><div class="say-label">🎙 SAY</div>"Build a controller in 60 seconds. Full kit plus 12 widgets — link below."</div>
+    <div class="do"><div class="do-label">🎬 DO</div>Logo card — "Micro:bit Remote Builder · Drag. Drop. Drive." — frozen for 3 seconds as the loop anchor.</div>
   </div>
 </div>
 
 <!-- ═══════════ LISTING COPY ═══════════ -->
 <div class="slug" id="listing">SLUG — COPY-READY LISTING TEXT</div>
 <h2>Etsy title (140 chars max)</h2>
-<div class="copybox">[TODO — 140-char Etsy title, see ETSY_LISTING.md]<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
+<div class="copybox">Micro:bit Remote Builder (Rxy) — Drag-Drop Bluetooth Controller · 12 Widgets · 6 Templates · Auto-MakeCode Export · V1 + V2 · No Coding · Chrome/Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
 
 <h2>Short description (first 160 chars — shown in search)</h2>
-<div class="copybox">[TODO — 160-char short description, see ETSY_LISTING.md]<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
+<div class="copybox">Drag widgets onto a canvas, press Play, drive your micro:bit over Bluetooth. One click exports paste-ready MakeCode. V1 and V2. No coding. No accounts.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPY</button></div>
 
 <h2>Full description</h2>
-<div class="copybox">🎮 Micro:bit Remote Builder — a browser-based BLE control panel for the BBC micro:bit V2.
+<div class="copybox">🎮 Micro:bit Remote Builder (Rxy) — Drag. Drop. Drive.
 
-[TODO — 1-sentence pitch of what the product does when opened]
+Design a Bluetooth remote control for your BBC micro:bit by dragging widgets onto a canvas, then press Play to drive the real board — no coding required. One click generates paste-ready MakeCode you drop into makecode.microbit.org to create the matching hex.
+
 WHAT YOU GET
-• [TODO — product-specific feature 1]• [TODO — your live signal list]• [TODO — your control surface if any]• [TODO — your interactive surface]
-• [TODO — your record/replay/export feature]• [TODO — your visualization feature if any]• [TODO — your themes / UI variety + languages]• 📱 PWA — installable, offline-capable
+• 🧩 Drag-and-drop builder — design your own controller on a snap-to-grid canvas, no code
+• 🎛 12 widget types — Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer
+• 🗂 6 starter templates — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh
+• 🔄 Two tabs — Build (design canvas) + Play (live Bluetooth runtime)
+• 🧪 Auto-generated MakeCode — one click, copy, paste into MakeCode, download hex, drag onto the micro:bit
+• ⌨️ 20 keyboard shortcuts — Ctrl+Z/Y (undo/redo), Ctrl+C/V/D (copy/paste/duplicate), Ctrl+G (group), Ctrl+S (save template), T (cycle theme), G (grid snap), Ctrl+/- (zoom), and more
+• 🎨 5 themes — dark · ocean · space · candy · forest
+• 🌍 Trilingual UI — English · French · Arabic with full RTL
+• 📱 PWA — installable, offline-capable
 • 👶 Beginner mode + 🧙 Expert mode
 
 WHAT'S IN YOUR DOWNLOAD
 • index.html — the full app
-• makecode.ts — micro:bit firmware (flash once from MakeCode)
+• makecode.ts — reference micro:bit firmware (exported from the app)
 • SETUP.md — 5-minute quick-start
 • docs/ — illustrated guide, cheat sheet, FAQ, Etsy playbook
 • LICENSE — personal / classroom single-user license
 
 REQUIREMENTS
-• BBC micro:bit V2 (V1 works but has no sound sensor)
+• BBC micro:bit V1 OR V2 — works on both (rare — most dashboards are V2-only)
 • Chrome or Edge on desktop (or Chrome on Android)
 • Bluetooth enabled
 • HTTPS or file:// — double-clicking the HTML works
 
 WHO IT'S FOR
-Teachers running STEM workshops · home-schooling families · robotics clubs · makers prototyping BLE projects · anyone curious about the micro:bit.
+Teachers running STEM workshops · home-schooling families · robotics clubs · game-controller designers · makers prototyping BLE projects · anyone curious about the micro:bit.
 
 PRIVACY FIRST
 Nothing leaves your computer. No analytics, no logins, no cloud. All calibrations, recordings, and presets live in your browser's localStorage and on your disk.
@@ -288,8 +297,8 @@ Happy hacking! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.
   <span class="pill">robotics</span>
   <span class="pill">kids coding</span>
   <span class="pill">teacher resource</span>
-  <span class="pill">sensors</span>
-  <span class="pill">[product tag]</span>
+  <span class="pill">drag and drop</span>
+  <span class="pill">remote builder</span>
   <span class="pill">classroom</span>
   <span class="pill">home school</span>
   <span class="pill">makerspace</span>
@@ -300,28 +309,28 @@ Happy hacking! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.
   <span class="pill">HTML5</span>
   <span class="pill">JavaScript</span>
   <span class="pill">Web Bluetooth</span>
-  <span class="pill">[render lib]</span>
-  <span class="pill">[3D lib if any]</span>
+  <span class="pill">Canvas</span>
+  <span class="pill">localStorage</span>
   <span class="pill">PWA</span>
   <span class="pill">MakeCode</span>
   <span class="pill">TypeScript</span>
 </div>
 
 <h2>SEO keywords</h2>
-<p><code>browser-based</code> · <code>no-install</code> · <code>privacy-first</code> · <code>offline-capable</code> · <code>web bluetooth</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>micro:bit V2</code></p>
+<p><code>drag-and-drop</code> · <code>no-code</code> · <code>no-install</code> · <code>auto-makecode</code> · <code>web bluetooth</code> · <code>controller builder</code> · <code>V1 and V2</code> · <code>teacher resource</code></p>
 
 <!-- ═══════════ IMAGES ═══════════ -->
 <div class="slug" id="images">SLUG — 7-IMAGE LISTING ORDER</div>
 <h2>Image sequence (Etsy shows 1 &amp; 2 largest)</h2>
 <div class="card">
   <ol style="padding-left:22px;line-height:2">
-    <li><strong>[TODO — Hero shot: hardware + computer screen showing the marquee product state]</strong></li>
-    <li><strong>[TODO — grid screenshot of your main screens or features]</strong></li>
-    <li><strong>[TODO — close-up of your marquee feature]</strong></li>
-    <li><strong>[TODO — split screenshot showing two product features]</strong></li>
-    <li><strong>[TODO — shot showing hardware in-use or hand-to-screen reference]</strong></li>
-    <li><strong>[TODO — styling / variety grid].</li>
-    <li><strong>Text card</strong> — "Single-user license · Lifetime updates · No cloud · Chrome / Edge" on a dark gradient.</li>
+    <li><strong>Hero — split canvas</strong>: widget palette on the left, a fully built Robot controller filling the right. Orbitron title "Drag. Drop. Drive." on top.</li>
+    <li><strong>6 templates grid</strong> — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh, each with a mini preview of the canvas layout.</li>
+    <li><strong>Drag-drop animation frame</strong> — mid-drop of a D-Pad widget, grid snap lines glowing, ghost outline showing where it will land.</li>
+    <li><strong>MakeCode export modal</strong> — auto-generated JavaScript visible on screen with the "Copy" button highlighted and an arrow pointing to makecode.microbit.org.</li>
+    <li><strong>20 keyboard shortcuts overlay</strong> — a cheat-sheet card listing Ctrl+Z/Y/C/V/D/G/S/A, T, G, Delete, Arrows, Esc, ?, Ctrl+Shift+L, Ctrl+/- and Ctrl+0.</li>
+    <li><strong>Live Play tab</strong> — the Play canvas paired to a real micro:bit, with on-screen D-Pad pressed and the real board's LED arrow lit in the foreground.</li>
+    <li><strong>5 themes grid (2×3)</strong> — dark · ocean · space · candy · forest with the 6th cell as the "Single-user license · Lifetime updates · No cloud · Chrome / Edge" text card.</li>
   </ol>
 </div>
 
@@ -330,7 +339,7 @@ Happy hacking! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.
 <h2>Common mistakes</h2>
 <table>
   <tr><th>❌ Don't</th><th>✅ Do</th></tr>
-  <tr><td>Start with "Hi, I'm…" + 10s of intro</td><td>Open with the real board tilting a 3D model in the first 3 s</td></tr>
+  <tr><td>Start with "Hi, I'm…" + 10s of intro</td><td>Open with a widget mid-drag onto the canvas in the first 3 s</td></tr>
   <tr><td>Film landscape (16:9)</td><td>9:16 portrait — Etsy autoplays on mobile</td></tr>
   <tr><td>Talk over busy on-screen animation</td><td>Let the visual breathe for 1s, then explain</td></tr>
   <tr><td>Forget captions (Etsy plays muted)</td><td>Burn in captions or add a text overlay every scene</td></tr>
@@ -340,9 +349,9 @@ Happy hacking! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.
 
 <!-- ═══════════ QUICK CARD ═══════════ -->
 <div class="slug">SLUG — POCKET CHEAT CARD</div>
-<div class="copybox">PRE    V2 powered (X icon) · Chrome open · BLE green · 9:16 phone
-SHOOT  Hook in 3 s · [TODO — 3 verbs for your product] · CTA
-POST   Trim to 55 s · captions burn-in · first frame = thumbnail
+<div class="copybox">PRE    micro:bit (V1/V2) pair-ready · Chrome open · empty canvas · 9:16 phone
+SHOOT  Drag → Template → Play → Export → Theme cycle → CTA
+POST   Trim to 55 s · captions burn-in · first frame = widget drag
 LIST   Title · 160-char desc · 13 tags · 7 images · price tiers</div>
 
 <p style="text-align:center;margin-top:40px;color:var(--muted);font-size:.85rem">

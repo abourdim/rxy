@@ -145,14 +145,14 @@
 <h2>Avant d'appuyer sur Rec</h2>
 <div class="card">
   <ul class="checklist" onclick="var li=event.target.closest('li');if(li)li.classList.toggle('checked')">
-    <li><input type="checkbox"><label>micro:bit V2 allumé, icône <kbd>X</kbd> affichée<span class="where">Sinon → reflasher <code>makecode.ts</code></span></label></li>
-    <li><input type="checkbox"><label>Chrome ou Edge ouvert, <code>index.html</code> chargé<span class="where">Safari/Firefox/iOS ne fonctionneront pas</span></label></li>
-    <li><input type="checkbox"><label>BLE connecté — la puce d'état est <strong>verte</strong><span class="where">Cliquez sur 🔗 Connecter, choisissez BBC micro:bit dans la fenêtre</span></label></li>
-    <li><input type="checkbox"><label>Thème choisi — <strong>Neon</strong> rend le mieux à la caméra<span class="where">En-tête → menu rouleau de peinture</span></label></li>
-    <li><input type="checkbox"><label>Servo branché sur P1 (pour Bras Robot / Buggy)</label></li>
-    <li><input type="checkbox"><label>Onglet 3D Board ouvert, Buggy ou Bras Robot sélectionné<span class="where">Onglet 6 → menu des modèles</span></label></li>
+    <li><input type="checkbox"><label>micro:bit (V1 ou V2) allumé, prêt à appairer<span class="where">Sinon → flashez une fois le hex MakeCode exporté depuis l'onglet Play</span></label></li>
+    <li><input type="checkbox"><label>Chrome ou Edge ouvert, <code>index.html</code> chargé<span class="where">Safari/Firefox/iOS ne fonctionneront pas avec Web Bluetooth</span></label></li>
+    <li><input type="checkbox"><label>Onglet Build actif avec un <strong>canvas vide</strong><span class="where">La scène d'accroche a besoin d'une grille propre pour le premier glisser</span></label></li>
+    <li><input type="checkbox"><label>Thème choisi — <strong>candy</strong> (Fire) ou <strong>space</strong> rend le mieux à la caméra<span class="where">Touche <kbd>T</kbd> pour cycler dark · ocean · space · candy · forest</span></label></li>
+    <li><input type="checkbox"><label>Palette de widgets visible à gauche, sélecteur de modèles prêt</label></li>
+    <li><input type="checkbox"><label>Onglet MakeCode pré-ouvert sur <code>makecode.microbit.org</code> pour la démo d'export</label></li>
     <li><input type="checkbox"><label>Téléphone en 9:16 sur trépied, éclairé de face</label></li>
-    <li><input type="checkbox"><label>Bureau dégagé — uniquement la carte et un accessoire dans le cadre</label></li>
+    <li><input type="checkbox"><label>Bureau dégagé — uniquement le micro:bit et l'écran du laptop dans le cadre</label></li>
     <li><input type="checkbox"><label>Script lu à voix haute une fois — chronométré sous 55 s</label></li>
   </ul>
 </div>
@@ -162,11 +162,12 @@
 <h2>Structure</h2>
 <div class="card">
   <pre style="color:var(--accent2);font-family:var(--mono);font-size:.9rem;line-height:1.7;margin:0">
- 0–3 s   ACCROCHE    « Regardez ce que ce micro:bit fait en 60 secondes. »
- 3–10 s  CONTEXTE    Carte à l'écran, icône X → le statut passe au vert.
-10–35 s  DÉMO        Inclinez → le modèle 3D suit. Appuyez sur A → cœur LED. Le servo bouge.
-35–50 s  RÉCOMPENSE  Zoom sur le graphique en direct + modèle 3D qui reflète la carte réelle.
-50–55 s  CTA         « Kit complet dans ma boutique — lien ci-dessous. »
+ 0–3 s   ACCROCHE    « Construisez votre télécommande micro:bit. Glissez-déposez. Sans code. »
+ 3–10 s  CONTEXTE    12 widgets · 6 modèles · V1 ET V2 — palette + sélecteur de modèles côte à côte.
+10–25 s  DÉMO 1      Modèle Race Car → onglet Play → connexion → D-Pad allume la LED du vrai micro:bit.
+25–40 s  DÉMO 2      Clic sur </> → copier MakeCode → coller dans makecode.microbit.org → hex → glisser sur micro:bit.
+40–50 s  RÉCOMPENSE  Cycler 5 thèmes avec T · enregistrer comme modèle · partager avec 30 élèves.
+50–55 s  CTA         « Construisez un contrôleur en 60 secondes. Lien ci-dessous. »
 55–60 s  IMAGE FIN   Logo + pseudo figé pour l'aperçu en boucle.</pre>
 </div>
 
@@ -183,83 +184,91 @@
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">ACCROCHE</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Phrase d'accroche — 1 seconde, promesse claire du produit, pourquoi scroller s'arrête]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[Le plan d'accroche — ce qu'on voit à l'écran pendant la phrase]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« Construisez votre télécommande micro:bit. Glissez, déposez, sans code. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Glissez un <strong>Joystick</strong> depuis la palette vers le canvas vide — il s'aligne sur la grille avec un clic satisfaisant.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:03–00:10</span><span class="scene-phase phase-demo">CONTEXTE</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Phrase qui situe : à qui c'est destiné, quel problème c'est résolu]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[Action à l'écran — setup, connexion, premier affichage utile]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« 12 widgets. 6 modèles. Fonctionne sur V1 et V2. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Révélez la palette de widgets (Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer) à côté de la grille du sélecteur de modèles.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:10–00:25</span><span class="scene-phase phase-demo">DÉMO 1</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Premier wow-moment — une fonctionnalité phare de Micro:bit Remote Builder]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[L'action visible — 15 secondes, mouvement à l'écran]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« Choisissez Race Car. Le canvas se remplit tout seul — D-Pad, curseur de vitesse, LED. Onglet Play, connectez le vrai micro:bit, appuyez à droite — la flèche LED s'allume sur la vraie carte. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Cliquez sur le modèle <strong>Race Car</strong> → D-Pad + Slider + Light apparaissent sur le canvas → onglet <strong>Play</strong> → appairez le micro:bit → appuyez à droite sur le D-Pad → la flèche LED du vrai micro:bit s'allume en synchro.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">DÉMO 2</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Second wow-moment — une deuxième fonctionnalité / cas d'usage]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[L'action visible — 15 secondes]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« Un clic — MakeCode est généré automatiquement. Collez-le, téléchargez le hex, glissez-le sur le micro:bit. La preuve du sans-code. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Cliquez sur le bouton <code>&lt;/&gt;</code> → la fenêtre d'export affiche le MakeCode JavaScript prêt à coller → copier → coller dans <code>makecode.microbit.org</code> → téléchargement du hex → glisser sur le lecteur <code>MICROBIT</code>.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:40–00:50</span><span class="scene-phase phase-payoff">RÉCOMPENSE</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Le « pourquoi c'est utile » — bénéfice concret : temps gagné, sécurité, compétence acquise]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[L'écran qui porte le message — export, capture, résultat visible]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« Cyclez cinq thèmes. Enregistrez votre propre modèle. Partagez avec trente élèves. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Appuyez sur <kbd>T</kbd> quatre fois — le canvas passe par dark → ocean → space → candy → forest. Puis <kbd>Ctrl</kbd>+<kbd>S</kbd> pour enregistrer le modèle personnalisé.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:50–00:60</span><span class="scene-phase phase-cta">CTA + IMAGE DE FIN</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 DIRE</div><em>[Appel à l'action — kit complet + lien en description]</em></div>
-    <div class="do"><div class="do-label">🎬 FAIRE</div><em>[Overlay logo + image de fin, 3 secondes immobile]</em></div>
+    <div class="say"><div class="say-label">🎙 DIRE</div>« Construisez un contrôleur en 60 secondes. Kit complet + 12 widgets — lien ci-dessous. »</div>
+    <div class="do"><div class="do-label">🎬 FAIRE</div>Carte logo — « Micro:bit Remote Builder · Drag. Drop. Drive. » — figée 3 secondes pour la boucle.</div>
   </div>
 </div>
 
 <!-- ═══════════ TEXTE D'ANNONCE ═══════════ -->
 <div class="slug" id="listing">SLUG — TEXTE D'ANNONCE PRÊT À COPIER</div>
 <h2>Titre Etsy (140 caractères max)</h2>
-<div class="copybox">[TODO — titre Etsy 140 caractères, voir ETSY_LISTING-fr.md]<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPIER</button></div>
+<div class="copybox">Micro:bit Remote Builder (Rxy) — Télécommande Bluetooth en Glisser-Déposer · 12 Widgets · 6 Modèles · Export MakeCode Auto · V1 + V2 · Sans Code · Chrome/Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPIER</button></div>
 
 <h2>Description courte (160 premiers caractères — affichés en recherche)</h2>
-<div class="copybox">[TODO — description courte 160 caractères, voir ETSY_LISTING-fr.md]<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPIER</button></div>
+<div class="copybox">Glissez des widgets sur un canvas, pressez Play, pilotez votre micro:bit en Bluetooth. Un clic génère le MakeCode. V1 et V2. Sans code. Sans compte.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">COPIER</button></div>
 
 <h2>Description complète</h2>
-<div class="copybox">🎮 Micro:bit Remote Builder — un panneau de contrôle BLE dans le navigateur pour le BBC micro:bit V2.
+<div class="copybox">🎮 Micro:bit Remote Builder (Rxy) — Drag. Drop. Drive.
 
-[TODO — 1-phrase pitch de ce que le produit fait quand on ouvre le fichier]
+Concevez une télécommande Bluetooth pour votre BBC micro:bit en glissant-déposant des widgets sur un canvas, puis appuyez sur Play pour piloter la vraie carte — sans coder. Un clic génère un MakeCode prêt à coller dans makecode.microbit.org pour créer le hex correspondant.
+
 CE QUE VOUS OBTENEZ
-• [TODO — product-specific feature 1]• [TODO — your live signal list]• [TODO — your control surface if any]• [TODO — your interactive surface]
-• [TODO — your record/replay/export feature]• [TODO — your visualization feature if any]• [TODO — your themes / UI variety + languages]• 📱 PWA — installable, utilisable hors ligne
-• [TODO — learning modes if any]
+• 🧩 Constructeur glisser-déposer — concevez votre propre contrôleur sur un canvas avec grille magnétique, sans code
+• 🎛 12 types de widgets — Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer
+• 🗂 6 modèles de démarrage — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh
+• 🔄 Deux onglets — Build (canvas de conception) + Play (runtime Bluetooth en direct)
+• 🧪 MakeCode auto-généré — un clic, copier, coller dans MakeCode, télécharger le hex, glisser sur le micro:bit
+• ⌨️ 20 raccourcis clavier — Ctrl+Z/Y (annuler/rétablir), Ctrl+C/V/D (copier/coller/dupliquer), Ctrl+G (grouper), Ctrl+S (enregistrer modèle), T (cycler thème), G (grille), Ctrl+/- (zoom), et plus
+• 🎨 5 thèmes — dark · ocean · space · candy · forest
+• 🌍 Interface trilingue — Anglais · Français · Arabe avec RTL complet
+• 📱 PWA — installable, utilisable hors ligne
+• 👶 Mode débutant + 🧙 Mode expert
 
 CONTENU DU TÉLÉCHARGEMENT
 • index.html — l'application complète
-• makecode.ts — firmware micro:bit (à flasher une fois depuis MakeCode)
+• makecode.ts — firmware micro:bit de référence (exporté depuis l'app)
 • SETUP.md — démarrage rapide en 5 minutes
 • docs/ — guide illustré, aide-mémoire, FAQ, playbook Etsy
 • LICENSE — licence mono-utilisateur personnelle / classe
 
 PRÉREQUIS
-• BBC micro:bit V2 (V1 fonctionne mais sans capteur de son)
+• BBC micro:bit V1 OU V2 — fonctionne sur les deux (rare — la plupart des dashboards sont V2 uniquement)
 • Chrome ou Edge sur ordinateur (ou Chrome sur Android)
 • Bluetooth activé
 • HTTPS ou file:// — un double-clic sur le HTML suffit
 
 POUR QUI
-Enseignants animant des ateliers STEM · familles en école à la maison · clubs de robotique · makers prototypant des projets BLE · toute personne curieuse du micro:bit.
+Enseignants animant des ateliers STEM · familles en école à la maison · clubs de robotique · concepteurs de manettes · makers prototypant des projets BLE · toute personne curieuse du micro:bit.
 
 CONFIDENTIALITÉ D'ABORD
 Rien ne quitte votre ordinateur. Pas d'analytique, pas de connexion, pas de cloud. Tous les calibrages, enregistrements et préréglages restent dans le localStorage du navigateur et sur votre disque.
@@ -289,8 +298,8 @@ Bon hacking ! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.w
   <span class="pill">robotique</span>
   <span class="pill">code enfants</span>
   <span class="pill">ressource prof</span>
-  <span class="pill">capteurs</span>
-  <span class="pill">[product tag]</span>
+  <span class="pill">glisser déposer</span>
+  <span class="pill">constructeur</span>
   <span class="pill">classe</span>
   <span class="pill">école maison</span>
   <span class="pill">makerspace</span>
@@ -301,28 +310,28 @@ Bon hacking ! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.w
   <span class="pill">HTML5</span>
   <span class="pill">JavaScript</span>
   <span class="pill">Web Bluetooth</span>
-  <span class="pill">[render lib]</span>
-  <span class="pill">[3D lib if any]</span>
+  <span class="pill">Canvas</span>
+  <span class="pill">localStorage</span>
   <span class="pill">PWA</span>
   <span class="pill">MakeCode</span>
   <span class="pill">TypeScript</span>
 </div>
 
 <h2>Mots-clés SEO</h2>
-<p><code>dans-le-navigateur</code> · <code>sans-installation</code> · <code>respect-vie-privée</code> · <code>hors-ligne</code> · <code>web bluetooth</code> · <code>ressource enseignant</code> · <code>atelier STEM</code> · <code>micro:bit V2</code></p>
+<p><code>glisser-déposer</code> · <code>sans-code</code> · <code>sans-installation</code> · <code>makecode-auto</code> · <code>web bluetooth</code> · <code>constructeur manette</code> · <code>V1 et V2</code> · <code>ressource enseignant</code></p>
 
 <!-- ═══════════ IMAGES ═══════════ -->
 <div class="slug" id="images">SLUG — ORDRE DES 7 IMAGES</div>
 <h2>Séquence d'images (Etsy affiche 1 &amp; 2 en plus grand)</h2>
 <div class="card">
   <ol style="padding-left:22px;line-height:2">
-    <li><strong>[TODO — Hero shot: hardware + computer screen showing the marquee product state]</strong></li>
-    <li><strong>[TODO — grille des écrans ou fonctionnalités du produit]</strong></li>
-    <li><strong>[TODO — plan serré sur votre feature phare]</strong></li>
-    <li><strong>[TODO — split screen of two headline product features]</strong> — capture partagée montrant deux des cinq modèles Three.js.</li>
-    <li><strong>[TODO — plan main-sur-carte ou démo terrain]</strong></li>
-    <li><strong>[TODO — styling / variety grid].</li>
-    <li><strong>Carte texte</strong> — « Licence mono-utilisateur · Mises à jour à vie · Pas de cloud · Chrome / Edge » sur dégradé sombre.</li>
+    <li><strong>Hero — canvas divisé</strong> : palette de widgets à gauche, contrôleur Robot entièrement construit à droite. Titre Orbitron « Drag. Drop. Drive. » au-dessus.</li>
+    <li><strong>Grille des 6 modèles</strong> — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh, chacun avec un mini aperçu de la disposition du canvas.</li>
+    <li><strong>Animation glisser-déposer</strong> — arrêt sur image mi-chute d'un widget D-Pad, lignes d'accrochage à la grille lumineuses, contour fantôme indiquant l'atterrissage.</li>
+    <li><strong>Fenêtre d'export MakeCode</strong> — le JavaScript auto-généré visible à l'écran avec le bouton « Copier » surligné et une flèche pointant vers makecode.microbit.org.</li>
+    <li><strong>Superposition des 20 raccourcis clavier</strong> — carte aide-mémoire listant Ctrl+Z/Y/C/V/D/G/S/A, T, G, Delete, Flèches, Esc, ?, Ctrl+Shift+L, Ctrl+/- et Ctrl+0.</li>
+    <li><strong>Onglet Play en direct</strong> — le canvas Play appairé à un vrai micro:bit, avec un D-Pad pressé à l'écran et la flèche LED de la vraie carte allumée au premier plan.</li>
+    <li><strong>Grille des 5 thèmes (2×3)</strong> — dark · ocean · space · candy · forest avec la 6e case en carte texte « Licence mono-utilisateur · Mises à jour à vie · Pas de cloud · Chrome / Edge ».</li>
   </ol>
 </div>
 
@@ -331,7 +340,7 @@ Bon hacking ! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.w
 <h2>Erreurs fréquentes</h2>
 <table>
   <tr><th>❌ À éviter</th><th>✅ À faire</th></tr>
-  <tr><td>Commencer par « Bonjour, je suis… » + 10 s d'intro</td><td>Ouvrir avec une action produit visible dans les 3 premières secondes</td></tr>
+  <tr><td>Commencer par « Bonjour, je suis… » + 10 s d'intro</td><td>Ouvrir avec un widget en cours de glisser sur le canvas dans les 3 premières secondes</td></tr>
   <tr><td>Filmer en paysage (16:9)</td><td>Portrait 9:16 — Etsy lit en auto sur mobile</td></tr>
   <tr><td>Parler par-dessus une animation chargée</td><td>Laisser le visuel respirer 1 s, puis expliquer</td></tr>
   <tr><td>Oublier les sous-titres (Etsy joue muet)</td><td>Incruster des sous-titres ou ajouter un texte à chaque scène</td></tr>
@@ -341,9 +350,9 @@ Bon hacking ! 🚀🎮🤖<button class="copybtn" onclick="navigator.clipboard.w
 
 <!-- ═══════════ CARTE RAPIDE ═══════════ -->
 <div class="slug">SLUG — AIDE-MÉMOIRE DE POCHE</div>
-<div class="copybox">PRÉ     V2 allumé (icône X) · Chrome ouvert · BLE vert · téléphone 9:16
-TOURNE  Accroche en 3 s · [TODO — 3 key verbs for your product] · CTA
-POST    Coupez à 55 s · sous-titres incrustés · première image = miniature
+<div class="copybox">PRÉ     micro:bit (V1/V2) prêt à appairer · Chrome ouvert · canvas vide · téléphone 9:16
+TOURNE  Glisser → Modèle → Play → Export → Cycle thèmes → CTA
+POST    Coupez à 55 s · sous-titres incrustés · première image = le glisser de widget
 ANNONCE Titre · desc 160 car. · 13 étiquettes · 7 images · tarifs</div>
 
 <p style="text-align:center;margin-top:40px;color:var(--muted);font-size:.85rem">

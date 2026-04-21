@@ -147,14 +147,14 @@
 <h2>قبل الضغط على تسجيل</h2>
 <div class="card">
   <ul class="checklist" onclick="var li=event.target.closest('li');if(li)li.classList.toggle('checked')">
-    <li><input type="checkbox"><label>جهاز micro:bit V2 يعمل ويعرض أيقونة <kbd>X</kbd><span class="where">إن لم يكن كذلك ← أعد تحميل <code>makecode.ts</code></span></label></li>
-    <li><input type="checkbox"><label>Chrome أو Edge مفتوح، وملف <code>index.html</code> محمَّل<span class="where">Safari وFirefox وiOS لن تعمل</span></label></li>
-    <li><input type="checkbox"><label>BLE متصل — شارة الحالة <strong>خضراء</strong><span class="where">اضغط 🔗 اتصال، ثم اختر BBC micro:bit من النافذة</span></label></li>
-    <li><input type="checkbox"><label>تم اختيار السمة — <strong>Neon</strong> تبدو الأفضل أمام الكاميرا<span class="where">الرأس ← قائمة رولر الطلاء</span></label></li>
-    <li><input type="checkbox"><label>المحرِّك موصول بـ P1 (عند عرض الذراع الروبوتية أو العربة)</label></li>
-    <li><input type="checkbox"><label>علامة تبويب 3D Board مفتوحة، مع اختيار العربة أو الذراع<span class="where">علامة التبويب 6 ← قائمة النماذج</span></label></li>
+    <li><input type="checkbox"><label>جهاز micro:bit (V1 أو V2) يعمل وجاهز للاقتران<span class="where">إن لم يكن ← افلِش مرّة واحدة ملف hex المُصدَّر من MakeCode عبر علامة Play</span></label></li>
+    <li><input type="checkbox"><label>Chrome أو Edge مفتوح، وملف <code>index.html</code> محمَّل<span class="where">Safari وFirefox وiOS لن تعمل مع Web Bluetooth</span></label></li>
+    <li><input type="checkbox"><label>علامة Build مفتوحة و<strong>الكانفاس فارغ</strong><span class="where">لقطة الجذب تحتاج شبكة نظيفة لأول عملية سحب</span></label></li>
+    <li><input type="checkbox"><label>اختيار السمة — <strong>candy</strong> (Fire) أو <strong>space</strong> أفضل أمام الكاميرا<span class="where">اضغط <kbd>T</kbd> للتنقل بين dark · ocean · space · candy · forest</span></label></li>
+    <li><input type="checkbox"><label>لوحة الودجات مرئية على الجانب، وسلة القوالب جاهزة</label></li>
+    <li><input type="checkbox"><label>علامة تبويب MakeCode مفتوحة مسبقًا على <code>makecode.microbit.org</code> لعرض التصدير</label></li>
     <li><input type="checkbox"><label>الهاتف بوضع 9:16 على ترايبود، مضاء من الأمام</label></li>
-    <li><input type="checkbox"><label>المكتب مرتَّب — اللوحة وقطعة واحدة فقط في الإطار</label></li>
+    <li><input type="checkbox"><label>المكتب مرتَّب — فقط micro:bit وشاشة اللاب توب في الإطار</label></li>
     <li><input type="checkbox"><label>قراءة النص بصوت عالٍ مرة واحدة — بزمن أقل من 55 ثانية</label></li>
   </ul>
 </div>
@@ -164,11 +164,12 @@
 <h2>البنية</h2>
 <div class="card">
   <pre style="color:var(--accent2);font-family:var(--mono);font-size:.9rem;line-height:1.7;margin:0">
- 0–3 s   HOOK        «Watch what this micro:bit does in 60 seconds.»
- 3–10 s  CONTEXT     Board on-screen, X icon → status turns green.
-10–35 s  DEMO        Tilt → 3D model follows. Press A → LED heart. Servo swings.
-35–50 s  PAYOFF      Zoom on live graph + 3D model mirroring real board.
-50–55 s  CTA         «Full kit in my shop — link below.»
+ 0–3 s   HOOK        «Build your own micro:bit remote. Drag. Drop. No coding.»
+ 3–10 s  CONTEXT     12 widgets · 6 templates · V1 AND V2 — palette + template chooser side-by-side.
+10–25 s  DEMO 1      Race Car template → Play tab → connect → D-Pad lights real micro:bit LED.
+25–40 s  DEMO 2      Click </> → copy MakeCode → paste into makecode.microbit.org → hex → drag onto micro:bit.
+40–50 s  PAYOFF      Cycle 5 themes with T · save custom template · share with 30 students.
+50–55 s  CTA         «Build a controller in 60 seconds. Link below.»
 55–60 s  END FRAME   Logo + handle frozen for the loop preview.</pre>
 </div>
 
@@ -184,89 +185,91 @@
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:00–00:03</span><span class="scene-phase phase-hook">الخطاف</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[جملة الجذب — ثانية واحدة، وعد واضح يوقف التمرير]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[لقطة الجذب — ما يظهر على الشاشة أثناء الجملة]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«اصنع ريموت micro:bit الخاص بك. السحب والإفلات. دون أي برمجة.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>اسحب ودجة <strong>Joystick</strong> من اللوحة إلى الكانفاس الفارغ — تلتصق بالشبكة بنقرة مُرضية.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:03–00:10</span><span class="scene-phase phase-demo">السياق</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[لمن هذا المنتج، ما المشكلة التي يحلّها]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[لقطة الإعداد — الاتصال، أول شاشة مفيدة]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«12 ودجة. 6 قوالب. تعمل على V1 وV2.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>اكشف لوحة الودجات (Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer) إلى جانب شبكة اختيار القوالب.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:10–00:25</span><span class="scene-phase phase-demo">العرض 1</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[لحظة الإبهار الأولى — ميزة رئيسية لـ Micro:bit Remote Builder]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[لقطة الفعل — 15 ثانية من الحركة المرئية]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«اختر Race Car. الكانفاس يمتلئ تلقائيًا — D-Pad، سلايدر سرعة، LED. اضغط Play، واقرِن micro:bit الحقيقي، واضغط يمين — سهم LED يضيء على اللوحة الحقيقية.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>انقر على قالب <strong>Race Car</strong> → تظهر D-Pad + Slider + Light على الكانفاس ← انتقل إلى علامة <strong>Play</strong> ← اقرِن micro:bit ← اضغط السهم الأيمن على D-Pad ← يضيء سهم LED على micro:bit الحقيقي بالتزامن.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:25–00:40</span><span class="scene-phase phase-demo">العرض 2</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[لحظة الإبهار الثانية — ميزة/حالة استخدام ثانية]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[لقطة الفعل — 15 ثانية]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«نقرة واحدة — MakeCode يُولَّد تلقائيًا. الصقه، حمّل ملف hex، اسحبه إلى micro:bit. هذا هو دليل اللا-برمجة.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>انقر زر <code>&lt;/&gt;</code> ← تفتح نافذة التصدير بكود MakeCode JavaScript جاهز ← انسخ ← الصق في <code>makecode.microbit.org</code> ← يُحمَّل ملف hex ← اسحبه إلى قرص <code>MICROBIT</code>.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:40–00:50</span><span class="scene-phase phase-payoff">المكافأة</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[لماذا هذا مهم — الوقت الموفّر، المهارة المكتسبة، الأمان]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[الشاشة التي تحمل الرسالة — تصدير، التقاط، نتيجة مرئية]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«تنقّل بين خمس سمات. احفظ قالبك الخاص. شاركه مع ثلاثين طالبًا.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>اضغط <kbd>T</kbd> أربع مرات — يمرّ الكانفاس عبر dark → ocean → space → candy → forest. ثم <kbd>Ctrl</kbd>+<kbd>S</kbd> لحفظ القالب المخصّص.</div>
   </div>
 </div>
 
 <div class="scene">
   <div class="scene-head"><span class="scene-time">00:50–00:60</span><span class="scene-phase phase-cta">CTA + إطار الختام</span></div>
   <div class="scene-body">
-    <div class="say"><div class="say-label">🎙 قل</div><em>[الدعوة للشراء — الطقم الكامل + الرابط في الوصف]</em></div>
-    <div class="do"><div class="do-label">🎬 افعل</div><em>[طبقة الشعار، إطار ختام ثابت لـ 3 ثوانٍ]</em></div>
+    <div class="say"><div class="say-label">🎙 قل</div>«اصنع وحدة تحكم في 60 ثانية. الطقم الكامل + 12 ودجة — الرابط بالأسفل.»</div>
+    <div class="do"><div class="do-label">🎬 افعل</div>بطاقة شعار — «Micro:bit Remote Builder · Drag. Drop. Drive.» — مجمَّدة 3 ثوانٍ لإطار التكرار.</div>
   </div>
 </div>
 
 <!-- ═══════════ نص الإعلان ═══════════ -->
 <div class="slug" id="listing">نص إعلان جاهز للنسخ</div>
 <h2>عنوان Etsy (140 حرفًا كحد أقصى)</h2>
-<div class="copybox">Micro:bit Remote Builder — لوحة تحكم BLE للمعلمين والأطفال · حساسات · محركات · مخطط حي · نماذج 3D · بلا تثبيت · Chrome / Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+<div class="copybox">Micro:bit Remote Builder (Rxy) — ريموت Bluetooth بالسحب والإفلات · 12 ودجة · 6 قوالب · تصدير MakeCode تلقائي · V1 + V2 · بلا برمجة · Chrome/Edge<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
 
 <h2>الوصف المختصر (أول 160 حرفًا — تظهر في البحث)</h2>
-<div class="copybox">لوحة تحكم BLE داخل المتصفح للوحة BBC micro:bit V2. حساسات ومحركات ومخططات حية ونماذج ثلاثية الأبعاد ويد تحكم — كلها من Chrome. بلا تثبيت وبلا حساب.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
+<div class="copybox">اسحب الودجات على الكانفاس، اضغط Play، وقُد micro:bit عبر Bluetooth. نقرة واحدة تُولِّد MakeCode جاهزًا. V1 وV2. بلا برمجة. بلا حسابات.<button class="copybtn" onclick="navigator.clipboard.writeText(this.previousSibling.textContent.trim())">نسخ</button></div>
 
 <h2>الوصف الكامل</h2>
-<div class="copybox">🎮 Micro:bit Remote Builder — لوحة تحكم BLE تعمل داخل المتصفح للوحة BBC micro:bit V2.
+<div class="copybox">🎮 Micro:bit Remote Builder (Rxy) — Drag. Drop. Drive.
 
-افتح ملف HTML واحدًا في Chrome أو Edge، واقترن عبر Bluetooth، وافتح 8 علامات تبويب من المرح التعليمي (STEM) التفاعلي — بلا تثبيت، بلا حساب، بلا خادم خلفي، بلا تتبع.
+صمِّم ريموت Bluetooth للوحة BBC micro:bit الخاصة بك عبر سحب الودجات وإفلاتها على كانفاس، ثم اضغط Play لتقود اللوحة الحقيقية — دون أي برمجة. نقرة واحدة تُنشئ كود MakeCode جاهزًا للصقه في makecode.microbit.org لإنتاج ملف hex المطابق.
 
 ما ستحصل عليه
-• 🎛 شبكة LED + أيقونات جاهزة + نص متحرك
-• 📡 حساسات مباشرة: الحرارة، الإضاءة، الصوت، مقياس التسارع، البوصلة، اللمس
-• ⚙️ محركان (P1 + P2) مع منزلقات ومؤشرات وضبط وأزرار إيقاف
-• 🎮 يد تحكم D-pad للروبوتات والألعاب
-• 📈 [TODO — ميزة منتجك الرئيسية]• 🎲 5 نماذج ثلاثية الأبعاد تفاعلية (Three.js): micro:bit، العربة، الذراع، التوازن، الطقس
-• 🎨 4 سمات (Stealth · Neon · Arctic · Blaze) + 3 لغات (EN · FR · AR مع دعم RTL كامل)
+• 🧩 بانِي بالسحب والإفلات — صمِّم وحدة التحكم الخاصة بك على كانفاس بشبكة مغناطيسية، دون أي كود
+• 🎛 12 نوع ودجة — Button · Slider · Switch · Joystick · D-Pad · XY Pad · Light · Label · Gauge · Graph · Battery · Timer
+• 🗂 6 قوالب بداية — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh
+• 🔄 علامتا تبويب — Build (كانفاس التصميم) + Play (تشغيل Bluetooth مباشر)
+• 🧪 MakeCode مُولَّد تلقائيًا — نقرة واحدة، انسخ، الصق في MakeCode، حمِّل hex، اسحبه إلى micro:bit
+• ⌨️ 20 اختصار لوحة مفاتيح — Ctrl+Z/Y (تراجع/إعادة)، Ctrl+C/V/D (نسخ/لصق/تكرار)، Ctrl+G (تجميع)، Ctrl+S (حفظ قالب)، T (تدوير السمة)، G (شبكة)، Ctrl+/- (تكبير)، والمزيد
+• 🎨 5 سمات — dark · ocean · space · candy · forest
+• 🌍 واجهة ثلاثية اللغات — الإنجليزية · الفرنسية · العربية مع دعم RTL كامل
 • 📱 PWA — قابل للتثبيت ويعمل بدون إنترنت
 • 👶 وضع المبتدئ + 🧙 وضع الخبير
 
 محتويات التنزيل
 • index.html — التطبيق الكامل
-• makecode.ts — برنامج micro:bit الثابت (تُحمَّل مرة واحدة من MakeCode)
+• makecode.ts — برنامج micro:bit الثابت المرجعي (مُصدَّر من التطبيق)
 • SETUP.md — بداية سريعة في 5 دقائق
 • docs/ — دليل مصور، ومرجع سريع، وأسئلة شائعة، ودليل Etsy
 • LICENSE — رخصة مستخدم وحيد للاستخدام الشخصي / الصفي
 
 المتطلبات
-• BBC micro:bit V2 (V1 يعمل لكن بدون حساس صوت)
+• BBC micro:bit V1 أو V2 — يعمل على الاثنين (نادر — معظم اللوحات مخصصة لـ V2 فقط)
 • Chrome أو Edge على سطح المكتب (أو Chrome على أندرويد)
 • تفعيل Bluetooth
 • HTTPS أو file:// — النقر المزدوج على HTML يكفي
 
 لمن هو موجَّه
-المعلمون الذين يديرون ورش STEM · الأسر التي تدرّس منزليًا · نوادي الروبوتات · صانعو النماذج الأولية لمشاريع BLE · كل مهتم بـ micro:bit.
+المعلمون الذين يديرون ورش STEM · الأسر التي تدرّس منزليًا · نوادي الروبوتات · مصمّمو أذرع الألعاب · صانعو نماذج BLE · كل مهتم بـ micro:bit.
 
 الخصوصية أولًا
 لا شيء يغادر جهازك. بلا تتبع، بلا تسجيل دخول، بلا سحابة. جميع المعايرات والتسجيلات والإعدادات المسبقة تبقى في localStorage للمتصفح وعلى قرصك.
@@ -296,8 +299,8 @@
   <span class="pill">روبوتات</span>
   <span class="pill">برمجة أطفال</span>
   <span class="pill">مورد للمعلم</span>
-  <span class="pill">حساسات</span>
-  <span class="pill">محركات</span>
+  <span class="pill">سحب وإفلات</span>
+  <span class="pill">بانِي ريموت</span>
   <span class="pill">غرفة صف</span>
   <span class="pill">تعليم منزلي</span>
   <span class="pill">ميكرسبيس</span>
@@ -308,28 +311,28 @@
   <span class="pill">HTML5</span>
   <span class="pill">JavaScript</span>
   <span class="pill">Web Bluetooth</span>
-  <span class="pill">[render lib]</span>
-  <span class="pill">[3D lib if any]</span>
+  <span class="pill">Canvas</span>
+  <span class="pill">localStorage</span>
   <span class="pill">PWA</span>
   <span class="pill">MakeCode</span>
   <span class="pill">TypeScript</span>
 </div>
 
 <h2>كلمات SEO</h2>
-<p><code>browser-based</code> · <code>no-install</code> · <code>privacy-first</code> · <code>offline-capable</code> · <code>web bluetooth</code> · <code>teacher resource</code> · <code>STEM workshop</code> · <code>micro:bit V2</code></p>
+<p><code>drag-and-drop</code> · <code>no-code</code> · <code>no-install</code> · <code>auto-makecode</code> · <code>web bluetooth</code> · <code>controller builder</code> · <code>V1 and V2</code> · <code>teacher resource</code></p>
 
 <!-- ═══════════ الصور ═══════════ -->
 <div class="slug" id="images">ترتيب الصور السبع للإعلان</div>
 <h2>تسلسل الصور (Etsy يعرض 1 و 2 بأكبر حجم)</h2>
 <div class="card">
   <ol style="padding-right:22px;line-height:2">
-    <li><strong>الصورة البطل</strong> — micro:bit حقيقي + لقطة شاشة مقسومة للحاسوب تُظهر النموذج ثلاثي الأبعاد وهو يعكس ميل اللوحة. عنوان بخط Orbitron فوقها.</li>
-    <li><strong>نظرة عامة على الألسنة</strong> — لقطة شبكية لجميع الألسنة الثماني مع رموزها.</li>
-    <li><strong>[TODO — لقطة قريبة لأهم ميزة]</strong></li>
-    <li><strong>[TODO — لقطة مقسومة تُظهر ميزتين رئيسيتين]</strong></li>
-    <li><strong>يد تمسك اللوحة</strong> — محرك حقيقي موصول بـ P1، والمنزلقات على الشاشة في الخلفية.</li>
-    <li><strong>عيّنة السمات</strong> — شبكة 2×2: Stealth · Neon · Arctic · Blaze.</li>
-    <li><strong>بطاقة نصية</strong> — «رخصة مستخدم وحيد · تحديثات مدى الحياة · بلا سحابة · Chrome / Edge» على تدرج داكن.</li>
+    <li><strong>الصورة البطل — كانفاس مقسوم</strong>: لوحة الودجات على جهة واحدة، ووحدة تحكم Robot مبنية بالكامل على الجهة الأخرى. عنوان Orbitron «Drag. Drop. Drive.» في الأعلى.</li>
+    <li><strong>شبكة القوالب الستة</strong> — Game Pad · Robot · DJ Mixer · Race Car · Lights · Start Fresh، مع معاينة صغيرة لتخطيط كل كانفاس.</li>
+    <li><strong>لقطة السحب والإفلات</strong> — إيقاف مشهد لـ D-Pad في منتصف الإفلات، مع خطوط التصاق الشبكة مضيئة وحدود شبحية تُظهر مكان الوصول.</li>
+    <li><strong>نافذة تصدير MakeCode</strong> — كود JavaScript المُولَّد تلقائيًا ظاهر على الشاشة مع إبراز زر «نسخ» وسهم يشير إلى makecode.microbit.org.</li>
+    <li><strong>طبقة 20 اختصار لوحة مفاتيح</strong> — بطاقة مرجع تسرد Ctrl+Z/Y/C/V/D/G/S/A وT وG وDelete والأسهم وEsc و? وCtrl+Shift+L وCtrl+/- وCtrl+0.</li>
+    <li><strong>علامة Play المباشرة</strong> — كانفاس Play مقترن بـ micro:bit حقيقي، مع ضغط D-Pad على الشاشة وسهم LED مضيء على اللوحة الحقيقية في المقدمة.</li>
+    <li><strong>شبكة السمات الخمس (2×3)</strong> — dark · ocean · space · candy · forest، مع الخانة السادسة بطاقة نصية «رخصة مستخدم وحيد · تحديثات مدى الحياة · بلا سحابة · Chrome / Edge».</li>
   </ol>
 </div>
 
@@ -338,7 +341,7 @@
 <h2>أخطاء شائعة</h2>
 <table>
   <tr><th>❌ لا تفعل</th><th>✅ افعل</th></tr>
-  <tr><td>ابدأ بـ «مرحبًا، أنا…» مع 10 ثوانٍ من المقدمة</td><td>افتح باللوحة الحقيقية وهي تُميل نموذجًا ثلاثي الأبعاد في أول 3 ثوانٍ</td></tr>
+  <tr><td>ابدأ بـ «مرحبًا، أنا…» مع 10 ثوانٍ من المقدمة</td><td>افتح بودجة يجري سحبها إلى الكانفاس في أول 3 ثوانٍ</td></tr>
   <tr><td>التصوير بالوضع الأفقي (16:9)</td><td>عمودي 9:16 — Etsy يشغّل تلقائيًا على الجوال</td></tr>
   <tr><td>التحدث فوق رسوم متحركة مزدحمة</td><td>اترك الصورة تتنفس لثانية، ثم اشرح</td></tr>
   <tr><td>نسيان الترجمة (Etsy يشغّل كتم الصوت)</td><td>ادمج الترجمة أو أضف نصًا في كل مشهد</td></tr>
@@ -348,9 +351,9 @@
 
 <!-- ═══════════ بطاقة سريعة ═══════════ -->
 <div class="slug">بطاقة الجيب المرجعية</div>
-<div class="copybox">قبل     V2 يعمل (أيقونة X) · Chrome مفتوح · BLE أخضر · هاتف 9:16
-صوِّر   خطاف في 3 ثوانٍ · إمالة ← انعكاس 3D · محرك يتحرك · محاكاة مخطط · CTA
-بعد     قصّ إلى 55 ثانية · ترجمة مدمجة · أول إطار = المصغَّرة
+<div class="copybox">قبل     micro:bit (V1/V2) جاهز للاقتران · Chrome مفتوح · كانفاس فارغ · هاتف 9:16
+صوِّر   سحب ← قالب ← Play ← تصدير ← تدوير السمات ← CTA
+بعد     قصّ إلى 55 ثانية · ترجمة مدمجة · أول إطار = سحب الودجة
 أعلن    عنوان · وصف 160 حرفًا · 13 وسمًا · 7 صور · فئات الأسعار</div>
 
 <p style="text-align:center;margin-top:40px;color:var(--muted);font-size:.85rem">
