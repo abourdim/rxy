@@ -1240,6 +1240,9 @@ function showDemo() {
   state.selected = null;
   $('#titleInput').value = 'Super Demo Remote';
   renderWidgets();
+  // Reflow demo widgets to whatever canvas size we actually have so nothing
+  // bleeds off-screen on narrow viewports
+  try { autoArrangeWidgets(); } catch (e) {}
   renderPropsPanel();
   
   // Show the code modal with demo code
@@ -2491,45 +2494,8 @@ function selectTemplate(name) {
   }, 250);
 }
 
-// === FULLSCREEN MODE ===
-function toggleFullscreen() {
-  const isFullscreen = document.body.classList.contains('runtime-fullscreen');
-  if (isFullscreen) {
-    document.body.classList.remove('runtime-fullscreen');
-    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-  } else {
-    document.body.classList.add('runtime-fullscreen');
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
-  }
-}
-
-// === CELEBRATION ANIMATION ===
-function celebrate(message = '🎉 Connected!') {
-  const overlay = document.createElement('div');
-  overlay.className = 'celebration-overlay';
-  
-  const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00e676'];
-  for (let i = 0; i < 60; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.background = colors[Math.floor(Math.random() * colors.length)];
-    c.style.animationDelay = Math.random() * 0.5 + 's';
-    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    overlay.appendChild(c);
-  }
-  
-  document.body.appendChild(overlay);
-  if (state.soundOn) {
-    beep(523, 0.1, 0.05);
-    setTimeout(() => beep(659, 0.1, 0.05), 100);
-    setTimeout(() => beep(784, 0.15, 0.05), 200);
-  }
-  setTimeout(() => overlay.remove(), 3500);
-  toast(message, 'success');
-}
+// (Duplicate definitions of toggleFullscreen and celebrate were removed —
+// originals live above at the FULLSCREEN MODE / CELEBRATION sections.)
 
 // === QUICK ACTIONS MENU ===
 function showQuickActions(widgetId, x, y) {
@@ -2665,42 +2631,7 @@ function setTheme(theme) {
   if (state.soundOn) beepClick();
 }
 
-// === AUTO ARRANGE ===
-function autoArrangeWidgets() {
-  if (!state.widgets.length) {
-    toast('No widgets to arrange!', 'error');
-    return;
-  }
-  
-  saveUndoState();
-  
-  const padding = 15;
-  const canvas = $('#canvas');
-  const canvasW = canvas?.offsetWidth || 500;
-  
-  const sorted = [...state.widgets].sort((a, b) => (b.w * b.h) - (a.w * a.h));
-  
-  let currentX = padding;
-  let currentY = padding;
-  let rowHeight = 0;
-  
-  sorted.forEach(w => {
-    if (currentX + w.w + padding > canvasW) {
-      currentX = padding;
-      currentY += rowHeight + padding;
-      rowHeight = 0;
-    }
-    
-    w.x = currentX;
-    w.y = currentY;
-    currentX += w.w + padding;
-    rowHeight = Math.max(rowHeight, w.h);
-  });
-  
-  renderWidgets();
-  toast('✨ Widgets tidied up!', 'success');
-  if (state.soundOn) beepClick();
-}
+// (Duplicate definition of autoArrangeWidgets removed — see earlier definition.)
 
 // === MAGIC WAND - Random Style All Widgets ===
 function magicStyleWidgets() {
@@ -5879,15 +5810,9 @@ function updateRuntimeWidget(id, val) {
 
 // --- Move Build/Play tabs + Name input to top-right (no redesign) ---
 function moveBuildPlayNameTopRight(){
-  const host = document.getElementById('topRightControls');
-  if (!host) return;
-
-  const tabs = document.querySelector('.tabs');
-  const title = document.getElementById('titleInput');
-
-  // Only move if elements exist and not already inside host
-  if (tabs && !host.contains(tabs)) host.appendChild(tabs);
-  if (title && !host.contains(title)) host.appendChild(title);
+  // UI polish: keep Build/Play tabs in the header (.hero-tabs) and the
+  // title input in .builder-header where the HTML puts them. No-op.
+  return;
 }
 
 
@@ -5940,60 +5865,18 @@ function updateToolbarForMode(activeTab){
 
 
 function ensureCanvasToolbar(){
-  // Prefer the resizable wrapper if present (builder screen)
-  const canvasWrap = document.querySelector('.resizable-wrap') ||
-                     document.querySelector('.canvas-dropzone, .dropzone, .board-drop, .canvas-wrap, .canvas-container, .canvas-frame, .builder-canvas, .board, .canvas');
-  if (!canvasWrap) return;
-
-  // Find or create toolbar
-  let toolbar = document.querySelector('.canvas-toolbar');
-  if (!toolbar){
-    toolbar = document.createElement('div');
-    toolbar.className = 'canvas-toolbar';
-    toolbar.innerHTML = '<div class="canvas-toolbar-inner" id="canvasToolbarInner"></div>';
-    canvasWrap.parentElement.insertBefore(toolbar, canvasWrap);
-  }
-  const inner = document.getElementById('canvasToolbarInner');
-  if (!inner) return;
-
-  const tabs = document.querySelector('.tabs');
-  const title = document.getElementById('titleInput');
-
-  if (tabs && !inner.contains(tabs)) inner.appendChild(tabs);
-  if (title && !inner.contains(title)) inner.appendChild(title);
+  // UI polish: do not create a second toolbar above the canvas. Tabs live
+  // in the header (.hero-tabs); titleInput lives in .builder-header. No-op.
+  return;
 }
 
 
 
 // --- Replace "Tap a widget..." hint with the Build/Play/Name toolbar ---
 function placeToolbarWhereHintWas(){
-  const toolbar = document.querySelector('.canvas-toolbar');
-  if (!toolbar) return;
-
-  // Try to find the hint element by common classes
-  let hint = document.querySelector('.tap-hint, .canvas-hint, .builder-hint, .tap-instruction, .hint-text, .place-hint');
-
-  // Fallback: search for an element that contains the text "Tap a widget" (case-insensitive)
-  if (!hint){
-    const candidates = Array.from(document.querySelectorAll('div, p, span'))
-      .filter(el => (el.textContent || '').trim().toLowerCase().includes('tap a widget'));
-    hint = candidates[0] || null;
-  }
-
-  if (hint && hint.parentElement){
-    // Ensure toolbar is not already in the desired parent
-    if (toolbar.parentElement !== hint.parentElement){
-      hint.parentElement.replaceChild(toolbar, hint);
-    }else{
-      // Same parent: just place before hint and remove hint
-      hint.parentElement.insertBefore(toolbar, hint);
-      hint.remove();
-    }
-    return;
-  }
-
-  // If we still didn't find it, just ensure toolbar sits right above the canvas (existing behavior)
-  // (No-op)
+  // UI polish: keep the canvas hint in place and do not relocate the
+  // (now non-existent) canvas toolbar over it. No-op.
+  return;
 }
 
 
@@ -6015,6 +5898,46 @@ document.addEventListener('click', (e)=>{
   }
   window.addEventListener('resize', updateHeaderH);
   window.addEventListener('load', updateHeaderH);
+
+  // --- auto-tidy widgets when canvas shrinks below their bounds ---
+  let autoTidyT = null;
+  function maybeAutoTidy(){
+    try{
+      if (!window.state || !Array.isArray(state.widgets) || !state.widgets.length) return;
+      const wrap = document.querySelector('.canvas-wrap');
+      const canvas = document.getElementById('canvas');
+      if (!canvas) return;
+      // Use the parent wrap's width as the real budget — the canvas itself
+      // can over-grow if a widget is positioned past its max-width.
+      const budget = Math.min(canvas.clientWidth, wrap ? wrap.clientWidth - 24 : canvas.clientWidth);
+      if (budget < 80) return;
+      const overflow = state.widgets.some(w => (w.x + w.w) > budget - 8);
+      if (overflow && typeof autoArrangeWidgets === 'function'){
+        autoArrangeWidgets();
+      }
+    }catch(e){}
+  }
+  window.addEventListener('resize', () => {
+    clearTimeout(autoTidyT);
+    autoTidyT = setTimeout(maybeAutoTidy, 180);
+  });
+  // Run several times after load — fonts, panels, and the resizable wrap
+  // settle on different ticks.
+  window.addEventListener('load', () => {
+    setTimeout(maybeAutoTidy, 250);
+    setTimeout(maybeAutoTidy, 800);
+  });
+  // Run when the user switches to builder tab (templates loaded into the
+  // wrong canvas size before render).
+  document.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest && e.target.closest('[data-tab="builder"]');
+    if (t) setTimeout(maybeAutoTidy, 80);
+  });
+  // Run after a template card is chosen.
+  document.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest && e.target.closest('.template-card');
+    if (t) setTimeout(maybeAutoTidy, 120);
+  });
 
   // --- helper UI creation ---
   function ensureHelperUI(){

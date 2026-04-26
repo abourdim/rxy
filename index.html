@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>micro:bit Remote</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js"></script>
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <div class="app app-scaler">
@@ -41,7 +44,7 @@
 
       <div class="hero-titles">
         <div class="hero-title">MICRO:BIT REMOTE</div>
-        <div class="hero-subtitle">Build your own controller V4.0</div>
+        <div class="hero-subtitle">Build your own controller</div>
       </div>
     </div>
 
@@ -162,7 +165,11 @@
                 <button id="propsPanelClose" class="props-close-btn" type="button">✕</button>
               </div>
             </div>
-            <div id="propsEmpty" class="props-empty">Select a widget to edit it.</div>
+            <div id="propsEmpty" class="props-empty">
+              <div class="props-empty-icon">🛠️</div>
+              <div class="props-empty-title">Nothing selected</div>
+              <div class="props-empty-hint">Tap any widget on the canvas to change its color, label, and size.</div>
+            </div>
             <div id="propsForm" class="props-form" style="display:none;"></div>
           </div>
         </aside>

@@ -16,3 +16,4 @@ etsy-package/output/visual-diffs/
 
 # Track the shipped ZIP for reference
 !etsy-package/MicrobitRemote-v*.zip
+.claude/

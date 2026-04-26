@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --bg: #1a1a2e;
   --surface: #16213e;
@@ -4773,3 +4774,925 @@ main {
   border-radius: 50% !important;
   margin-right: 6px !important;
 }
+
+/* ============================================================
+   UI POLISH OVERRIDES — appended last so they win the cascade
+   Goals: clean header, real header tabs, hide dev surface,
+          tactile palette, friendly empty canvas
+   ============================================================ */
+
+/* --- 1. Header: one row, no overlap, single brand --- */
+.hero-header .hero-inner{
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  grid-template-areas: "left tabs right" !important;
+  align-items: center !important;
+  column-gap: 16px !important;
+  row-gap: 8px !important;
+  flex-wrap: nowrap !important;
+}
+.hero-header .hero-left   { grid-area: left;  display: flex !important; align-items: center !important; gap: 12px !important; }
+.hero-header .hero-tabs   { grid-area: tabs;  justify-self: center !important; margin-top: 0 !important; }
+.hero-header .hero-right  { grid-area: right; display: flex !important; align-items: center !important; gap: 8px !important; }
+.hero-header .hero-center { display: none !important; } /* drops the bismillah from header — keeps it out of the layout */
+.hero-header .hero-logo   { width: auto !important; height: 44px !important; flex: 0 0 auto !important; }
+.hero-header .hero-logo svg { height: 44px !important; width: auto !important; }
+.hero-header .hero-logo .logo-img{ display: none !important; } /* hide overlapping Workshop-DIY raster logo */
+.hero-header .hero-titles { display: flex !important; flex-direction: column !important; line-height: 1.1 !important; }
+.hero-header .hero-title  { font-size: 1.05rem !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+.hero-header .hero-subtitle{ font-size: .72rem !important; opacity: .65 !important; white-space: nowrap !important; }
+
+/* Drop the duplicated "⚡ Powered by Workshop-Diy" pill that floated top-right of the builder */
+.builder-branding{ display: none !important; }
+
+/* Calmer connect pill (still visible, but stops shouting) */
+.hero-pill-ble:not(.connected){
+  animation: ble-pulse 3.2s ease-in-out infinite !important;
+  transform: none !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 14px rgba(255,107,107,0.45), 0 2px 8px rgba(0,0,0,0.3) !important;
+  padding: 8px 14px !important;
+  min-width: 0 !important;
+}
+.hero-pill-ble:not(.connected):hover{
+  transform: scale(1.04) !important;
+  box-shadow: 0 0 22px rgba(255,107,107,0.65), 0 4px 14px rgba(0,0,0,0.35) !important;
+}
+
+/* --- 2. Builder header: drop the floating extras, keep just the title --- */
+.builder-header{
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 18px 4px !important;
+}
+.builder-header .title-input{ flex: 1 1 auto !important; max-width: 360px !important; }
+
+/* Canvas hint stays visible; nudge it so it sits cleanly above the canvas */
+.canvas-hint{
+  text-align: center !important;
+  padding: 6px 8px 10px !important;
+  font-size: .85rem !important;
+  color: var(--text-dim) !important;
+}
+
+/* --- 3. Hide dev surface from kids --- */
+#logTab,
+#logCard,
+#clearCacheBtn,
+#magicBtn{ display: none !important; }
+/* Keep them reachable for power users via ?dev=1 */
+body.dev-mode #logTab,
+body.dev-mode #clearCacheBtn,
+body.dev-mode #magicBtn{ display: inline-flex !important; }
+
+/* --- 4. Palette items: tactile, friendly, sentence-case labels --- */
+.palette{
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  padding: 6px 4px !important;
+}
+.palette-item{
+  background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 14px !important;
+  padding: 14px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,.35), 0 8px 18px rgba(0,0,0,.25) !important;
+  min-height: 78px !important;
+}
+.palette-item:hover{
+  transform: translateY(-2px) !important;
+  border-color: rgba(0,212,255,.55) !important;
+  box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 12px 22px rgba(0,212,255,.18) !important;
+}
+.palette-item.selected{
+  background: linear-gradient(160deg, rgba(0,212,255,.22), rgba(170,120,255,.18)) !important;
+  border-color: rgba(0,212,255,.85) !important;
+  transform: translateY(-1px) !important;
+}
+.palette-item .palette-icon{ font-size: 1.6rem !important; line-height: 1 !important; }
+.palette-item .palette-name{
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important; /* drop UPPERCASE */
+  letter-spacing: 0 !important;
+  color: var(--text, #e7ecf3) !important;
+}
+
+/* Per-type accent so the palette feels like a colored toy box */
+.palette-item[data-type="button"]   { background: linear-gradient(160deg, rgba(255,200, 80,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="slider"]   { background: linear-gradient(160deg, rgba( 80,200,255,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="toggle"]   { background: linear-gradient(160deg, rgba(170,120,255,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="joystick"] { background: linear-gradient(160deg, rgba(255,120,140,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="dpad"]     { background: linear-gradient(160deg, rgba( 80,220,180,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="xypad"]    { background: linear-gradient(160deg, rgba(120,200,120,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="led"]      { background: linear-gradient(160deg, rgba(255,230,120,.20), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="label"]    { background: linear-gradient(160deg, rgba(200,200,210,.16), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="gauge"]    { background: linear-gradient(160deg, rgba(255,160, 80,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="graph"]    { background: linear-gradient(160deg, rgba(120,180,255,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="battery"]  { background: linear-gradient(160deg, rgba(120,220,140,.18), rgba(255,255,255,.02)) !important; }
+.palette-item[data-type="timer"]    { background: linear-gradient(160deg, rgba(255,120,255,.16), rgba(255,255,255,.02)) !important; }
+
+/* --- 5. Friendly empty canvas --- */
+.canvas-wrap{ position: relative; }
+#widgetsLayer:empty::before{
+  content: "🧩  Pick a widget on the left, then tap here to drop it in";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.55);
+  letter-spacing: .01em;
+  pointer-events: none;
+  background:
+    radial-gradient(800px 240px at 50% 50%, rgba(0,212,255,.06), transparent 70%);
+  border-radius: 16px;
+}
+
+/* Soften the canvas border so it looks inviting rather than "drag-here-or-else" */
+.canvas{
+  border: 2px dashed rgba(255,255,255,.10) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(1200px 400px at 50% 0%, rgba(0,212,255,.05), transparent 60%),
+    rgba(255,255,255,.02) !important;
+}
+.canvas:focus-within,
+.canvas:hover{
+  border-color: rgba(0,212,255,.35) !important;
+}
+
+/* --- Tablet/laptop: don't shove canvas behind a tall side panel --- */
+@media (max-width: 1023px){
+  .builder-main{
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .builder-view .canvas-wrap{ order: 0 !important; }
+  .builder-side{
+    order: 1 !important;
+    flex: 0 0 auto !important;
+    max-height: 320px !important;
+    width: 100% !important;
+  }
+  /* horizontal scroll inside the cards rather than the page */
+  .builder-side .collapsible-card-body,
+  .builder-side .palette-card-body{ overflow-x: hidden !important; }
+  /* canvas should grow, not be a 200px stub */
+  .canvas-wrap{ min-height: 56vh !important; }
+  .canvas{ min-height: 50vh !important; }
+}
+
+/* Force the row layout only on real laptop+ widths */
+@media (min-width: 1024px){
+  .builder-main{ flex-direction: row !important; }
+  .builder-side{ flex: 0 0 clamp(260px, 26vw, 340px) !important; }
+}
+
+/* --- Mobile: keep the header from collapsing on top of itself --- */
+@media (max-width: 640px){
+  html, body{ overflow-x: hidden !important; }
+  .hero-header .hero-inner{
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas:
+      "left  right"
+      "tabs  tabs" !important;
+    row-gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+  .hero-header .hero-left{ min-width: 0 !important; }
+  .hero-header .hero-titles{ min-width: 0 !important; overflow: hidden !important; }
+  .hero-header .hero-title{ font-size: .9rem !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+  .hero-header .hero-subtitle{ font-size: .65rem !important; }
+  .hero-header .hero-tabs{ justify-self: stretch !important; }
+  .hero-header .hero-tabs .tab{ flex: 1 1 0 !important; text-align: center !important; }
+  .hero-header .hero-pill{ padding: 6px 10px !important; }
+  .hero-header .hero-pill-ble:not(.connected){ padding: 6px 10px !important; min-width: 0 !important; }
+  .hero-header .hero-pill .pill-text{ font-size: .75rem !important; }
+}
+
+/* ============================================================
+   DESIGN SYSTEM v2 — full re-skin appended to win the cascade
+   Cool, calm canvas + joyful palette + clear hierarchy.
+   Kid-friendly without screaming.
+   ============================================================ */
+
+:root{
+  /* Surfaces */
+  --ds-bg:        #0b1224;
+  --ds-bg-2:      #0f172a;
+  --ds-surface:   #1a2542;
+  --ds-surface-2: #233153;
+  --ds-line:      rgba(255,255,255,.08);
+  --ds-line-2:    rgba(255,255,255,.14);
+
+  /* Text */
+  --ds-text:      #f1f5f9;
+  --ds-text-dim:  #94a3b8;
+  --ds-text-mute: #64748b;
+
+  /* Accents (one of each, no rainbow) */
+  --ds-primary:   #38bdf8;   /* sky */
+  --ds-primary-d: #0ea5e9;
+  --ds-accent:    #a78bfa;   /* violet */
+  --ds-success:   #34d399;   /* emerald */
+  --ds-warn:      #fbbf24;   /* amber */
+  --ds-danger:    #f87171;   /* red */
+
+  /* Radii */
+  --ds-r-sm: 8px;
+  --ds-r:    12px;
+  --ds-r-lg: 18px;
+  --ds-r-xl: 22px;
+
+  /* Shadows */
+  --ds-shadow-1: 0 1px 0 rgba(0,0,0,.25), 0 4px 12px rgba(0,0,0,.20);
+  --ds-shadow-2: 0 1px 0 rgba(0,0,0,.30), 0 10px 24px rgba(0,0,0,.28);
+  --ds-glow:     0 0 0 4px rgba(56,189,248,.18);
+
+  /* Motion */
+  --ds-ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* Global reset of typography */
+html, body{
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
+  background: radial-gradient(1200px 800px at 80% -10%, rgba(56,189,248,.05), transparent 60%),
+              radial-gradient(1000px 600px at -10% 110%, rgba(167,139,250,.04), transparent 60%),
+              var(--ds-bg) !important;
+  color: var(--ds-text) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* === Header === */
+.hero-header{
+  background: linear-gradient(180deg, rgba(26,37,66,.92), rgba(15,23,42,.85)) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: 0 0 18px 18px !important;
+  padding: 12px 20px !important;
+  backdrop-filter: blur(8px);
+}
+.hero-header .hero-title{
+  background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 900 !important;
+  letter-spacing: .02em !important;
+  font-family: "Nunito", sans-serif !important;
+  font-size: 1.1rem !important;
+}
+.hero-header .hero-subtitle{
+  color: var(--ds-text-dim) !important;
+  font-weight: 600 !important;
+  font-size: .72rem !important;
+  letter-spacing: .02em !important;
+}
+
+/* Header tabs as a single segmented control */
+.hero-header .hero-tabs{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: 999px !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.hero-header .hero-tabs .tab{
+  background: transparent !important;
+  color: var(--ds-text-dim) !important;
+  border: 0 !important;
+  padding: 8px 18px !important;
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+  font-size: .92rem !important;
+  transition: color .15s var(--ds-ease), background .15s var(--ds-ease) !important;
+  box-shadow: none !important;
+}
+.hero-header .hero-tabs .tab:hover{ color: var(--ds-text) !important; }
+.hero-header .hero-tabs .tab.active{
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-d)) !important;
+  color: #06243b !important;
+  box-shadow: 0 4px 12px rgba(56,189,248,.35) !important;
+}
+
+/* Right-side pills: language, sound, connect */
+.hero-header .hero-pill{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: 999px !important;
+  color: var(--ds-text) !important;
+  font-weight: 700 !important;
+  padding: 8px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  transition: transform .12s var(--ds-ease), box-shadow .15s var(--ds-ease), background .15s var(--ds-ease) !important;
+}
+.hero-header .hero-pill:hover{
+  transform: translateY(-1px) !important;
+  background: var(--ds-surface-2) !important;
+}
+.hero-header .hero-pill .pill-dot{
+  width: 8px !important; height: 8px !important;
+  background: var(--ds-text-dim) !important;
+}
+
+/* Connect pill: visible + welcoming, not screaming */
+.hero-header .hero-pill-ble:not(.connected){
+  background: linear-gradient(135deg, #f87171, #ef4444) !important;
+  border-color: rgba(255,255,255,.15) !important;
+  color: #fff !important;
+  animation: dsConnectPulse 2.4s ease-in-out infinite !important;
+  box-shadow: 0 4px 16px rgba(239,68,68,.35), 0 1px 0 rgba(0,0,0,.25) !important;
+  padding: 8px 16px !important;
+  min-width: 0 !important;
+  transform: none !important;
+}
+.hero-header .hero-pill-ble:not(.connected):hover{
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 22px rgba(239,68,68,.45), 0 1px 0 rgba(0,0,0,.25) !important;
+}
+.hero-header .hero-pill-ble:not(.connected) .pill-dot{
+  background: #fff !important;
+  box-shadow: 0 0 8px rgba(255,255,255,.9) !important;
+  animation: dsConnectDot 1.2s ease-in-out infinite !important;
+}
+.hero-header .hero-pill-ble.connected{
+  background: linear-gradient(135deg, var(--ds-success), #10b981) !important;
+  color: #04261e !important;
+}
+@keyframes dsConnectPulse{
+  0%, 100%{ box-shadow: 0 4px 16px rgba(239,68,68,.30), 0 1px 0 rgba(0,0,0,.25); }
+  50%     { box-shadow: 0 4px 22px rgba(239,68,68,.50), 0 1px 0 rgba(0,0,0,.25); }
+}
+@keyframes dsConnectDot{
+  0%, 100%{ opacity: .4; }
+  50%     { opacity: 1; }
+}
+
+/* === Builder header (title row) === */
+.builder-header{
+  padding: 14px 18px 6px !important;
+}
+.builder-header .title-input{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r) !important;
+  color: var(--ds-text) !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  padding: 10px 14px !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  transition: border-color .15s var(--ds-ease), box-shadow .15s var(--ds-ease) !important;
+}
+.builder-header .title-input::placeholder{ color: var(--ds-text-mute) !important; font-weight: 600 !important; }
+.builder-header .title-input:focus{
+  outline: none !important;
+  border-color: var(--ds-primary) !important;
+  box-shadow: var(--ds-shadow-1), var(--ds-glow) !important;
+}
+
+/* === Side panel cards === */
+.builder-side .collapsible-card,
+.builder-side .palette-card{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-lg) !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  overflow: hidden;
+}
+.builder-side .collapsible-card-toggle,
+.builder-side .palette-card-toggle{
+  background: rgba(255,255,255,.02) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  font-weight: 800 !important;
+  font-size: .85rem !important;
+  letter-spacing: .02em !important;
+  padding: 12px 14px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  text-transform: none !important;
+}
+.builder-side .collapsible-card-title,
+.builder-side .palette-card-title{ color: var(--ds-text) !important; font-weight: 800 !important; }
+.builder-side .collapsible-card-body,
+.builder-side .palette-card-body{ padding: 10px !important; }
+
+/* === Action buttons: clean hierarchy === */
+.builder-side .header-btn{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  background: var(--ds-surface-2) !important;
+  border: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  font-size: .9rem !important;
+  padding: 11px 14px !important;
+  border-radius: var(--ds-r) !important;
+  margin: 4px 0 !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  cursor: pointer !important;
+  transition: transform .12s var(--ds-ease), background .12s var(--ds-ease), border-color .12s var(--ds-ease) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  /* kill the gradients */
+  background-image: none !important;
+}
+.builder-side .header-btn:hover{
+  background: #2c3a62 !important;
+  border-color: var(--ds-line-2) !important;
+  transform: translateY(-1px) !important;
+}
+.builder-side .header-btn:active{ transform: translateY(0) !important; }
+
+/* Primary action: Templates */
+.builder-side .btn-template{
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-d)) !important;
+  border-color: transparent !important;
+  color: #06243b !important;
+  font-weight: 800 !important;
+  box-shadow: 0 6px 16px rgba(56,189,248,.30), 0 1px 0 rgba(0,0,0,.25) !important;
+}
+.builder-side .btn-template:hover{
+  background: linear-gradient(135deg, #4cc7ff, var(--ds-primary)) !important;
+  box-shadow: 0 10px 22px rgba(56,189,248,.40), 0 1px 0 rgba(0,0,0,.25) !important;
+}
+
+/* Demo button: secondary accent */
+.builder-side .btn-demo{
+  background: linear-gradient(135deg, var(--ds-accent), #8b5cf6) !important;
+  border-color: transparent !important;
+  color: #1a0b3a !important;
+  font-weight: 800 !important;
+  box-shadow: 0 6px 16px rgba(167,139,250,.30), 0 1px 0 rgba(0,0,0,.25) !important;
+}
+.builder-side .btn-demo:hover{
+  background: linear-gradient(135deg, #b8a0ff, var(--ds-accent)) !important;
+}
+
+/* Delete: danger outline (only loud when hovered) */
+.builder-side .btn-delete{
+  background: transparent !important;
+  border: 1px solid rgba(248,113,113,.35) !important;
+  color: var(--ds-danger) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+.builder-side .btn-delete:hover{
+  background: rgba(248,113,113,.12) !important;
+  border-color: var(--ds-danger) !important;
+  color: #fff !important;
+}
+
+/* Code/Export/Import: ghost */
+.builder-side .btn-code{
+  background: rgba(255,255,255,.04) !important;
+  border-color: var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  box-shadow: none !important;
+}
+
+/* Hide leftover fixed-position helpers */
+#helperFab{ display: none !important; }
+body.dev-mode #helperFab{ display: flex !important; }
+
+/* === Canvas toolbar (top of canvas: undo/redo/Tidy + theme dots) === */
+.build-toolbar{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-lg) !important;
+  padding: 8px !important;
+  gap: 6px !important;
+  box-shadow: var(--ds-shadow-1) !important;
+}
+.build-toolbar .build-toolbar-btn{
+  background: var(--ds-surface-2) !important;
+  border: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  border-radius: var(--ds-r) !important;
+  padding: 8px 12px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  transition: transform .12s var(--ds-ease), background .12s var(--ds-ease) !important;
+  /* kill gradient on Tidy */
+  background-image: none !important;
+}
+.build-toolbar .build-toolbar-btn:hover:not([disabled]){
+  background: #2c3a62 !important;
+  transform: translateY(-1px) !important;
+}
+.build-toolbar .build-toolbar-btn[disabled]{ opacity: .4 !important; cursor: not-allowed !important; }
+/* Tidy as the primary toolbar action */
+.build-toolbar .auto-arrange-btn{
+  background: linear-gradient(135deg, var(--ds-success), #10b981) !important;
+  border-color: transparent !important;
+  color: #04261e !important;
+  font-weight: 800 !important;
+}
+
+/* Theme dots: bigger hit area, clearer active state */
+.build-toolbar .theme-selector{
+  margin-left: auto !important;
+  display: flex !important;
+  gap: 6px !important;
+  padding: 4px 6px !important;
+  background: rgba(255,255,255,.03) !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ds-line) !important;
+}
+.build-toolbar .theme-dot{
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  border: 2px solid transparent !important;
+  cursor: pointer !important;
+  transition: transform .12s var(--ds-ease), border-color .12s var(--ds-ease) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+}
+.build-toolbar .theme-dot:hover{ transform: scale(1.1) !important; }
+.build-toolbar .theme-dot.active{ border-color: #fff !important; box-shadow: 0 0 0 2px rgba(255,255,255,.15) !important; }
+
+/* === Canvas surface === */
+.canvas-wrap{ overflow: hidden !important; min-width: 0 !important; }
+.canvas{
+  border: 2px dashed rgba(255,255,255,.08) !important;
+  border-radius: var(--ds-r-xl) !important;
+  background:
+    radial-gradient(900px 280px at 50% 0%, rgba(56,189,248,.06), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)) !important;
+  transition: border-color .15s var(--ds-ease) !important;
+  /* Keep canvas inside its column even if a widget is positioned past
+     the previous max-width. Auto-tidy then reflows widgets. */
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+#widgetsLayer{ overflow: hidden !important; }
+.canvas:hover{ border-color: rgba(56,189,248,.18) !important; }
+
+/* Empty-state for the canvas */
+#widgetsLayer:empty::before{
+  content: "🧩  Pick a widget on the left, then tap here to drop it in" !important;
+  font-family: "Nunito", sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  color: rgba(255,255,255,.55) !important;
+  background: none !important;
+}
+
+/* Hide the in-canvas hint line — we already say it via the empty state */
+.canvas-hint{ display: none !important; }
+
+/* === Widget tile look (builder canvas) === */
+.widget{
+  border-radius: var(--ds-r-lg) !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  border: 1px solid var(--ds-line) !important;
+  transition: transform .12s var(--ds-ease), box-shadow .15s var(--ds-ease), border-color .15s var(--ds-ease) !important;
+}
+.widget:hover{
+  border-color: rgba(56,189,248,.45) !important;
+  box-shadow: var(--ds-shadow-2) !important;
+}
+.widget.selected{
+  border-color: var(--ds-primary) !important;
+  box-shadow: var(--ds-shadow-2), 0 0 0 3px rgba(56,189,248,.2) !important;
+}
+
+/* === Palette: tweak base look to match design system === */
+.builder-side .palette{
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  padding: 4px !important;
+}
+.builder-side .palette-item{
+  border-radius: var(--ds-r) !important;
+  border: 1px solid var(--ds-line) !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  min-height: 76px !important;
+  padding: 12px 6px !important;
+}
+.builder-side .palette-item .palette-name{
+  font-size: .8rem !important;
+  font-weight: 800 !important;
+  color: var(--ds-text) !important;
+}
+
+/* === Properties panel === */
+.props-panel{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-lg) !important;
+  box-shadow: var(--ds-shadow-1) !important;
+}
+.props-title{
+  border-bottom: 1px solid var(--ds-line) !important;
+  font-weight: 800 !important;
+  color: var(--ds-text) !important;
+  background: rgba(255,255,255,.02) !important;
+}
+.props-empty{ color: var(--ds-text-dim) !important; }
+
+/* === Modals === */
+.modal-bg{ background: rgba(7, 12, 26, .65) !important; backdrop-filter: blur(6px); }
+.modal{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-xl) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,.5) !important;
+  color: var(--ds-text) !important;
+}
+.modal-title{
+  font-weight: 900 !important;
+  color: var(--ds-text) !important;
+}
+.modal-btn{
+  border-radius: var(--ds-r) !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  border: 1px solid var(--ds-line) !important;
+  background: var(--ds-surface-2) !important;
+  color: var(--ds-text) !important;
+  background-image: none !important;
+  padding: 10px 16px !important;
+}
+.modal-btn.primary{
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-d)) !important;
+  border-color: transparent !important;
+  color: #06243b !important;
+}
+.modal-btn.flash{
+  background: linear-gradient(135deg, var(--ds-warn), #f59e0b) !important;
+  border-color: transparent !important;
+  color: #2a1c00 !important;
+}
+
+/* === Template chooser cards === */
+.template-card{
+  background: var(--ds-surface-2) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-lg) !important;
+  transition: transform .12s var(--ds-ease), border-color .15s var(--ds-ease), box-shadow .15s var(--ds-ease) !important;
+  box-shadow: var(--ds-shadow-1) !important;
+}
+.template-card:hover{
+  transform: translateY(-3px) !important;
+  border-color: var(--ds-primary) !important;
+  box-shadow: var(--ds-shadow-2) !important;
+}
+.template-name{ color: var(--ds-text) !important; font-weight: 800 !important; }
+
+/* === Tutorial overlay === */
+.tutorial-card{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-xl) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5) !important;
+}
+.tutorial-btn{
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-d)) !important;
+  color: #06243b !important;
+  border: 0 !important;
+  font-weight: 800 !important;
+  border-radius: var(--ds-r) !important;
+  padding: 10px 22px !important;
+}
+
+/* === Toast === */
+.toast{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r) !important;
+  color: var(--ds-text) !important;
+  box-shadow: var(--ds-shadow-2) !important;
+  font-weight: 700 !important;
+}
+
+/* === Focus ring (accessibility) === */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible{
+  outline: 3px solid rgba(56,189,248,.55) !important;
+  outline-offset: 2px !important;
+}
+
+/* === Reduced motion === */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .001s !important;
+    transition-duration: .001s !important;
+  }
+}
+
+/* === Tablet header tighten === */
+@media (max-width: 900px){
+  .hero-header .hero-pill{ padding: 7px 11px !important; font-size: .82rem !important; }
+  .hero-header .hero-pill .pill-text{ font-size: .82rem !important; white-space: nowrap !important; }
+  .hero-header .hero-pill-sound .pill-text::after{ content: ""; }
+  .hero-header .hero-pill-sound .pill-text{ display: none !important; } /* keep just dot icon */
+  .hero-header .hero-pill-ble:not(.connected) .pill-text{ font-size: .8rem !important; }
+  .hero-header .hero-tabs .tab{ padding: 7px 14px !important; font-size: .85rem !important; }
+}
+
+/* === Mobile overrides for design system === */
+@media (max-width: 640px){
+  .hero-header{ border-radius: 0 0 14px 14px !important; padding: 10px 12px !important; }
+  .hero-header .hero-tabs .tab{ padding: 7px 12px !important; font-size: .82rem !important; }
+  .hero-header .hero-pill-ble:not(.connected) .pill-text{ display: none !important; } /* icon-only on mobile */
+  .builder-side .header-btn{ padding: 10px 12px !important; font-size: .85rem !important; }
+}
+
+/* ============================================================
+   POLISH PASS — props empty, template modal, runtime, light theme
+   ============================================================ */
+
+/* Properties panel: friendlier empty state */
+.props-empty{
+  padding: 28px 18px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--ds-text-dim) !important;
+}
+.props-empty-icon{ font-size: 2.2rem; opacity: .8; }
+.props-empty-title{ color: var(--ds-text); font-weight: 800; font-size: 1rem; }
+.props-empty-hint{ font-size: .85rem; line-height: 1.45; max-width: 240px; color: var(--ds-text-mute); }
+
+/* Template chooser modal — restyle */
+.template-modal{
+  background: rgba(7, 12, 26, .65) !important;
+  backdrop-filter: blur(8px);
+}
+.template-content{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-xl) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55) !important;
+  padding: 28px 28px 24px !important;
+}
+.template-content h2{
+  background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 900 !important;
+  font-size: 1.5rem !important;
+  margin: 0 0 6px !important;
+}
+.template-content p{ color: var(--ds-text-dim) !important; margin: 0 0 20px !important; }
+
+/* Runtime view: connect screen polish */
+.runtime-view{ overflow: hidden !important; }
+.runtime-view #connectPrompt{
+  background: linear-gradient(180deg, var(--ds-surface), var(--ds-bg-2)) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-xl) !important;
+  padding: 32px 28px !important;
+  box-shadow: var(--ds-shadow-2) !important;
+  max-width: 360px !important;
+  margin: 32px auto !important;
+}
+.runtime-view .connect-icon{ font-size: 3.2rem !important; margin-bottom: 8px !important; }
+.runtime-view .connect-text{
+  color: var(--ds-text) !important;
+  font-weight: 800 !important;
+  font-size: 1.15rem !important;
+  margin-bottom: 14px !important;
+}
+.runtime-view .connect-btn{
+  background: linear-gradient(135deg, var(--ds-primary), var(--ds-primary-d)) !important;
+  color: #06243b !important;
+  border: 0 !important;
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  padding: 12px 28px !important;
+  border-radius: var(--ds-r) !important;
+  box-shadow: 0 8px 22px rgba(56,189,248,.30) !important;
+  cursor: pointer !important;
+  transition: transform .12s var(--ds-ease), box-shadow .15s var(--ds-ease) !important;
+}
+.runtime-view .connect-btn:hover{ transform: translateY(-1px) !important; box-shadow: 0 12px 26px rgba(56,189,248,.42) !important; }
+
+/* Back-to-build: cleaner pill */
+.back-to-build-btn{
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  padding: 8px 16px !important;
+  box-shadow: var(--ds-shadow-1) !important;
+  transition: transform .12s var(--ds-ease), background .15s var(--ds-ease) !important;
+}
+.back-to-build-btn:hover{ background: var(--ds-surface-2) !important; transform: translateY(-1px) !important; }
+
+/* Properties form fields (when shown) */
+.props-form input,
+.props-form select,
+.props-form textarea{
+  background: var(--ds-surface-2) !important;
+  border: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  border-radius: var(--ds-r-sm) !important;
+  padding: 8px 10px !important;
+  font-family: inherit !important;
+}
+.props-form input:focus,
+.props-form select:focus,
+.props-form textarea:focus{
+  outline: none !important;
+  border-color: var(--ds-primary) !important;
+  box-shadow: var(--ds-glow) !important;
+}
+
+/* ============================================================
+   LIGHT THEME — opt-in via body.theme-light
+   ============================================================ */
+body.theme-light{
+  --ds-bg:        #f3f6fb;
+  --ds-bg-2:      #e9eef7;
+  --ds-surface:   #ffffff;
+  --ds-surface-2: #f1f5fb;
+  --ds-line:      rgba(15,23,42,.10);
+  --ds-line-2:    rgba(15,23,42,.18);
+  --ds-text:      #0f172a;
+  --ds-text-dim:  #475569;
+  --ds-text-mute: #64748b;
+}
+body.theme-light{
+  background:
+    radial-gradient(1200px 800px at 80% -10%, rgba(56,189,248,.10), transparent 60%),
+    radial-gradient(1000px 600px at -10% 110%, rgba(167,139,250,.08), transparent 60%),
+    var(--ds-bg) !important;
+  color: var(--ds-text) !important;
+}
+body.theme-light .hero-header{
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(241,245,251,.85)) !important;
+}
+body.theme-light .build-toolbar,
+body.theme-light .builder-side .collapsible-card,
+body.theme-light .builder-side .palette-card,
+body.theme-light .modal,
+body.theme-light .template-content,
+body.theme-light .runtime-view #connectPrompt,
+body.theme-light .props-panel,
+body.theme-light .toast,
+body.theme-light .builder-header .title-input,
+body.theme-light .back-to-build-btn,
+body.theme-light .hero-header .hero-tabs,
+body.theme-light .hero-header .hero-pill{
+  background: var(--ds-surface) !important;
+  color: var(--ds-text) !important;
+}
+body.theme-light .build-toolbar .build-toolbar-btn,
+body.theme-light .builder-side .header-btn{
+  background: var(--ds-surface-2) !important;
+  color: var(--ds-text) !important;
+}
+body.theme-light .canvas{
+  border-color: rgba(15,23,42,.12) !important;
+  background:
+    radial-gradient(900px 280px at 50% 0%, rgba(56,189,248,.10), transparent 60%),
+    rgba(255,255,255,.6) !important;
+}
+body.theme-light #widgetsLayer:empty::before{ color: rgba(15,23,42,.55) !important; }
+body.theme-light .palette-item{
+  background: var(--ds-surface-2) !important;
+  border-color: var(--ds-line) !important;
+}
+body.theme-light .palette-item .palette-name{ color: var(--ds-text) !important; }
+body.theme-light .builder-header .title-input::placeholder{ color: var(--ds-text-mute) !important; }
+body.theme-light .props-empty,
+body.theme-light .builder-side .collapsible-card-toggle,
+body.theme-light .builder-side .palette-card-toggle{ color: var(--ds-text) !important; }
+
