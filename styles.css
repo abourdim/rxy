@@ -5696,3 +5696,183 @@ body.theme-light .props-empty,
 body.theme-light .builder-side .collapsible-card-toggle,
 body.theme-light .builder-side .palette-card-toggle{ color: var(--ds-text) !important; }
 
+/* ============================================================
+   TOOLBAR LEGIBILITY — show what each tool does at a glance
+   ============================================================ */
+
+/* Group buttons by purpose with subtle dividers */
+.build-toolbar{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  row-gap: 6px !important;
+}
+.build-toolbar-group{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.025) !important;
+  white-space: nowrap !important;
+}
+.build-toolbar-group + .build-toolbar-group{
+  margin-left: 0 !important;
+  border-left: 0 !important;
+  padding-left: 8px !important;
+  border-radius: 12px !important;
+  position: relative !important;
+}
+.build-toolbar-group + .build-toolbar-group::before{
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 25%;
+  bottom: 25%;
+  width: 1px;
+  background: var(--ds-line);
+}
+.build-toolbar-group.theme-group{
+  margin-left: auto !important;
+  gap: 8px !important;
+}
+.build-toolbar-group-label{
+  font-size: .7rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  color: var(--ds-text-mute) !important;
+  padding: 0 4px !important;
+}
+
+/* Buttons: icon + label side-by-side */
+.build-toolbar-btn{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 12px !important;
+}
+.build-toolbar-btn .btn-icon{
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+}
+.build-toolbar-btn .btn-label{
+  font-size: .85rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* On very narrow toolbars, drop the labels for the history group only —
+   undo/redo are universal symbols; Tidy/Magic always keep their text. */
+@media (max-width: 760px){
+  .build-toolbar-group[aria-label="History"] .btn-label{ display: none !important; }
+  .build-toolbar-btn{ padding: 7px 10px !important; }
+  .build-toolbar-group.theme-group{ width: 100% !important; margin-left: 0 !important; border-left: 0 !important; padding-left: 6px !important; }
+}
+
+/* Theme dots: tooltip-on-hover hint so the label isn't only in title= */
+.build-toolbar .theme-dot{ position: relative !important; }
+.build-toolbar .theme-dot::after{
+  content: attr(data-theme);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--ds-bg-2);
+  color: var(--ds-text);
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--ds-line);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s var(--ds-ease), transform .15s var(--ds-ease);
+  box-shadow: var(--ds-shadow-1);
+  z-index: 50;
+}
+.build-toolbar .theme-dot:hover::after{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   LOGS PANEL — anchor to bottom-right, never overlap canvas
+   ============================================================ */
+#logTab{
+  position: fixed !important;
+  right: 0 !important;
+  bottom: 16px !important;
+  top: auto !important;
+  transform: rotate(0) !important;
+  writing-mode: horizontal-tb !important;
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-right: 0 !important;
+  border-radius: 10px 0 0 10px !important;
+  padding: 8px 12px !important;
+  font-weight: 800 !important;
+  font-size: .75rem !important;
+  letter-spacing: .08em !important;
+  color: var(--ds-text-dim) !important;
+  box-shadow: var(--ds-shadow-2) !important;
+  cursor: pointer !important;
+  z-index: 50 !important;
+}
+#logTab:hover{ color: var(--ds-text) !important; background: var(--ds-surface-2) !important; }
+
+#logCard{
+  position: fixed !important;
+  right: 16px !important;
+  bottom: 16px !important;
+  left: auto !important;
+  top: auto !important;
+  width: min(440px, calc(100vw - 32px)) !important;
+  max-height: min(360px, 50vh) !important;
+  background: var(--ds-surface) !important;
+  border: 1px solid var(--ds-line) !important;
+  border-radius: var(--ds-r-lg) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.55) !important;
+  overflow: hidden !important;
+  z-index: 49 !important;
+}
+#logCard.collapsed{
+  width: 0 !important;
+  max-height: 0 !important;
+  display: none !important;
+}
+#logHead{
+  background: rgba(255,255,255,.03) !important;
+  border-bottom: 1px solid var(--ds-line) !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+#logTitle{ font-weight: 800 !important; color: var(--ds-text) !important; font-size: .85rem !important; }
+.log-btn{
+  background: var(--ds-surface-2) !important;
+  border: 1px solid var(--ds-line) !important;
+  color: var(--ds-text) !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  font-size: .7rem !important;
+  cursor: pointer !important;
+}
+.log-btn:hover{ background: #2c3a62 !important; }
+
+/* When user opens dev mode, make the logs visible by default */
+body.dev-mode #logTab{ display: inline-flex !important; }
+body.dev-mode #logCard:not(.collapsed){ display: flex !important; flex-direction: column !important; }
+

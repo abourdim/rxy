@@ -101,16 +101,35 @@
       <div class="builder-main">
         <div class="canvas-wrap">
           <div class="build-toolbar">
-            <button class="build-toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↩️</button>
-            <button class="build-toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>↪️</button>
-            <button class="build-toolbar-btn auto-arrange-btn" id="autoArrangeBtn" title="Auto-arrange widgets">✨ Tidy</button>
-            <button class="build-toolbar-btn magic-btn" id="magicBtn" title="Magic styling!">🪄 Magic</button>
-            <div class="theme-selector">
-              <div class="theme-dot active" data-theme="dark" title="Dark"></div>
-              <div class="theme-dot" data-theme="ocean" title="Ocean"></div>
-              <div class="theme-dot" data-theme="space" title="Space"></div>
-              <div class="theme-dot" data-theme="candy" title="Fire"></div>
-              <div class="theme-dot" data-theme="forest" title="Forest"></div>
+            <div class="build-toolbar-group" aria-label="History">
+              <button class="build-toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+                <span class="btn-icon" aria-hidden="true">↶</span>
+                <span class="btn-label">Undo</span>
+              </button>
+              <button class="build-toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>
+                <span class="btn-icon" aria-hidden="true">↷</span>
+                <span class="btn-label">Redo</span>
+              </button>
+            </div>
+            <div class="build-toolbar-group" aria-label="Layout">
+              <button class="build-toolbar-btn auto-arrange-btn" id="autoArrangeBtn" title="Auto-arrange widgets">
+                <span class="btn-icon" aria-hidden="true">✨</span>
+                <span class="btn-label">Tidy</span>
+              </button>
+              <button class="build-toolbar-btn magic-btn" id="magicBtn" title="Random colors and styles for all widgets">
+                <span class="btn-icon" aria-hidden="true">🪄</span>
+                <span class="btn-label">Magic</span>
+              </button>
+            </div>
+            <div class="build-toolbar-group theme-group" aria-label="Theme">
+              <span class="build-toolbar-group-label">Theme</span>
+              <div class="theme-selector">
+                <div class="theme-dot active" data-theme="dark"   title="Dark theme"></div>
+                <div class="theme-dot"        data-theme="ocean"  title="Ocean theme"></div>
+                <div class="theme-dot"        data-theme="space"  title="Space theme"></div>
+                <div class="theme-dot"        data-theme="candy"  title="Fire theme"></div>
+                <div class="theme-dot"        data-theme="forest" title="Forest theme"></div>
+              </div>
             </div>
           </div>
           <div class="canvas-hint">👆 Tap a widget below, then <span>tap here</span> to place it!</div>
